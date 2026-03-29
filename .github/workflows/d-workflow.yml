@@ -64,7 +64,14 @@ jobs:
 
             const epicNumber = parseInt(epicMatch[1]);
             const saNumber = saMatch ? parseInt(saMatch[1]) : null;
-            const epicTitle = sdIssue.data.title;
+
+            // 從 Epic Issue 取乾淨標題（去除 [PM] 前綴）
+            const epicIssueData = await github.rest.issues.get({
+              owner: org,
+              repo: projectRepo,
+              issue_number: epicNumber,
+            });
+            const epicTitle = epicIssueData.data.title.replace(/^\[PM\]\s*/i, '');
 
             // 取得 PR diff，找出異動的 Spec/Prototype 檔案
             const files = await github.rest.pulls.listFiles({
@@ -237,7 +244,7 @@ jobs:
 
             const epicNumber = parseInt(epicMatch[1]);
             const saNumber = saMatch ? parseInt(saMatch[1]) : null;
-            const epicTitle = sdIssue.data.title;
+            const epicTitle = sdIssue.data.title.replace(/^(\[[^\]]+\]\s*)+/, '');
 
             const files = await github.rest.pulls.listFiles({
               owner: org,
