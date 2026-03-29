@@ -92,7 +92,7 @@ jobs:
             const pgIssue = await github.rest.issues.create({
               owner: org,
               repo: codeRepo,
-              title: epicTitle,
+              title: `[PG] ${epicTitle}`,
               body: [
                 '## 實作範圍',
                 '<!-- 本次 SD 異動的 Spec/Prototype 清單，由系統自動填入 -->',
@@ -161,6 +161,17 @@ jobs:
               repo: projectRepo,
               issue_number: epicNumber,
               body: updatedEpicBody,
+            });
+
+            // 回填 SD Issue body 的 PG Issue 編號
+            await github.rest.issues.update({
+              owner: org,
+              repo: designRepo,
+              issue_number: sdNumber,
+              body: sdIssue.data.body.replace(
+                /PG Issue：P1-code #（merge 後自動填入）/,
+                `PG Issue：P1-code #${pgNumber}`
+              ),
             });
 
             // 在 SD Issue 留言
