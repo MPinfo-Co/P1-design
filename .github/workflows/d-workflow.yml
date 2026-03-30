@@ -8,6 +8,7 @@ on:
 permissions:
   issues: write
   contents: write
+  pull-requests: write
 
 jobs:
   create-pg-issue:
@@ -112,22 +113,12 @@ jobs:
                 `- SD Issue：MPinfo-Co/P1-design#${sdNumber}`,
                 `- PG Issue：#（本 Issue）`,
                 `- 階段：PG`,
+                `- 分支：（待填入）`,
               ].join('\n'),
               labels: ['PG'],
             });
 
             const pgNumber = pgIssue.data.number;
-
-            // 回填 PG Issue body 真實編號
-            await github.rest.issues.update({
-              owner: org,
-              repo: codeRepo,
-              issue_number: pgNumber,
-              body: pgIssue.data.body.replace(
-                'PG Issue：#（本 Issue）',
-                `PG Issue：#${pgNumber}`
-              ),
-            });
 
             // 將 PG Issue 掛為 Epic 的 sub-issue
             try {
@@ -142,6 +133,16 @@ jobs:
             }
 
             const cBranchName = `issue-${pgNumber}-${slug}`;
+
+            // 回填 PG Issue body 真實編號與分支
+            await github.rest.issues.update({
+              owner: org,
+              repo: codeRepo,
+              issue_number: pgNumber,
+              body: pgIssue.data.body
+                .replace('PG Issue：#（本 Issue）', `PG Issue：#${pgNumber}`)
+                .replace('分支：（待填入）', `分支：\`${cBranchName}\``),
+            });
 
             // 取得 P1-code main SHA
             const mainRef = await github.rest.git.getRef({
@@ -160,6 +161,70 @@ jobs:
               });
             } catch (e) {
               if (e.status !== 422) throw e;
+            }
+
+            // PG scaffold：建立 PG測試報告/issue-{N}.md
+            const pgReportContent = [
+              `# PG 測試報告：Issue #${pgNumber} ${epicTitle}`,
+              '',
+              '## 測試結果',
+              '| 案例 ID | 結果 | 備註 |',
+              '|---------|------|------|',
+              '',
+              '## 備註',
+              '',
+            ].join('\n');
+
+            const pgScaffoldTree = await github.rest.git.createTree({
+              owner: org,
+              repo: codeRepo,
+              base_tree: mainRef.data.object.sha,
+              tree: [
+                {
+                  path: `PG測試報告/issue-${pgNumber}.md`,
+                  mode: '100644',
+                  type: 'blob',
+                  content: pgReportContent,
+                },
+              ],
+            });
+
+            const pgScaffoldCommit = await github.rest.git.createCommit({
+              owner: org,
+              repo: codeRepo,
+              message: `chore(issue-${pgNumber}): scaffold PG 測試報告`,
+              tree: pgScaffoldTree.data.sha,
+              parents: [mainRef.data.object.sha],
+            });
+
+            await github.rest.git.updateRef({
+              owner: org,
+              repo: codeRepo,
+              ref: `heads/${cBranchName}`,
+              sha: pgScaffoldCommit.data.sha,
+            });
+
+            // 建立 PG Draft PR
+            try {
+              await github.rest.pulls.create({
+                owner: org,
+                repo: codeRepo,
+                head: cBranchName,
+                base: 'main',
+                draft: true,
+                title: `[PG] ${epicTitle}`,
+                body: [
+                  '## 關聯項目',
+                  `- Epic：MPinfo-Co/P1-project#${epicNumber}`,
+                  saNumber ? `- SA Issue：MPinfo-Co/P1-analysis#${saNumber}` : `- SA Issue：（請查 Epic）`,
+                  `- SD Issue：MPinfo-Co/P1-design#${sdNumber}`,
+                  `- PG Issue：MPinfo-Co/P1-code#${pgNumber}`,
+                  '',
+                  `Closes #${pgNumber}`,
+                ].join('\n'),
+              });
+            } catch (e) {
+              console.log(`PG Draft PR 建立失敗（非阻斷性）：${e.message}`);
             }
 
             // 更新 Epic Issue body
@@ -215,6 +280,15 @@ jobs:
               repo: projectRepo,
               issue_number: epicNumber,
               body: `💻 SD 設計完成，PG Issue 已建立：[P1-code #${pgNumber}](https://github.com/${org}/${codeRepo}/issues/${pgNumber})`,
+            });
+
+            // 關閉 SD Issue
+            await github.rest.issues.update({
+              owner: org,
+              repo: designRepo,
+              issue_number: sdNumber,
+              state: 'closed',
+              state_reason: 'completed',
             });
 
       - name: Generate TestPlan diff
