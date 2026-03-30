@@ -129,6 +129,18 @@ jobs:
               ),
             });
 
+            // 將 PG Issue 掛為 Epic 的 sub-issue
+            try {
+              await github.request('POST /repos/{owner}/{repo}/issues/{issue_number}/sub_issues', {
+                owner: org,
+                repo: projectRepo,
+                issue_number: epicNumber,
+                sub_issue_id: pgIssue.data.id,
+              });
+            } catch (e) {
+              console.log(`Sub-issue 關聯建立失敗（非阻斷性）：${e.message}`);
+            }
+
             const cBranchName = `issue-${pgNumber}-${slug}`;
 
             // 取得 P1-code main SHA
