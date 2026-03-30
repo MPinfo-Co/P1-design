@@ -1,3 +1,4 @@
+# 規格說明：https://github.com/MPinfo-Co/P1-project/blob/main/docs/github-workflow/d-workflow.md
 name: D-workflow
 
 on:
@@ -83,9 +84,9 @@ jobs:
 
             const changedSpecs = files.data
               .map(f => f.filename)
-              .filter(f => f.startsWith('Spec/') || f.startsWith('Prototype/'))
+              .filter(f => f.startsWith('schema/') || f.startsWith('Prototype/') || f.startsWith('Spec/'))
               .map(f => `- ${f}`)
-              .join('\n') || '- （本次無 Spec/Prototype 異動）';
+              .join('\n') || '- （本次無 schema/Prototype/Spec 異動）';
 
             // 產生 C-Branch slug
             const slug = epicTitle
@@ -348,11 +349,11 @@ jobs:
 
             const changedFiles = files.data
               .map(f => f.filename)
-              .filter(f => f.startsWith('Spec/') || f.startsWith('Prototype/'));
+              .filter(f => f.startsWith('schema/') || f.startsWith('Prototype/') || f.startsWith('Spec/'));
 
             const changedSpecs = changedFiles.length > 0
               ? changedFiles.map(f => `- ${f}：異動`).join('\n')
-              : '- （本次無 Spec/Prototype 異動）';
+              : '- （本次無 Spec/Prototype/schema 異動）';
 
             const content = [
               `# TestPlan Diff：Issue #${sdNumber} ${epicTitle}`,
