@@ -54,8 +54,8 @@ jobs:
             });
 
             const sdBody = sdIssue.data.body || '';
-            const epicMatch = sdBody.match(/Epic：P1-project #(\d+)/);
-            const saMatch = sdBody.match(/SA Issue：P1-analysis #(\d+)/);
+            const epicMatch = sdBody.match(/Epic：(?:MPinfo-Co\/P1-project#|P1-project #)(\d+)/);
+            const saMatch = sdBody.match(/SA Issue：(?:MPinfo-Co\/P1-analysis#|P1-analysis #)(\d+)/);
 
             if (!epicMatch) {
               console.log(`SD Issue #${sdNumber} body 找不到 Epic 編號，跳過`);
@@ -64,7 +64,14 @@ jobs:
 
             const epicNumber = parseInt(epicMatch[1]);
             const saNumber = saMatch ? parseInt(saMatch[1]) : null;
-            const epicTitle = sdIssue.data.title;
+
+            // 從 Epic Issue 取乾淨標題（去除 [PM] 前綴）
+            const epicIssueData = await github.rest.issues.get({
+              owner: org,
+              repo: projectRepo,
+              issue_number: epicNumber,
+            });
+            const epicTitle = epicIssueData.data.title.replace(/^\[PM\]\s*/i, '');
 
             // 取得 PR diff，找出異動的 Spec/Prototype 檔案
             const files = await github.rest.pulls.listFiles({
@@ -92,7 +99,7 @@ jobs:
             const pgIssue = await github.rest.issues.create({
               owner: org,
               repo: codeRepo,
-              title: epicTitle,
+              title: `[PG] ${epicTitle}`,
               body: [
                 '## 實作範圍',
                 '<!-- 本次 SD 異動的 Spec/Prototype 清單，由系統自動填入 -->',
@@ -100,9 +107,9 @@ jobs:
                 changedSpecs,
                 '',
                 '## 關聯項目',
-                `- Epic：P1-project #${epicNumber}`,
-                saNumber ? `- SA Issue：P1-analysis #${saNumber}` : `- SA Issue：P1-analysis #（請查 Epic）`,
-                `- SD Issue：P1-design #${sdNumber}`,
+                `- Epic：MPinfo-Co/P1-project#${epicNumber}`,
+                saNumber ? `- SA Issue：MPinfo-Co/P1-analysis#${saNumber}` : `- SA Issue：P1-analysis #（請查 Epic）`,
+                `- SD Issue：MPinfo-Co/P1-design#${sdNumber}`,
                 `- PG Issue：P1-code #（本 Issue）`,
                 `- 階段：PG`,
               ].join('\n'),
@@ -121,6 +128,18 @@ jobs:
                 `PG Issue：P1-code #${pgNumber}`
               ),
             });
+
+            // 將 PG Issue 掛為 Epic 的 sub-issue
+            try {
+              await github.request('POST /repos/{owner}/{repo}/issues/{issue_number}/sub_issues', {
+                owner: org,
+                repo: projectRepo,
+                issue_number: epicNumber,
+                sub_issue_id: pgIssue.data.id,
+              });
+            } catch (e) {
+              console.log(`Sub-issue 關聯建立失敗（非阻斷性）：${e.message}`);
+            }
 
             const cBranchName = `issue-${pgNumber}-${slug}`;
 
@@ -153,7 +172,7 @@ jobs:
             const updatedEpicBody = (epicIssue.data.body || '')
               .replace(
                 /- PG Issue：P1-code #（待建立）/,
-                `- PG Issue：P1-code #${pgNumber}`
+                `- PG Issue：MPinfo-Co/P1-code#${pgNumber}`
               );
 
             await github.rest.issues.update({
@@ -161,6 +180,17 @@ jobs:
               repo: projectRepo,
               issue_number: epicNumber,
               body: updatedEpicBody,
+            });
+
+            // 回填 SD Issue body 的 PG Issue 編號
+            await github.rest.issues.update({
+              owner: org,
+              repo: designRepo,
+              issue_number: sdNumber,
+              body: sdIssue.data.body.replace(
+                /PG Issue：P1-code #（merge 後自動填入）/,
+                `PG Issue：MPinfo-Co/P1-code#${pgNumber}`
+              ),
             });
 
             // 在 SD Issue 留言
@@ -216,8 +246,8 @@ jobs:
             });
 
             const sdBody = sdIssue.data.body || '';
-            const epicMatch = sdBody.match(/Epic：P1-project #(\d+)/);
-            const saMatch = sdBody.match(/SA Issue：P1-analysis #(\d+)/);
+            const epicMatch = sdBody.match(/Epic：(?:MPinfo-Co\/P1-project#|P1-project #)(\d+)/);
+            const saMatch = sdBody.match(/SA Issue：(?:MPinfo-Co\/P1-analysis#|P1-analysis #)(\d+)/);
 
             if (!epicMatch) {
               console.log(`SD Issue #${sdNumber} body 找不到 Epic 編號，跳過`);
@@ -226,7 +256,7 @@ jobs:
 
             const epicNumber = parseInt(epicMatch[1]);
             const saNumber = saMatch ? parseInt(saMatch[1]) : null;
-            const epicTitle = sdIssue.data.title;
+            const epicTitle = sdIssue.data.title.replace(/^(\[[^\]]+\]\s*)+/, '');
 
             const files = await github.rest.pulls.listFiles({
               owner: org,
@@ -249,8 +279,8 @@ jobs:
               changedSpecs,
               '',
               '## 關聯項目',
-              `- Epic：P1-project #${epicNumber}`,
-              saNumber ? `- SA Issue：P1-analysis #${saNumber}` : `- SA Issue：P1-analysis #（請查 Epic）`,
+              `- Epic：MPinfo-Co/P1-project#${epicNumber}`,
+              saNumber ? `- SA Issue：MPinfo-Co/P1-analysis#${saNumber}` : `- SA Issue：P1-analysis #（請查 Epic）`,
               `- SD Issue：P1-design #${sdNumber}`,
               `- 上一個 commit：${baseSha.slice(0, 7)}`,
               `- 本次 commit：${headSha.slice(0, 7)}`,
