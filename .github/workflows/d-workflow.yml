@@ -114,6 +114,7 @@ jobs:
                 `- PG Issue：#（本 Issue）`,
                 `- 階段：PG`,
                 `- 分支：（待填入）`,
+                `- Draft PR：（待建立）`,
               ].join('\n'),
               labels: ['PG'],
             });
@@ -134,15 +135,7 @@ jobs:
 
             const cBranchName = `issue-${pgNumber}-${slug}`;
 
-            // 回填 PG Issue body 真實編號與分支
-            await github.rest.issues.update({
-              owner: org,
-              repo: codeRepo,
-              issue_number: pgNumber,
-              body: pgIssue.data.body
-                .replace('PG Issue：#（本 Issue）', `PG Issue：#${pgNumber}`)
-                .replace('分支：（待填入）', `分支：\`${cBranchName}\``),
-            });
+            // ← backfill 移到 Draft PR 建立後，見下方
 
             // 取得 P1-code main SHA
             const mainRef = await github.rest.git.getRef({
@@ -205,8 +198,10 @@ jobs:
             });
 
             // 建立 PG Draft PR
+            let pgPrNumber = null;
+            let pgPrUrl = null;
             try {
-              await github.rest.pulls.create({
+              const pgPr = await github.rest.pulls.create({
                 owner: org,
                 repo: codeRepo,
                 head: cBranchName,
@@ -223,9 +218,22 @@ jobs:
                   `Closes #${pgNumber}`,
                 ].join('\n'),
               });
+              pgPrNumber = pgPr.data.number;
+              pgPrUrl = pgPr.data.html_url;
             } catch (e) {
               console.log(`PG Draft PR 建立失敗（非阻斷性）：${e.message}`);
             }
+
+            // 回填 PG Issue body：編號 + 分支連結 + Draft PR 連結
+            await github.rest.issues.update({
+              owner: org,
+              repo: codeRepo,
+              issue_number: pgNumber,
+              body: pgIssue.data.body
+                .replace('PG Issue：#（本 Issue）', `PG Issue：#${pgNumber}`)
+                .replace('分支：（待填入）', `分支：[${cBranchName}](https://github.com/${org}/${codeRepo}/tree/${cBranchName})`)
+                .replace('Draft PR：（待建立）', pgPrUrl ? `Draft PR：[#${pgPrNumber}](${pgPrUrl})` : 'Draft PR：（未建立）'),
+            });
 
             // 更新 Epic Issue body
             const epicIssue = await github.rest.issues.get({
