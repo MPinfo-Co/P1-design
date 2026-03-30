@@ -348,12 +348,19 @@ jobs:
             });
 
             const changedFiles = files.data
-              .map(f => f.filename)
-              .filter(f => f.startsWith('schema/') || f.startsWith('Prototype/') || f.startsWith('Spec/'));
+              .filter(f => f.filename.startsWith('schema/') || f.filename.startsWith('Prototype/') || f.filename.startsWith('Spec/'));
 
             const changedSpecs = changedFiles.length > 0
-              ? changedFiles.map(f => `- ${f}：異動`).join('\n')
-              : '- （本次無 Spec/Prototype/schema 異動）';
+              ? changedFiles.map(f => {
+                  const lines = [`- **${f.filename}**（${f.status}，+${f.additions} -${f.deletions}）`];
+                  if (f.patch) {
+                    lines.push('```diff');
+                    lines.push(f.patch);
+                    lines.push('```');
+                  }
+                  return lines.join('\n');
+                }).join('\n\n')
+              : '- （本次無 schema/Prototype/Spec 異動）';
 
             const content = [
               `# TestPlan Diff：Issue #${sdNumber} ${epicTitle}`,
