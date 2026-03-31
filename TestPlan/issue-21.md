@@ -77,7 +77,7 @@ security_events（使用者在 MP-BOX 清單頁看到）
 ### Claude 輸出格式規範
 
 ```
-Flash 輸出（每 chunk，Claude Haiku）：
+Chunk 分析輸出（每 chunk，Claude Haiku）：
   events 陣列，每筆含：
   - star_rank（1–5）
   - title
@@ -88,11 +88,11 @@ Flash 輸出（每 chunk，Claude Haiku）：
   - logs（關鍵原始 log 物件，5–20 筆，含 id / timestamp / message / program）
   - ioc_list、mitre_tags
 
-Pro 輸出（每日，Claude Sonnet）：
+每日彙整輸出（每日，Claude Sonnet）：
   events 陣列，每筆含上述欄位 + description + suggests + detection_count + continued_from
 ```
 
-### Flash Prompt 草稿（Claude Haiku）
+### Chunk 分析 Prompt 草稿（Claude Haiku）
 
 ```
 你是資安事件分析助理。以下是一批 syslog，來源包含 Windows AD、FortiGate 等網路設備，訊息為繁體中文。
@@ -124,7 +124,7 @@ Pro 輸出（每日，Claude Sonnet）：
 {logs_json}
 ```
 
-### Pro Prompt 草稿（Claude Sonnet）
+### 每日彙整 Prompt 草稿（Claude Sonnet）
 
 ```
 你是資安事件彙整助理。以下是今日所有 chunk 分析結果（flash_events）與前一日已知事件（prev_events）。
