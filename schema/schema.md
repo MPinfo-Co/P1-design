@@ -186,7 +186,7 @@ CREATE INDEX idx_log_batches_status ON log_batches(status);
 CREATE INDEX idx_log_batches_time_from ON log_batches(time_from);
 ```
 
-### flash_results
+### chunk_results
 
 每個 chunk 的 Claude Haiku 輸出，Pro Task 的原料。
 
@@ -196,7 +196,7 @@ CREATE INDEX idx_log_batches_time_from ON log_batches(time_from);
 | batch_id | BIGINT, NOT NULL, FK → log_batches | |
 | chunk_index | INT, NOT NULL | 第幾個 chunk（從 0 開始）|
 | chunk_size | INT, NOT NULL | 這個 chunk 幾筆 log |
-| events | JSONB, NOT NULL, DEFAULT '[]' | Flash 判斷出的事件陣列（見下方結構）|
+| events | JSONB, NOT NULL, DEFAULT '[]' | Claude Haiku 判斷出的事件陣列（見下方結構）|
 | status | VARCHAR(20), NOT NULL, DEFAULT 'pending' | pending / success / failed |
 | error_message | TEXT, NULLABLE | |
 | processed_at | TIMESTAMP, NULLABLE | |
@@ -220,8 +220,8 @@ CREATE INDEX idx_log_batches_time_from ON log_batches(time_from);
 ```
 
 ```sql
-CREATE INDEX idx_flash_results_batch_id ON flash_results(batch_id);
-CREATE INDEX idx_flash_results_status ON flash_results(status);
+CREATE INDEX idx_chunk_results_batch_id ON chunk_results(batch_id);
+CREATE INDEX idx_chunk_results_status ON chunk_results(status);
 ```
 
 ### daily_analysis
@@ -233,7 +233,7 @@ Pro Task 每日執行紀錄，用於監控與除錯。
 | id | BIGSERIAL, PK | |
 | analysis_date | DATE, NOT NULL, UNIQUE | 分析日期 |
 | status | VARCHAR(20), NOT NULL, DEFAULT 'pending' | pending / running / success / failed |
-| flash_results_count | INT, NOT NULL, DEFAULT 0 | 處理了幾筆 flash_results |
+| chunk_results_count | INT, NOT NULL, DEFAULT 0 | 處理了幾筆 chunk_results |
 | events_created | INT, NOT NULL, DEFAULT 0 | 新建幾筆 security_events |
 | events_updated | INT, NOT NULL, DEFAULT 0 | 更新幾筆（去重合併）|
 | error_message | TEXT, NULLABLE | |
