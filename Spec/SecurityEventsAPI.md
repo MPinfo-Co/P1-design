@@ -14,7 +14,7 @@
 | 參數 | 型別 | 必填 | 說明 |
 |---|---|---|---|
 | status | string | 否 | 篩選狀態，多選用逗號分隔（pending,investigating,resolved,dismissed）|
-| keyword | string | 否 | 搜尋 title / description（ILIKE）|
+| keyword | string | 否 | 搜尋 title / affected_summary（ILIKE）|
 | date_from | string | 否 | 日期起（ISO8601，event_date >=）|
 | date_to | string | 否 | 日期迄（ISO8601，event_date <=）|
 | page | int | 否 | 頁碼，預設 1 |
@@ -76,7 +76,9 @@
   "match_key": "ad_audit_policy_mpdc19",
   "assignee_user_id": null,
   "suggests": ["立即鎖定帳號", "封鎖來源 IP"],
-  "logs": ["EventID 4719 共 30,972 筆..."],
+  "logs": [
+    {"id": "813298855461315879", "timestamp": "2026-03-16T13:32:01", "message": "稽核原則變更...", "program": "Microsoft_Windows_security_auditing."}
+  ],
   "ioc_list": [],
   "mitre_tags": ["T1562.002"],
   "history": [
