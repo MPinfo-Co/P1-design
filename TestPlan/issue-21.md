@@ -17,16 +17,16 @@ Celery Flash Task（Beat 排程，每 10 分鐘）
   ├─ 建立新 log_batch（status: pending）
   ├─ 呼叫 SSB Client 分頁拉取全量 log
   ├─ 切成 chunk（每 FLASH_CHUNK_SIZE 筆，預設 500）
-  ├─→ Gemini Flash（chunk 1）→ flash_results
-  ├─→ Gemini Flash（chunk 2）→ flash_results
-  └─→ Gemini Flash（chunk N）→ flash_results
+  ├─→ Claude Haiku（chunk 1）→ flash_results
+  ├─→ Claude Haiku（chunk 2）→ flash_results
+  └─→ Claude Haiku（chunk N）→ flash_results
         ├─ 全部完成 → log_batch.status = success
         └─ 失敗 → 重試最多 FLASH_MAX_RETRY 次 → status = failed（下次補跑）
   ▼
 Celery Pro Task（Beat 排程，每日 02:00）
   ├─ 讀取當日所有 status=success 的 flash_results
   ├─ 依 match_key 初步分群
-  ├─ Gemini Pro：跨群去重、修正 star_rank、補充 description
+  ├─ Claude Sonnet：跨群去重、修正 star_rank、補充 description
   └─ 寫入 security_events（新建或更新）
   ▼
 security_events（使用者在 MP-BOX 清單頁看到）
@@ -66,7 +66,7 @@ security_events（使用者在 MP-BOX 清單頁看到）
 
 ```
 1. match_key 分群：相同 key → 同一事件候選
-2. Gemini Pro 輸入各群組事件清單，要求：
+2. Claude Sonnet 輸入各群組事件清單，要求：
    - 跨群合併判斷
    - 修正 star_rank（全日脈絡）
    - 彙整 detection_count
@@ -74,19 +74,21 @@ security_events（使用者在 MP-BOX 清單頁看到）
 3. 寫入：相同 match_key + event_date → UPDATE，否則 INSERT
 ```
 
-### Gemini 輸出格式規範
+### Claude 輸出格式規範
 
 ```
-Flash 輸出（每 chunk）：
+Flash 輸出（每 chunk，Claude Haiku）：
   events 陣列，每筆含：
   - star_rank（1–5）
   - title
   - affected_summary（≤ 20 字，格式：{主要對象}（{補充}））
   - affected_detail（【受影響對象】【攻擊來源】【攻擊行為】【時間範圍】）
   - match_key（{識別對象}_{攻擊類型}_{來源識別}）
-  - log_ids、ioc_list、mitre_tags
+  - log_ids（觸發事件的 log ID 清單）
+  - logs（關鍵原始 log 物件，5–20 筆，含 id / timestamp / message / program）
+  - ioc_list、mitre_tags
 
-Pro 輸出（每日）：
+Pro 輸出（每日，Claude Sonnet）：
   events 陣列，每筆含上述欄位 + description + suggests
 ```
 
@@ -106,11 +108,11 @@ FLASH_CHUNK_SIZE=500              # 每個 chunk 幾筆 log
 FLASH_MAX_RETRY=3                 # 單批次最多重試次數
 FLASH_INTERVAL_MINUTES=10        # 觸發間隔（分鐘）
 
-# Gemini
-GEMINI_API_KEY=
-GEMINI_FLASH_MODEL=gemini-2.5-flash
-GEMINI_PRO_MODEL=gemini-2.5-pro
-GEMINI_PRO_CRON=0 2 * * *        # Pro Task 執行時間（cron 格式）
+# Claude AI
+ANTHROPIC_API_KEY=
+CLAUDE_FLASH_MODEL=claude-haiku-4-5-20251001   # Flash Task 用（快速低成本）
+CLAUDE_PRO_MODEL=claude-sonnet-4-6             # Pro Task 用（較強推理）
+PRO_CRON=0 2 * * *                             # Pro Task 執行時間（cron 格式）
 ```
 
 ---
@@ -122,7 +124,7 @@ GEMINI_PRO_CRON=0 2 * * *        # Pro Task 執行時間（cron 格式）
 | SSB API 版本 | 文件顯示 `/api/5/`，實際部署後確認 |
 | Logspace 名稱 | 部署後執行 `list_logspaces` 確認 `SSB_LOGSPACE` 值 |
 | search_expression | MVP 為空（全量）；post-MVP 可依已知雜訊 EventID 加排除條件 |
-| Flash 輸出格式 | PG 階段建議測試 Option A（僅摘要）vs Option B（結構化初稿）品質差異 |
+| Flash 輸出格式 | 採 Option B（結構化初稿）；PG 階段建議測試 A vs B 分析品質差異 |
 | 相似案例 tab | Epic 2 範圍，本 Epic 不實作 |
 
 ---
