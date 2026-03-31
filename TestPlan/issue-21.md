@@ -89,7 +89,79 @@ Flash 輸出（每 chunk，Claude Haiku）：
   - ioc_list、mitre_tags
 
 Pro 輸出（每日，Claude Sonnet）：
-  events 陣列，每筆含上述欄位 + description + suggests
+  events 陣列，每筆含上述欄位 + description + suggests + detection_count + continued_from
+```
+
+### Flash Prompt 草稿（Claude Haiku）
+
+```
+你是資安事件分析助理。以下是一批 syslog，來源包含 Windows AD、FortiGate 等網路設備，訊息為繁體中文。
+
+請找出具有資安意義的事件，以 JSON 陣列回傳。若無資安事件，回傳 []。
+只回傳 JSON，不要其他說明文字。
+
+每筆事件格式：
+{
+  "star_rank": 1–5（5最嚴重）,
+  "title": "事件標題（簡潔描述異常行為）",
+  "affected_summary": "≤20字，格式：{主要對象}（{補充}）",
+  "affected_detail": "【受影響對象】...\n【攻擊來源】...（有則填）\n【攻擊行為】...\n【時間範圍】...（有則填）",
+  "match_key": "{識別對象}_{攻擊類型}_{來源識別}",
+  "log_ids": ["觸發此事件的 log ID"],
+  "logs": [最具代表性的 5–20 筆，每筆 {"id","timestamp","message","program"}],
+  "ioc_list": ["IP、帳號等指標"],
+  "mitre_tags": ["MITRE ATT&CK 編號，如 T1110"]
+}
+
+嚴重度參考：
+5 = 帳號入侵 / 資料外洩 / 關鍵系統失陷
+4 = 暴力破解 / 大量掃描 / 異常提權
+3 = 多次登入失敗 / 異常存取 / 可疑行為
+2 = 單次異常 / 低風險設定變更
+1 = 需留意但機率低的異常
+
+以下為 log 資料：
+{logs_json}
+```
+
+### Pro Prompt 草稿（Claude Sonnet）
+
+```
+你是資安事件彙整助理。以下是今日所有 chunk 分析結果（flash_events）與前一日已知事件（prev_events）。
+
+請執行以下任務，輸出最終安全事件清單（JSON 陣列）。只回傳 JSON，不要其他說明文字。
+
+任務：
+1. 依 match_key 分群，相同或高度相似的 match_key 視為同一事件
+2. 跨群合併判斷：match_key 不同但描述同一攻擊行為者，合併為一筆
+3. 對照 prev_events：若事件與前日事件屬同一持續攻擊，標記 continued_from（填入前日事件 ID）
+4. 修正 star_rank（以全日脈絡重新評估，單一 chunk 可能低估）
+5. 彙整 detection_count（合併後的觸發 log 總筆數）
+6. 撰寫 description（完整事件說明）
+7. 產出 suggests（建議處置步驟，3–5 條）
+
+每筆輸出格式：
+{
+  "star_rank": 1–5,
+  "title": "事件標題",
+  "affected_summary": "≤20字",
+  "affected_detail": "【受影響對象】...",
+  "match_key": "最終去重後的 match_key",
+  "detection_count": 合併後觸發筆數,
+  "continued_from": 前日事件 ID 或 null,
+  "description": "【異常發現】...\n【風險分析】...",
+  "suggests": ["建議步驟1", "建議步驟2"],
+  "log_ids": ["代表性 log ID"],
+  "logs": [5–20 筆關鍵原始 log 物件],
+  "ioc_list": ["指標"],
+  "mitre_tags": ["MITRE 編號"]
+}
+
+今日 chunk 分析結果：
+{flash_events_json}
+
+前日已知事件：
+{prev_events_json}
 ```
 
 ---
