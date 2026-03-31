@@ -185,6 +185,9 @@ ANTHROPIC_API_KEY=
 CLAUDE_FLASH_MODEL=claude-haiku-4-5-20251001   # Flash Task 用（快速低成本）
 CLAUDE_PRO_MODEL=claude-sonnet-4-6             # Pro Task 用（較強推理）
 PRO_CRON=0 2 * * *                             # Pro Task 執行時間（cron 格式）
+
+# Redis（Celery Broker）
+REDIS_URL=redis://localhost:6379/0
 ```
 
 ---
