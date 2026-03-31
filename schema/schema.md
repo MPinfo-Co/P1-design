@@ -188,7 +188,7 @@ CREATE INDEX idx_log_batches_time_from ON log_batches(time_from);
 
 ### flash_results
 
-每個 chunk 的 Gemini Flash 輸出，Pro Task 的原料。
+每個 chunk 的 Claude Haiku 輸出，Pro Task 的原料。
 
 | 欄位 | 型別 | 說明 |
 |------|------|------|
@@ -211,6 +211,9 @@ CREATE INDEX idx_log_batches_time_from ON log_batches(time_from);
   "affected_detail": "【受影響對象】MP0263【攻擊來源】172.18.1.84【攻擊行為】短時間內多次登入失敗【時間範圍】09:00–09:10",
   "match_key": "MP0263_login_failure_172.18.1.84",
   "log_ids": ["813298855461315879"],
+  "logs": [
+    {"id": "813298855461315879", "timestamp": "2026-03-16T09:03:21", "message": "稽核失敗...（原始 Windows 事件訊息）", "program": "Microsoft_Windows_security_auditing."}
+  ],
   "ioc_list": ["172.18.1.84"],
   "mitre_tags": ["T1110"]
 }
@@ -262,7 +265,7 @@ Pro Task 彙整後的最終事件，為使用者清單頁的資料來源。
 | continued_from | BIGINT, NULLABLE, FK → security_events | 跨日延續事件 |
 | assignee_user_id | INT, NULLABLE, FK → users | 指派處理人 |
 | suggests | JSONB, NULLABLE | AI 建議處置步驟（字串陣列）|
-| logs | JSONB, NULLABLE | 相關 log 摘要（字串陣列）|
+| logs | JSONB, NULLABLE | 觸發事件的關鍵原始 log 物件（5-20 筆，含 id/timestamp/message/program）|
 | ioc_list | JSONB, NULLABLE | IoC 指標（字串陣列）|
 | mitre_tags | JSONB, NULLABLE | MITRE ATT&CK 標籤（字串陣列）|
 | created_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | |
@@ -273,9 +276,9 @@ Pro Task 彙整後的最終事件，為使用者清單頁的資料來源。
 | DB 值 | UI 顯示 |
 |---|---|
 | pending | 未處理 |
-| investigating | 調查中 |
-| resolved | 已解決 |
-| dismissed | 已忽略 |
+| investigating | 處理中 |
+| resolved | 已完成 |
+| dismissed | 擱置 |
 
 ```sql
 CREATE INDEX idx_security_events_event_date ON security_events(event_date);
