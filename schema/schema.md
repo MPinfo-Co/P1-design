@@ -194,7 +194,7 @@ CREATE INDEX idx_log_batches_time_from ON log_batches(time_from);
 |------|------|------|
 | id | BIGSERIAL, PK | |
 | batch_id | BIGINT, NOT NULL, FK → log_batches | |
-| chunk_index | INT, NOT NULL | 第幾個 chunk（從 0 開始）|
+| chunk_index | INT, NOT NULL | chunk 序號（慣例：0,1,2...=個別 chunk；999=本批次合併；-1=當天累計）|
 | chunk_size | INT, NOT NULL | 這個 chunk 幾筆 log |
 | events | JSONB, NOT NULL, DEFAULT '[]' | Claude Haiku 判斷出的事件陣列（見下方結構）|
 | status | VARCHAR(20), NOT NULL, DEFAULT 'pending' | pending / success / failed |
@@ -257,7 +257,7 @@ Pro Task 彙整後的最終事件，為使用者清單頁的資料來源。
 | star_rank | SMALLINT, NOT NULL, CHECK (1–5) | 嚴重度，5 最高 |
 | title | VARCHAR(200), NOT NULL | 事件標題 |
 | description | TEXT, NULLABLE | 詳細說明（含【異常發現】【風險分析】段落）|
-| affected_summary | VARCHAR(20), NOT NULL | 列表 badge 摘要，格式：`{主要對象}（{補充}）`，限 20 字 |
+| affected_summary | VARCHAR(100), NOT NULL | 列表 badge 摘要，格式：`{主要對象}（{補充}）`，建議 30 字以內 |
 | affected_detail | TEXT, NULLABLE | Popover 完整說明，【受影響對象】【攻擊來源】【攻擊行為】【時間範圍】標籤格式 |
 | current_status | VARCHAR(20), NOT NULL, DEFAULT 'pending' | pending / investigating / resolved / dismissed |
 | match_key | VARCHAR(200), NOT NULL | 去重 key，格式：`{識別對象}_{攻擊類型}_{來源識別}` |
