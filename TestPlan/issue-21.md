@@ -65,13 +65,15 @@ security_events（使用者在 MP-BOX 清單頁看到）
 ### Pro Task — 去重彙整
 
 ```
-1. match_key 分群：相同 key → 同一事件候選
-2. Claude Sonnet 輸入各群組事件清單，要求：
+1. INSERT daily_analysis（status=pending, started_at=now）
+2. match_key 分群：相同 key → 同一事件候選
+3. Claude Sonnet 輸入各群組事件清單，要求：
    - 跨群合併判斷
    - 修正 star_rank（全日脈絡）
    - 彙整 detection_count
    - 產出最終 description / suggests
-3. 寫入：相同 match_key + event_date → UPDATE，否則 INSERT
+4. 寫入 security_events：相同 match_key + event_date → UPDATE，否則 INSERT
+5. UPDATE daily_analysis（status=success/failed, completed_at=now, events_created, events_updated）
 ```
 
 ### Claude 輸出格式規範
@@ -201,6 +203,7 @@ REDIS_URL=redis://localhost:6379/0
 | search_expression | MVP 為空（全量）；post-MVP 可依已知雜訊 EventID 加排除條件 |
 | Flash 輸出格式 | 採 Option B（結構化初稿）；PG 階段建議測試 A vs B 分析品質差異 |
 | 相似案例 tab | Epic 2 範圍，本 Epic 不實作 |
+| event_history table | schema.md 已定義，WBS 未列出，但 PATCH /api/events/{id} 與 POST /api/events/{id}/history 皆需此 table，PG 需一併建立 |
 
 ---
 
