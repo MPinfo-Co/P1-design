@@ -38,9 +38,9 @@
 - **自建 JWT**（登入 / 登出 / permission guard，bcrypt 密碼 hash）
 
 ### 七、AI 整合
-- **Gemini 2.5 Flash**（SSB log 逐 chunk 分析，高速低成本）
-- **Gemini 2.5 Pro**（每日彙整、去重、修正嚴重度）
-- **Google Generative AI SDK**（Python 呼叫 Gemini API）
+- **Claude Haiku**（`claude-haiku-4-5-20251001`，SSB log 逐 chunk 分析，高速低成本）
+- **Claude Sonnet**（`claude-sonnet-4-6`，每日彙整、去重、修正嚴重度）
+- **Anthropic Python SDK**（Python 呼叫 Claude API）
 
 ### 八、外部系統串接
 - **SSB（syslog-ng Store Box）**：REST API `/api/5/` 拉取 log，認證用 AUTHENTICATION_TOKEN cookie
