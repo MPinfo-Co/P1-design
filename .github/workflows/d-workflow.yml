@@ -1,3 +1,4 @@
+# 規格說明：https://github.com/MPinfo-Co/P1-project/blob/main/docs/github-workflow/d-workflow.md
 name: D-workflow
 
 on:
@@ -83,9 +84,9 @@ jobs:
 
             const changedSpecs = files.data
               .map(f => f.filename)
-              .filter(f => f.startsWith('Spec/') || f.startsWith('Prototype/'))
+              .filter(f => f.startsWith('schema/') || f.startsWith('Prototype/') || f.startsWith('Spec/'))
               .map(f => `- ${f}`)
-              .join('\n') || '- （本次無 Spec/Prototype 異動）';
+              .join('\n') || '- （本次無 schema/Prototype/Spec 異動）';
 
             // 產生 C-Branch slug
             const slug = epicTitle
@@ -114,6 +115,7 @@ jobs:
                 `- PG Issue：#（本 Issue）`,
                 `- 階段：PG`,
                 `- 分支：（待填入）`,
+                `- Draft PR：（待建立）`,
               ].join('\n'),
               labels: ['PG'],
             });
@@ -134,15 +136,7 @@ jobs:
 
             const cBranchName = `issue-${pgNumber}-${slug}`;
 
-            // 回填 PG Issue body 真實編號與分支
-            await github.rest.issues.update({
-              owner: org,
-              repo: codeRepo,
-              issue_number: pgNumber,
-              body: pgIssue.data.body
-                .replace('PG Issue：#（本 Issue）', `PG Issue：#${pgNumber}`)
-                .replace('分支：（待填入）', `分支：\`${cBranchName}\``),
-            });
+            // ← backfill 移到 Draft PR 建立後，見下方
 
             // 取得 P1-code main SHA
             const mainRef = await github.rest.git.getRef({
@@ -205,8 +199,10 @@ jobs:
             });
 
             // 建立 PG Draft PR
+            let pgPrNumber = null;
+            let pgPrUrl = null;
             try {
-              await github.rest.pulls.create({
+              const pgPr = await github.rest.pulls.create({
                 owner: org,
                 repo: codeRepo,
                 head: cBranchName,
@@ -223,9 +219,22 @@ jobs:
                   `Closes #${pgNumber}`,
                 ].join('\n'),
               });
+              pgPrNumber = pgPr.data.number;
+              pgPrUrl = pgPr.data.html_url;
             } catch (e) {
               console.log(`PG Draft PR 建立失敗（非阻斷性）：${e.message}`);
             }
+
+            // 回填 PG Issue body：編號 + 分支連結 + Draft PR 連結
+            await github.rest.issues.update({
+              owner: org,
+              repo: codeRepo,
+              issue_number: pgNumber,
+              body: pgIssue.data.body
+                .replace('PG Issue：#（本 Issue）', `PG Issue：#${pgNumber}`)
+                .replace('分支：（待填入）', `分支：[${cBranchName}](https://github.com/${org}/${codeRepo}/tree/${cBranchName})`)
+                .replace('Draft PR：（待建立）', pgPrUrl ? `Draft PR：[#${pgPrNumber}](${pgPrUrl})` : 'Draft PR：（未建立）'),
+            });
 
             // 更新 Epic Issue body
             const epicIssue = await github.rest.issues.get({
@@ -339,12 +348,19 @@ jobs:
             });
 
             const changedFiles = files.data
-              .map(f => f.filename)
-              .filter(f => f.startsWith('Spec/') || f.startsWith('Prototype/'));
+              .filter(f => f.filename.startsWith('schema/') || f.filename.startsWith('Prototype/') || f.filename.startsWith('Spec/'));
 
             const changedSpecs = changedFiles.length > 0
-              ? changedFiles.map(f => `- ${f}：異動`).join('\n')
-              : '- （本次無 Spec/Prototype 異動）';
+              ? changedFiles.map(f => {
+                  const lines = [`- **${f.filename}**（${f.status}，+${f.additions} -${f.deletions}）`];
+                  if (f.patch) {
+                    lines.push('```diff');
+                    lines.push(f.patch);
+                    lines.push('```');
+                  }
+                  return lines.join('\n');
+                }).join('\n\n')
+              : '- （本次無 schema/Prototype/Spec 異動）';
 
             const content = [
               `# TestPlan Diff：Issue #${sdNumber} ${epicTitle}`,
