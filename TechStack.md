@@ -2,7 +2,7 @@
 
 ## 程式語言
 - **Python 3.12+**（後端語言，AI 函式庫豐富）
-- **TypeScript**（前端語言，React 生態主流）
+- **JavaScript**（前端語言，目前使用 `.jsx`；TypeScript 遷移規劃中）
 
 ## 前端
 - **Vite**（建置工具，熱更新極速）
@@ -20,7 +20,7 @@
 - **SQLAlchemy**（ORM，成熟穩定）
 - **Alembic**（Migration 工具）
 
-## 排程與非同步任務
+## 排程與非同步任務（已採用）
 - **Celery**（分散式任務佇列，執行 Flash Task / Pro Task）
 - **Celery Beat**（定時排程，觸發 Flash Task 每 10 分鐘、Pro Task 每日 02:00）
 - **Redis**（Celery Broker）
@@ -39,14 +39,14 @@
 ## 外部系統串接
 - **SSB（syslog-ng Store Box）**：REST API `/api/5/` 拉取 log，認證用 AUTHENTICATION_TOKEN cookie
 
-## 檔案儲存
+## 檔案儲存（規劃中）
 - **Cloudflare R2**（物件儲存，無流出費用，S3 API 相容）
 
-## Email
+## Email（規劃中）
 - **Resend**（交易型 Email 服務）
 
-## 客戶支援
+## 客戶支援（規劃中）
 - **Crisp**（網站內嵌聊天視窗）
 
-## 安全
+## 安全（規劃中）
 - **ClamAV**（開源檔案掃描）
