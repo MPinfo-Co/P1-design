@@ -1,21 +1,15 @@
 # MP-BOX 技術棧
 
-## 階段一：MVP（目前）
-
-**目標：產品上線，核心功能可用**
-
----
-
 ### 一、程式語言
 - **Python 3.12+**（後端語言，AI 函式庫豐富）
-- **JavaScript**（前端語言，React 生態主流）
+- **TypeScript**（前端語言，React 生態主流）
 
 ### 二、前端
 - **Vite**（建置工具，熱更新極速）
-- **React 18**（主流 UI 框架）
-- **React Router v6**（前端路由）
+- **React 19**（主流 UI 框架）
+- **React Router v7**（前端路由）
 - **Tailwind CSS v3**（Utility-first CSS）
-- **shadcn/ui**（UI 元件庫，基於 Radix UI）
+- **MUI（Material UI）**（UI 元件庫）
 - **Zustand**（Client State 管理）
 - **TanStack Query**（Server State 管理）
 - **Axios**（HTTP 請求）
