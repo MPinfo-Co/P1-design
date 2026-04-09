@@ -35,10 +35,10 @@ SD Issue 由 P1-analysis 的 a-workflow 自動建立，**不可手動建立**。
 ## Commit 格式
 
 ```
-{type}({scope}): 說明
+{type}: 工作說明
 ```
 
-範例：`feat(spec): 新增 POST /api/users API 規格`
+範例：`feat: 新增 POST /api/users API 規格`
 
 ## 完整流程
 
