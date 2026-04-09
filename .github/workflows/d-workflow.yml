@@ -108,22 +108,29 @@ jobs:
                 '',
                 changedSpecs,
                 '',
-                '## PG 測試報告',
+                '## 測試執行紀錄',
                 '',
                 '| 案例 ID | 結果 | 備註 |',
                 '|---------|------|------|',
                 '',
                 '## 關聯項目',
-                `- Epic：MPinfo-Co/P1-project#${epicNumber}`,
-                saNumber ? `- SA Issue：MPinfo-Co/P1-analysis#${saNumber}` : `- SA Issue：P1-analysis #（請查 Epic）`,
-                `- SD Issue：MPinfo-Co/P1-design#${sdNumber}`,
-                `- PG Issue：#（本 Issue）`,
+                '',
+                '### 工作狀態',
                 `- 階段：PG`,
                 `- 分支：（待填入）`,
                 `- Draft PR：（待建立）`,
+                '',
+                '### 關聯 Issue',
+                `- Epic：MPinfo-Co/P1-project#${epicNumber}`,
+                saNumber ? `- SA Issue：MPinfo-Co/P1-analysis#${saNumber}` : `- SA Issue：（請查 Epic）`,
+                `- SD Issue：MPinfo-Co/P1-design#${sdNumber}`,
+                `- PG Issue：#（本 Issue）`,
+                '',
+                '### 關聯檔案',
                 saNumber ? `- business-logic.md：[issue-${saNumber}/business-logic.md](https://github.com/${org}/${analysisRepo}/blob/main/issue-${saNumber}/business-logic.md)` : `- business-logic.md：（請查 Epic）`,
+                `- SpecDiff：[SpecDiff/issue-${sdNumber}.md](https://github.com/${org}/${designRepo}/blob/main/SpecDiff/issue-${sdNumber}.md)`,
                 `- TestPlan：[TestPlan/issue-${sdNumber}.md](https://github.com/${org}/${designRepo}/blob/main/TestPlan/issue-${sdNumber}.md)`,
-                `- TestPlan diff：[TestPlan/issue-${sdNumber}-diff.md](https://github.com/${org}/${designRepo}/blob/main/TestPlan/issue-${sdNumber}-diff.md)`,
+                `- TestReport：[TestReport/issue-${sdNumber}.md](https://github.com/${org}/${codeRepo}/blob/${cBranchName}/TestReport/issue-${sdNumber}.md)`,
               ].join('\n'),
               labels: ['PG'],
             });
@@ -165,19 +172,38 @@ jobs:
               if (e.status !== 422) throw e;
             }
 
-            // Scaffold VersionDiff 檔案（建立初始 commit，讓 Draft PR 可建立）
-            const versionDiffContent = [
-              `# VersionDiff：issue-${pgNumber} [PG] ${epicTitle}`,
-              '',
-              '## 本次異動摘要',
-              '',
-              '## 新增',
-              '',
-              '## 修改',
-              '',
-              '## 移除',
-              '',
-            ].join('\n');
+            // 讀取 TestPlan，產生 TestReport scaffold（同時提供 C-Branch 初始 commit，讓 Draft PR 可建立）
+            let testPlanRaw = '';
+            try {
+              const testPlanFile = await github.rest.repos.getContent({
+                owner: org,
+                repo: designRepo,
+                path: `TestPlan/issue-${sdNumber}.md`,
+                ref: 'main',
+              });
+              testPlanRaw = Buffer.from(testPlanFile.data.content, 'base64').toString('utf8');
+            } catch (e) {
+              console.log(`找不到 TestPlan/issue-${sdNumber}.md，使用空表格`);
+            }
+
+            const testReportContent = testPlanRaw
+              ? testPlanRaw
+                  .split('\n')
+                  .map(line => {
+                    if (line.startsWith('# TestPlan：')) return line.replace('# TestPlan：', '# TestReport：');
+                    if (/^\|[\s\-:]+(\|[\s\-:]+)*\|$/.test(line)) return line.replace(/\|$/, '| --- | --- |');
+                    if (line.startsWith('|') && line.endsWith('|')) return line.replace(/\|$/, '|  |  |');
+                    return line;
+                  })
+                  .join('\n')
+              : [
+                  `# TestReport：issue-${sdNumber} [PG] ${epicTitle}`,
+                  '',
+                  '## 測試案例',
+                  '| ID | 類型 | 前置條件 | 操作 | 預期結果 | 結果 | 備註 |',
+                  '|----|------|---------|------|---------|------|------|',
+                  '',
+                ].join('\n');
 
             const pgScaffoldTree = await github.rest.git.createTree({
               owner: org,
@@ -185,10 +211,10 @@ jobs:
               base_tree: mainRef.data.object.sha,
               tree: [
                 {
-                  path: `VersionDiff/issue-${pgNumber}.md`,
+                  path: `TestReport/issue-${sdNumber}.md`,
                   mode: '100644',
                   type: 'blob',
-                  content: versionDiffContent,
+                  content: testReportContent,
                 },
               ],
             });
@@ -196,7 +222,7 @@ jobs:
             const pgScaffoldCommit = await github.rest.git.createCommit({
               owner: org,
               repo: codeRepo,
-              message: `chore(issue-${pgNumber}): scaffold VersionDiff 檔案`,
+              message: `chore(issue-${pgNumber}): scaffold TestReport 檔案`,
               tree: pgScaffoldTree.data.sha,
               parents: [mainRef.data.object.sha],
             });
@@ -219,15 +245,7 @@ jobs:
                 base: 'main',
                 draft: true,
                 title: `[PG] ${epicTitle}`,
-                body: [
-                  '## 關聯項目',
-                  `- Epic：MPinfo-Co/P1-project#${epicNumber}`,
-                  saNumber ? `- SA Issue：MPinfo-Co/P1-analysis#${saNumber}` : `- SA Issue：（請查 Epic）`,
-                  `- SD Issue：MPinfo-Co/P1-design#${sdNumber}`,
-                  `- PG Issue：MPinfo-Co/P1-code#${pgNumber}`,
-                  '',
-                  `Closes #${pgNumber}`,
-                ].join('\n'),
+                body: `Closes #${pgNumber}`,
               });
               pgPrNumber = pgPr.data.number;
               pgPrUrl = pgPr.data.html_url;
@@ -266,15 +284,14 @@ jobs:
               body: updatedEpicBody,
             });
 
-            // 回填 SD Issue body 的 PG Issue 編號
+            // 回填 SD Issue body：PG Issue 編號 + branch ref → main
             await github.rest.issues.update({
               owner: org,
               repo: designRepo,
               issue_number: sdNumber,
-              body: sdIssue.data.body.replace(
-                /PG Issue：P1-code #（merge 後自動填入）/,
-                `PG Issue：MPinfo-Co/P1-code#${pgNumber}`
-              ),
+              body: sdIssue.data.body
+                .replace(/PG Issue：P1-code #（merge 後自動填入）/, `PG Issue：MPinfo-Co/P1-code#${pgNumber}`)
+                .replace(/\/blob\/issue-\d+-[^\/]+\//g, '/blob/main/'),
             });
 
             // 在 SD Issue 留言
@@ -310,7 +327,7 @@ jobs:
               state_reason: 'completed',
             });
 
-      - name: Generate TestPlan diff
+      - name: Generate SpecDiff
         uses: actions/github-script@v7
         with:
           github-token: ${{ steps.app-token.outputs.token }}
@@ -373,7 +390,7 @@ jobs:
               : '- （本次無 schema/Prototype/Spec 異動）';
 
             const content = [
-              `# TestPlan Diff：Issue #${sdNumber} ${epicTitle}`,
+              `# SpecDiff：Issue #${sdNumber} ${epicTitle}`,
               '',
               '## 修改項目及內容',
               changedSpecs,
@@ -386,7 +403,7 @@ jobs:
               `- 本次 commit：${headSha.slice(0, 7)}`,
             ].join('\n');
 
-            const filePath = `TestPlan/issue-${sdNumber}-diff.md`;
+            const filePath = `SpecDiff/issue-${sdNumber}.md`;
             const encodedContent = Buffer.from(content, 'utf8').toString('base64');
 
             let fileSha = undefined;
@@ -405,7 +422,7 @@ jobs:
               owner: org,
               repo: designRepo,
               path: filePath,
-              message: `chore: auto-generate TestPlan diff for issue-${sdNumber}`,
+              message: `chore: auto-generate SpecDiff for issue-${sdNumber}`,
               content: encodedContent,
               ...(fileSha ? { sha: fileSha } : {}),
               author: {
@@ -414,4 +431,4 @@ jobs:
               },
             });
 
-            console.log(`✅ TestPlan diff 已寫入：${filePath}`);
+            console.log(`✅ SpecDiff 已寫入：${filePath}`);

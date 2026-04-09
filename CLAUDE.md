@@ -12,7 +12,7 @@ SD Issue 由 P1-analysis 的 a-workflow 自動建立，**不可手動建立**。
 1. **Prototype/** — 修改 UI 原型 HTML（活文件，直接改最新版）
 2. **Spec/** — 修改 API 與畫面規格文件（活文件，直接改最新版）
 3. **schema/** — 若有 Schema 異動，修改對應 DDL 文件
-4. **TestPlan/issue-{N}.md** — 填寫測試案例（系統自動建立框架）
+4. **TestPlan/issue-{N}.md** — 填寫測試案例（系統自動建立框架；merge 後由 d-workflow 派生為 P1-code 的 TestReport）
 
 ## TestPlan 最低要求
 
