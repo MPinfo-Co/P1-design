@@ -23,9 +23,25 @@
 
 ### 編號在 code 中的引用方式
 
-- **Python 檔名**：以 `f_{domain}_` 為前綴，例：`f_evt_ssb_client.py`（底線因 Python 模組命名限制）
-- **JSX 檔案**：第一行註解 `// f-kb-01: 知識庫列表`
+- **Python / JSX 檔名**：以 `f_{domain}_{NN}_{semantic}` 為前綴（底線因 Python 模組命名限制；JSX 為求一致亦採用）
+  - 只有一個語意名稱時可省略 semantic，例：`f_auth_01.py`
+  - 多個檔案屬同一編號時以 semantic 區分，例：`f_evt_01_ssb_client.py`、`f_evt_01_claude_flash.py`
 - **Commit message**：`feat: f-evt-01 新增事件篩選邏輯`
+- **Model 歸屬原則**：SQLAlchemy model 的 owner = 「管理該資料」的功能，而非「消費該資料」的功能。例：`User` 屬 f-user-01（帳號管理 owns），不屬 f-auth-01（登入只是 read User）
+
+### 共用基礎設施（不套用編號規則）
+
+以下檔案跨多個 domain 共用或不屬於任何產品功能，**保留原檔名**，不加功能編號前綴：
+
+| 檔案 | 原因 |
+|------|------|
+| `backend/app/main.py` | FastAPI 唯一入口 |
+| `backend/app/core/config.py` | 全域環境設定 |
+| `backend/app/db/session.py` | SQLAlchemy Session 工廠，所有 domain 共用 |
+| `backend/app/api/health.py` | 健檢端點，非產品功能 |
+| `backend/app/worker.py` | Celery worker 基礎設定 |
+| `backend/seed.py` | 初始化腳本（跨域建 users + roles） |
+| `backend/app/**/__init__.py` | Python package marker |
 
 ## 功能列表
 
@@ -48,3 +64,4 @@
 - **粗顆粒項目細化**：如 `f-evt-01` 未來需細分（例：單獨追蹤 SSB 整合或 Flash 分析），保留原編號為集合，新增 `f-evt-02`、`f-evt-03`…
 - **新增領域前綴**：需更新本文件的「領域前綴」表並於 PR 說明動機
 - **檔名同步**：code 檔案若屬於某功能編號，遵循「編號在 code 中的引用方式」小節約定（此規則將於本 issue 的 P1-code sub-issue 落實至既有檔案）
+- **基礎設施檔案**：見「共用基礎設施」小節，該清單新增項目需於 PR 說明為何不能歸屬單一功能
