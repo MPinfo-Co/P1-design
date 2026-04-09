@@ -130,7 +130,7 @@ jobs:
                 saNumber ? `- business-logic.md：[issue-${saNumber}/business-logic.md](https://github.com/${org}/${analysisRepo}/blob/main/issue-${saNumber}/business-logic.md)` : `- business-logic.md：（請查 Epic）`,
                 `- SpecDiff：[SpecDiff/issue-${sdNumber}.md](https://github.com/${org}/${designRepo}/blob/main/SpecDiff/issue-${sdNumber}.md)`,
                 `- TestPlan：[TestPlan/issue-${sdNumber}.md](https://github.com/${org}/${designRepo}/blob/main/TestPlan/issue-${sdNumber}.md)`,
-                `- TestReport：[TestReport/issue-${sdNumber}.md](https://github.com/${org}/${codeRepo}/blob/${cBranchName}/TestReport/issue-${sdNumber}.md)`,
+                `- TestReport：（待填入）`,
               ].join('\n'),
               labels: ['PG'],
             });
@@ -253,7 +253,7 @@ jobs:
               console.log(`PG Draft PR 建立失敗（非阻斷性）：${e.message}`);
             }
 
-            // 回填 PG Issue body：編號 + 分支連結 + Draft PR 連結
+            // 回填 PG Issue body：編號 + 分支連結 + Draft PR 連結 + TestReport 連結
             await github.rest.issues.update({
               owner: org,
               repo: codeRepo,
@@ -261,7 +261,8 @@ jobs:
               body: pgIssue.data.body
                 .replace('PG Issue：#（本 Issue）', `PG Issue：#${pgNumber}`)
                 .replace('分支：（待填入）', `分支：[${cBranchName}](https://github.com/${org}/${codeRepo}/tree/${cBranchName})`)
-                .replace('Draft PR：（待建立）', pgPrUrl ? `Draft PR：[#${pgPrNumber}](${pgPrUrl})` : 'Draft PR：（未建立）'),
+                .replace('Draft PR：（待建立）', pgPrUrl ? `Draft PR：[#${pgPrNumber}](${pgPrUrl})` : 'Draft PR：（未建立）')
+                .replace('TestReport：（待填入）', `TestReport：[TestReport/issue-${sdNumber}.md](https://github.com/${org}/${codeRepo}/blob/${cBranchName}/TestReport/issue-${sdNumber}.md)`),
             });
 
             // 更新 Epic Issue body
