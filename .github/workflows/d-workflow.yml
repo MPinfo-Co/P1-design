@@ -108,6 +108,11 @@ jobs:
                 '',
                 changedSpecs,
                 '',
+                '## PG 測試報告',
+                '',
+                '| 案例 ID | 結果 | 備註 |',
+                '|---------|------|------|',
+                '',
                 '## 關聯項目',
                 `- Epic：MPinfo-Co/P1-project#${epicNumber}`,
                 saNumber ? `- SA Issue：MPinfo-Co/P1-analysis#${saNumber}` : `- SA Issue：P1-analysis #（請查 Epic）`,
@@ -159,6 +164,49 @@ jobs:
             } catch (e) {
               if (e.status !== 422) throw e;
             }
+
+            // Scaffold VersionDiff 檔案（建立初始 commit，讓 Draft PR 可建立）
+            const versionDiffContent = [
+              `# VersionDiff：issue-${pgNumber} [PG] ${epicTitle}`,
+              '',
+              '## 本次異動摘要',
+              '',
+              '## 新增',
+              '',
+              '## 修改',
+              '',
+              '## 移除',
+              '',
+            ].join('\n');
+
+            const pgScaffoldTree = await github.rest.git.createTree({
+              owner: org,
+              repo: codeRepo,
+              base_tree: mainRef.data.object.sha,
+              tree: [
+                {
+                  path: `VersionDiff/issue-${pgNumber}.md`,
+                  mode: '100644',
+                  type: 'blob',
+                  content: versionDiffContent,
+                },
+              ],
+            });
+
+            const pgScaffoldCommit = await github.rest.git.createCommit({
+              owner: org,
+              repo: codeRepo,
+              message: `chore(issue-${pgNumber}): scaffold VersionDiff 檔案`,
+              tree: pgScaffoldTree.data.sha,
+              parents: [mainRef.data.object.sha],
+            });
+
+            await github.rest.git.updateRef({
+              owner: org,
+              repo: codeRepo,
+              ref: `heads/${cBranchName}`,
+              sha: pgScaffoldCommit.data.sha,
+            });
 
             // 建立 PG Draft PR
             let pgPrNumber = null;
