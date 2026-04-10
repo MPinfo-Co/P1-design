@@ -8,7 +8,7 @@
 |------|------|------|-----------|---------|
 | f-auth-01 | 登入 / 登出 | 使用 email 登入系統，取得 JWT token；登出時加入 token 黑名單 | 後端：`api/auth.py`、`core/security.py`、`core/deps.py`、`models/token_blacklist.py`、`schemas/auth.py`<br>前端：`pages/Login/Login.jsx`、`stores/authStore.js` | 已完成 |
 | f-evt-01 | 安全事件 | 涵蓋 SSB log 拉取、FortiGate log 預彙總、Claude Haiku 批次分析、Claude Sonnet 每日彙整、事件清單 / 詳情 / 狀態更新 / 處置紀錄的完整 pipeline | 後端：`api/events.py`、`models/security_event.py`、`schemas/security_event.py`、`services/ssb_client.py`、`services/log_preaggregator.py`、`services/claude_flash.py`、`services/claude_pro.py`、`tasks/flash_task.py`、`tasks/pro_task.py`、`scripts/run_pipeline.py`、`scripts/run_planb_comparison.py`<br>前端：`pages/AiPartner/IssueList.jsx`、`pages/AiPartner/IssueDetail.jsx`、`contexts/IssuesContext.jsx`、`data/issues.js` | 已完成 |
-| f-partner-01 | AI 夥伴選擇 | 以卡片列表選擇要使用的 AI 夥伴 | 前端：`pages/AiPartner/AiPartner.jsx`（消費 f-partner-02 的 mock data） | 未開始 |
+| f-partner-01 | AI 夥伴選擇 | 以卡片列表選擇要使用的 AI 夥伴 | 前端：`pages/AiPartner/AiPartner.jsx` | 未開始 |
 | f-partner-02 | AI 夥伴管理設定 | 設定與管理 AI 夥伴的參數與配置 | 前端：`pages/Settings/AiConfig.jsx`、`data/aiPartners.js`（mock data） | 未開始 |
 | f-chat-01 | 諮詢聊天 UI 面板 | 安全事件詳情頁右側的聊天介面 | — | 未開始 |
 | f-chat-02 | SSE 對話串流後端 | AI 對話以 Server-Sent Events 串流回應 | — | 未開始 |
@@ -17,8 +17,8 @@
 | f-kb-02 | 文件上傳與管理 | 知識庫內文件的上傳 / 列表 / 刪除 / 預覽 | 前端：`pages/KnowledgeBase/DocTab.jsx`（目前使用 mock data） | 規劃中 |
 | f-kb-03 | 結構化資料表管理 | 知識庫內表格資料的建立與維護 | 前端：`pages/KnowledgeBase/TableTab.jsx`（目前使用 mock data） | 規劃中 |
 | f-kb-04 | 知識庫存取權限 | 單一知識庫的讀寫權限設定 | 前端：`pages/KnowledgeBase/AccessTab.jsx`（目前使用 mock data） | 規劃中 |
-| f-user-01 | 帳號管理 | 新增 / 編輯 / 停用帳號 | 後端：`models/user.py::User`（model 已建立但無 API）<br>前端：`pages/Settings/Account.jsx`、`data/users.js`（mock data） | 未開始 |
-| f-user-02 | 角色管理 | 管理角色與權限設定 | 後端：`models/user.py::Role`（model 已建立但無 API）<br>前端：`pages/Settings/Role.jsx`（目前使用 mock data） | 未開始 |
+| f-user-01 | 帳號管理 | 新增 / 編輯 / 停用帳號 | 後端：`models/user.py`（User 類，model 已建立但無 API）<br>前端：`pages/Settings/Account.jsx`、`data/users.js`（mock data） | 未開始 |
+| f-user-02 | 角色管理 | 管理角色與權限設定 | 後端：`models/user.py`（Role、UserRole 類，model 已建立但無 API）<br>前端：`pages/Settings/Role.jsx`（目前使用 mock data） | 未開始 |
 
 ## 功能編號規則
 
