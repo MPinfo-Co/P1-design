@@ -23,27 +23,6 @@
 | f-user-01 | 帳號管理 | 新增 / 編輯 / 停用帳號 | 未開始 |
 | f-user-02 | 角色管理 | 管理角色與權限設定 | 未開始 |
 
-<details>
-<summary>各功能對應程式碼（開發人員參考）</summary>
-
-| 編號 | 後端 | 前端 |
-|------|------|------|
-| f-auth-01 | `api/auth.py`、`core/security.py`、`core/deps.py`、`models/token_blacklist.py`、`schemas/auth.py` | `pages/Login/Login.jsx`、`stores/authStore.js` |
-| f-evt-01 | `api/events.py`、`models/security_event.py`、`schemas/security_event.py`、`services/ssb_client.py`、`services/log_preaggregator.py`、`services/claude_flash.py`、`services/claude_pro.py`、`tasks/flash_task.py`、`tasks/pro_task.py`、`scripts/run_pipeline.py`、`scripts/run_planb_comparison.py` | `pages/AiPartner/IssueList.jsx`、`pages/AiPartner/IssueDetail.jsx`、`contexts/IssuesContext.jsx`、`data/issues.js` |
-| f-partner-01 | — | `pages/AiPartner/AiPartner.jsx` |
-| f-partner-02 | — | `pages/Settings/AiConfig.jsx`、`data/aiPartners.js` |
-| f-chat-01 | — | — |
-| f-chat-02 | — | — |
-| f-chat-03 | — | — |
-| f-kb-01 | — | `pages/KnowledgeBase/KnowledgeBase.jsx`、`data/knowledgeBase.js`、`data/mockKnowledge.js` |
-| f-kb-02 | — | `pages/KnowledgeBase/DocTab.jsx` |
-| f-kb-03 | — | `pages/KnowledgeBase/TableTab.jsx` |
-| f-kb-04 | — | `pages/KnowledgeBase/AccessTab.jsx` |
-| f-user-01 | `models/user.py`（User 類，model 已建立但無 API） | `pages/Settings/Account.jsx`、`data/users.js` |
-| f-user-02 | `models/user.py`（Role、UserRole 類，model 已建立但無 API） | `pages/Settings/Role.jsx` |
-
-</details>
-
 ## 功能編號說明
 
 每個功能有一個固定代碼 `f-{domain}-{NN}`，可在 Issue、Commit 中引用：
@@ -56,18 +35,6 @@
 | `f-chat` | 諮詢聊天面板 |
 | `f-kb` | 知識庫 |
 | `f-user` | 使用者管理（帳號 / 角色）|
-
-<details>
-<summary>程式碼命名規則（開發人員參考）</summary>
-
-- **Python 與前端（JSX / JS）檔名**：以 `f_{domain}_{NN}_{semantic}` 為前綴（底線因 Python 模組命名限制；前端為求一致亦採用）
-  - 只有一個語意名稱時可省略 semantic，例：`f_auth_01.py`
-  - 多個檔案屬同一編號時以 semantic 區分，例：`f_evt_01_ssb_client.py`
-- **Commit message**：`feat: f-evt-01 新增事件篩選邏輯`
-- **Model 歸屬原則**：model 的 owner = 「管理該資料」的功能，而非「使用它」的功能。例：`User` model 屬 f-user-01（帳號管理），不屬 f-auth-01（登入只是讀取）
-- **既有檔案改名**：見 [MPinfo-Co/P1-code#93](https://github.com/MPinfo-Co/P1-code/issues/93)
-
-</details>
 
 <details>
 <summary>共用基礎設施（開發人員參考）</summary>
@@ -106,3 +73,36 @@
 - **新增功能**：於該領域取下一個流水號（如 `f-evt` 目前到 01，下一個為 `f-evt-02`）
 - **廢棄功能**：標記 `[DEPRECATED]`，**不回收編號**
 - **粗顆粒項目細化**：保留原編號為集合，新增 -02、-03… 表示子項目
+
+<details>
+<summary>各功能對應程式碼（開發人員參考）</summary>
+
+| 編號 | 後端 | 前端 |
+|------|------|------|
+| f-auth-01 | `api/auth.py`、`core/security.py`、`core/deps.py`、`models/token_blacklist.py`、`schemas/auth.py` | `pages/Login/Login.jsx`、`stores/authStore.js` |
+| f-evt-01 | `api/events.py`、`models/security_event.py`、`schemas/security_event.py`、`services/ssb_client.py`、`services/log_preaggregator.py`、`services/claude_flash.py`、`services/claude_pro.py`、`tasks/flash_task.py`、`tasks/pro_task.py`、`scripts/run_pipeline.py`、`scripts/run_planb_comparison.py` | `pages/AiPartner/IssueList.jsx`、`pages/AiPartner/IssueDetail.jsx`、`contexts/IssuesContext.jsx`、`data/issues.js` |
+| f-partner-01 | — | `pages/AiPartner/AiPartner.jsx` |
+| f-partner-02 | — | `pages/Settings/AiConfig.jsx`、`data/aiPartners.js` |
+| f-chat-01 | — | — |
+| f-chat-02 | — | — |
+| f-chat-03 | — | — |
+| f-kb-01 | — | `pages/KnowledgeBase/KnowledgeBase.jsx`、`data/knowledgeBase.js`、`data/mockKnowledge.js` |
+| f-kb-02 | — | `pages/KnowledgeBase/DocTab.jsx` |
+| f-kb-03 | — | `pages/KnowledgeBase/TableTab.jsx` |
+| f-kb-04 | — | `pages/KnowledgeBase/AccessTab.jsx` |
+| f-user-01 | `models/user.py`（User 類，model 已建立但無 API） | `pages/Settings/Account.jsx`、`data/users.js` |
+| f-user-02 | `models/user.py`（Role、UserRole 類，model 已建立但無 API） | `pages/Settings/Role.jsx` |
+
+</details>
+
+<details>
+<summary>程式碼命名規則（開發人員參考）</summary>
+
+- **Python 與前端（JSX / JS）檔名**：以 `f_{domain}_{NN}_{semantic}` 為前綴（底線因 Python 模組命名限制；前端為求一致亦採用）
+  - 只有一個語意名稱時可省略 semantic，例：`f_auth_01.py`
+  - 多個檔案屬同一編號時以 semantic 區分，例：`f_evt_01_ssb_client.py`
+- **Commit message**：`feat: f-evt-01 新增事件篩選邏輯`
+- **Model 歸屬原則**：model 的 owner = 「管理該資料」的功能，而非「使用它」的功能。例：`User` model 屬 f-user-01（帳號管理），不屬 f-auth-01（登入只是讀取）
+- **既有檔案改名**：見 [MPinfo-Co/P1-code#93](https://github.com/MPinfo-Co/P1-code/issues/93)
+
+</details>
