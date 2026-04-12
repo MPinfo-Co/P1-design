@@ -1,4 +1,4 @@
-# TestPlan Diff：Issue #11 驗證連結v2
+# TDD Diff：Issue #11 驗證連結v2
 
 ## 修改項目及內容
 - Spec/LinkTestAPI.md：異動

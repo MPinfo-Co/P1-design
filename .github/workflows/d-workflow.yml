@@ -129,7 +129,7 @@ jobs:
                 '### 關聯檔案',
                 saNumber ? `- business-logic.md：[issue-${saNumber}/business-logic.md](https://github.com/${org}/${analysisRepo}/blob/main/issue-${saNumber}/business-logic.md)` : `- business-logic.md：（請查 Epic）`,
                 `- SpecDiff：[SpecDiff/issue-${sdNumber}.md](https://github.com/${org}/${designRepo}/blob/main/SpecDiff/issue-${sdNumber}.md)`,
-                `- TestPlan：[TestPlan/issue-${sdNumber}.md](https://github.com/${org}/${designRepo}/blob/main/TestPlan/issue-${sdNumber}.md)`,
+                `- TDD：[TDD/issue-${sdNumber}.md](https://github.com/${org}/${designRepo}/blob/main/TDD/issue-${sdNumber}.md)`,
                 `- TestReport：（待填入）`,
               ].join('\n'),
               labels: ['PG'],
@@ -172,25 +172,25 @@ jobs:
               if (e.status !== 422) throw e;
             }
 
-            // 讀取 TestPlan，產生 TestReport scaffold（同時提供 C-Branch 初始 commit，讓 Draft PR 可建立）
-            let testPlanRaw = '';
+            // 讀取 TDD，產生 TestReport scaffold（同時提供 C-Branch 初始 commit，讓 Draft PR 可建立）
+            let tddRaw = '';
             try {
-              const testPlanFile = await github.rest.repos.getContent({
+              const tddFile = await github.rest.repos.getContent({
                 owner: org,
                 repo: designRepo,
-                path: `TestPlan/issue-${sdNumber}.md`,
+                path: `TDD/issue-${sdNumber}.md`,
                 ref: 'main',
               });
-              testPlanRaw = Buffer.from(testPlanFile.data.content, 'base64').toString('utf8');
+              tddRaw = Buffer.from(tddFile.data.content, 'base64').toString('utf8');
             } catch (e) {
-              console.log(`找不到 TestPlan/issue-${sdNumber}.md，使用空表格`);
+              console.log(`找不到 TDD/issue-${sdNumber}.md，使用空表格`);
             }
 
-            const testReportContent = testPlanRaw
-              ? testPlanRaw
+            const testReportContent = tddRaw
+              ? tddRaw
                   .split('\n')
                   .map(line => {
-                    if (line.startsWith('# TestPlan：')) return line.replace('# TestPlan：', '# TestReport：');
+                    if (line.startsWith('# TDD：')) return line.replace('# TDD：', '# TestReport：');
                     if (/^\|[\s\-:]+(\|[\s\-:]+)*\|$/.test(line)) return line.replace(/\|$/, '| --- | --- |');
                     if (line.startsWith('|') && line.endsWith('|')) return line.replace(/\|$/, '|  |  |');
                     return line;

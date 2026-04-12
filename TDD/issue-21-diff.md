@@ -1,4 +1,4 @@
-# TestPlan Diff：Issue #21 安全事件清單 — SSB 串接完整實作
+# TDD Diff：Issue #21 安全事件清單 — SSB 串接完整實作
 
 ## 修改項目及內容
 - **Spec/SecurityEventsAPI.md**（added，+155 -0）

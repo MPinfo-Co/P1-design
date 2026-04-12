@@ -1,4 +1,4 @@
-# TestPlan Diff：Issue #9 驗證修正v2
+# TDD Diff：Issue #9 驗證修正v2
 
 ## 修改項目及內容
 - Spec/VerifyAPI.md：異動
