@@ -1,4 +1,4 @@
-# TestPlan Diff：Issue #7 [SD] [SA] [PM] 測試串聯流程
+# TDD Diff：Issue #7 [SD] [SA] [PM] 測試串聯流程
 
 ## 修改項目及內容
 - Spec/TestAPI.md：異動

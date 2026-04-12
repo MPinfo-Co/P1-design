@@ -1,4 +1,4 @@
-# TestPlan Diff：Issue #19 TestDraftPR-03301524
+# TDD Diff：Issue #19 TestDraftPR-03301524
 
 ## 修改項目及內容
 - （本次無 Spec/Prototype 異動）

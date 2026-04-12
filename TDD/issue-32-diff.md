@@ -1,4 +1,4 @@
-# TestPlan Diff：Issue #32 Workflow 改造驗證測試
+# TDD Diff：Issue #32 Workflow 改造驗證測試
 
 ## 修改項目及內容
 - **Spec/workflow-test.md**（added，+7 -0）

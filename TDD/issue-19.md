@@ -1,4 +1,4 @@
-# TestPlan：[SD] TestDraftPR-03301524
+# TDD：[SD] TestDraftPR-03301524
 
 ## 測試案例
 | ID | 類型 | 前置條件 | 操作 | 預期結果 |
