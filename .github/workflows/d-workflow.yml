@@ -105,7 +105,7 @@ jobs:
               body: [
                 '## 關聯項目',
                 '',
-                '### 工作文件',
+                '### PG 工作文件',
                 saNumber ? `- business-logic.md：[issue-${saNumber}/business-logic.md](https://github.com/${org}/${analysisRepo}/blob/main/issue-${saNumber}/business-logic.md)` : `- business-logic.md：（請查 Epic）`,
                 `- SpecDiff：[SpecDiff/issue-${sdNumber}.md](https://github.com/${org}/${designRepo}/blob/main/SpecDiff/issue-${sdNumber}.md)`,
                 `- TDD：[TDD/issue-${sdNumber}.md](https://github.com/${org}/${designRepo}/blob/main/TDD/issue-${sdNumber}.md)`,
@@ -118,7 +118,6 @@ jobs:
                 `- PG Issue：#（本 Issue）`,
                 '',
                 '### 相關連結',
-                `- 階段：PG`,
                 `- 分支：（待填入）`,
                 `- Draft PR：（待建立）`,
               ].join('\n'),
