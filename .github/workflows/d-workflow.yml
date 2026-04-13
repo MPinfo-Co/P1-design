@@ -105,10 +105,11 @@ jobs:
               body: [
                 '## 關聯項目',
                 '',
-                '### 工作狀態',
-                `- 階段：PG`,
-                `- 分支：（待填入）`,
-                `- Draft PR：（待建立）`,
+                '### 工作文件',
+                saNumber ? `- business-logic.md：[issue-${saNumber}/business-logic.md](https://github.com/${org}/${analysisRepo}/blob/main/issue-${saNumber}/business-logic.md)` : `- business-logic.md：（請查 Epic）`,
+                `- SpecDiff：[SpecDiff/issue-${sdNumber}.md](https://github.com/${org}/${designRepo}/blob/main/SpecDiff/issue-${sdNumber}.md)`,
+                `- TDD：[TDD/issue-${sdNumber}.md](https://github.com/${org}/${designRepo}/blob/main/TDD/issue-${sdNumber}.md)`,
+                `- TestReport：（待填入）`,
                 '',
                 '### 關聯 Issue',
                 `- Epic：MPinfo-Co/P1-project#${epicNumber}`,
@@ -116,11 +117,10 @@ jobs:
                 `- SD Issue：MPinfo-Co/P1-design#${sdNumber}`,
                 `- PG Issue：#（本 Issue）`,
                 '',
-                '### 關聯檔案',
-                saNumber ? `- business-logic.md：[issue-${saNumber}/business-logic.md](https://github.com/${org}/${analysisRepo}/blob/main/issue-${saNumber}/business-logic.md)` : `- business-logic.md：（請查 Epic）`,
-                `- SpecDiff：[SpecDiff/issue-${sdNumber}.md](https://github.com/${org}/${designRepo}/blob/main/SpecDiff/issue-${sdNumber}.md)`,
-                `- TDD：[TDD/issue-${sdNumber}.md](https://github.com/${org}/${designRepo}/blob/main/TDD/issue-${sdNumber}.md)`,
-                `- TestReport：（待填入）`,
+                '### 相關連結',
+                `- 階段：PG`,
+                `- 分支：（待填入）`,
+                `- Draft PR：（待建立）`,
               ].join('\n'),
               labels: ['PG'],
             });
@@ -253,26 +253,6 @@ jobs:
                 .replace('分支：（待填入）', `分支：[${cBranchName}](https://github.com/${org}/${codeRepo}/tree/${cBranchName})`)
                 .replace('Draft PR：（待建立）', pgPrUrl ? `Draft PR：[#${pgPrNumber}](${pgPrUrl})` : 'Draft PR：（未建立）')
                 .replace('TestReport：（待填入）', `TestReport：[TestReport/issue-${sdNumber}.md](https://github.com/${org}/${codeRepo}/blob/${cBranchName}/TestReport/issue-${sdNumber}.md)`),
-            });
-
-            // 更新 Epic Issue body
-            const epicIssue = await github.rest.issues.get({
-              owner: org,
-              repo: projectRepo,
-              issue_number: epicNumber,
-            });
-
-            const updatedEpicBody = (epicIssue.data.body || '')
-              .replace(
-                /- PG Issue：P1-code #（待建立）/,
-                `- PG Issue：MPinfo-Co/P1-code#${pgNumber}`
-              );
-
-            await github.rest.issues.update({
-              owner: org,
-              repo: projectRepo,
-              issue_number: epicNumber,
-              body: updatedEpicBody,
             });
 
             // 回填 SD Issue body：PG Issue 編號 + branch ref → main
