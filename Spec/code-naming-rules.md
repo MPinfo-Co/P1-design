@@ -6,4 +6,6 @@
 - **Spec 檔名**：同樣使用底線格式，放於對應 domain 子目錄，例：`Spec/f_auth/f_auth_01_auth.md`
 - **Commit message**：`feat: f-evt-01 新增事件篩選邏輯`
 - **Model 歸屬原則**：model 的 owner = 「管理該資料」的功能，而非「使用它」的功能。例：`User` model 屬 f-user-01（帳號管理），不屬 f-auth-01（登入只是讀取）
+- **pytest 檔名**：一個功能一個測試檔，以 `test_{domain}.py` 命名
+  - 例：`test_auth.py`（所有 auth API 行為）、`test_users.py`（所有 user 相關行為）、`test_migrations.py`（所有 migration 行為）
 - **既有檔案改名**：見 [MPinfo-Co/P1-code#93](https://github.com/MPinfo-Co/P1-code/issues/93)
