@@ -7,4 +7,3 @@
 - **Commit message**：`feat: f-evt-01 新增事件篩選邏輯`
 - **pytest 檔名**：一個功能一個測試檔，以 `test_{domain}.py` 命名
   - 例：`test_auth.py`（所有 auth API 行為）、`test_users.py`（所有 user 相關行為）、`test_migrations.py`（所有 migration 行為）
-- **既有檔案改名**：見 [MPinfo-Co/P1-code#93](https://github.com/MPinfo-Co/P1-code/issues/93)
