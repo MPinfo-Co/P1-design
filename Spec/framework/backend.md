@@ -7,8 +7,26 @@
 | `backend/app/main.py` | FastAPI 唯一入口 |
 | `backend/app/core/config.py` | 全域環境設定 |
 | `backend/app/db/session.py` | 資料庫連線，所有功能共用 |
-| `backend/app/api/health.py` | 健檢端點，非產品功能 |
+| `backend/app/api/health.py` | 健檢端點，非產品功能（規格詳見下方）|
 | `backend/app/worker.py` | 背景任務排程基礎設定 |
 | `backend/seed.py` | 初始化腳本（建立預設帳號與角色）|
 | `backend/alembic/env.py` | 資料庫版本遷移入口 |
 | `backend/app/**/__init__.py`、`backend/tests/__init__.py` | Python 套件標記檔 |
+
+---
+
+## Health API
+
+### GET /api/health
+
+無需參數或認證。
+
+**Response 200**
+```json
+{ "status": "ok", "timestamp": "2026-03-29T10:00:00Z" }
+```
+
+**Response 503**
+```json
+{ "status": "degraded", "message": "Database connection failed" }
+```

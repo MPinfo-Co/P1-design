@@ -17,4 +17,4 @@
 
 - 編號格式 `{domain}`，各功能畫面以 `{domain}_{NN}` 延伸，詳見 [Spec/](Spec/) 各功能資料夾的 .md
 - 程式碼命名規則：詳見 [Spec/code-naming-rules.md](Spec/code-naming-rules.md)
-- 共用 / 框架檔案：詳見 [Spec/framework/](Spec/framework/)
+- 共用 / 框架檔案：詳見 [Spec/framework/backend.md](Spec/framework/backend.md) 與 [Spec/framework/frontend.md](Spec/framework/frontend.md)
