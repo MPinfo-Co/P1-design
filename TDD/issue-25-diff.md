@@ -1,4 +1,4 @@
-# TestPlan Diff：Issue #25 test03300455
+# TDD Diff：Issue #25 test03300455
 
 ## 修改項目及內容
 - **Spec/TestAPI.md**（modified，+2 -0）

@@ -2,16 +2,14 @@
 
 ## 程式語言
 - **Python 3.12+**（後端語言，AI 函式庫豐富）
-- **JavaScript**（前端語言，目前使用 `.jsx`；TypeScript 遷移規劃中）
+- **TypeScript**（前端語言，新檔案一律使用 `.tsx`；舊 `.jsx` 漸進式遷移）
 
 ## 前端
 - **Vite**（建置工具，熱更新極速）
 - **React 19**（主流 UI 框架）
 - **React Router v7**（前端路由）
-- **Tailwind CSS v3**（Utility-first CSS）
 - **MUI（Material UI）**（UI 元件庫）
 - **Zustand**（Client State 管理）
-- **TanStack Query**（Server State 管理）
 - **Axios**（HTTP 請求）
 
 ## 後端框架

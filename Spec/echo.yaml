@@ -1,0 +1,26 @@
+openapi: "3.0.3"
+info:
+  title: Echo API
+  version: "1.0.0"
+paths:
+  /api/echo:
+    get:
+      summary: 回傳請求內容
+      parameters:
+        - name: msg
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  echo:
+                    type: string
+        "400":
+          description: 缺少 msg 參數

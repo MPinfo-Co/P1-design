@@ -1,4 +1,4 @@
-# TestPlan Diff：Issue #23 test03300343
+# TDD Diff：Issue #23 test03300343
 
 ## 修改項目及內容
 - （本次無 Spec/Prototype 異動）

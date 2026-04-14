@@ -1,4 +1,4 @@
-# TestPlan Diff：Issue #3 測試：端對端流程驗證
+# TDD Diff：Issue #3 測試：端對端流程驗證
 
 ## 修改項目及內容
 - （本次無 Spec/Prototype 異動）
