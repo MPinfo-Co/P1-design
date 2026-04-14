@@ -54,9 +54,5 @@
 
 ## 維護規則
 
-- **Epic 顆粒度**：單一功能預估工作量以 **1 週**為上限；超過應拆分為多個編號
-- **新增 domain**：於表格新增一列，編號格式為 `{domain}`
-- **子功能細化**：在既有 domain 下取流水號（如 `evt` 拆出子功能，命名為 `evt-01`、`evt-02`），詳見 Spec/ 資料夾
-- **廢棄功能**：標記 `[DEPRECATED]`，**不回收編號**
 - 各功能對應程式碼：詳見 [Spec/](Spec/) 各功能資料夾
 - 程式碼命名規則：詳見 [Spec/code-naming-rules.md](Spec/code-naming-rules.md)
