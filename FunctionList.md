@@ -13,12 +13,8 @@
 | kb | 知識庫 | 管理知識庫、文件與表格型資料，設定存取權限 | 規劃中 |
 | user | 使用者管理 | 管理帳號與角色權限設定 | 未開始 |
 
-## 功能編號說明
-
-每個功能領域有一個固定代碼 `{domain}`，可在 Issue、Commit 中引用。各功能畫面以 `{domain}_{NN}` 延伸，詳見 [Spec/](Spec/) 各功能資料夾。
-
 ## 維護規則
 
-- 各功能拆分畫面：詳見 [Spec/](Spec/) 各功能資料夾的 .md
+- 編號格式 `{domain}`，各功能畫面以 `{domain}_{NN}` 延伸，詳見 [Spec/](Spec/) 各功能資料夾的 .md
 - 程式碼命名規則：詳見 [Spec/code-naming-rules.md](Spec/code-naming-rules.md)
 - 共用 / 框架檔案：詳見 [Spec/framework/](Spec/framework/)
