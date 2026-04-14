@@ -7,4 +7,3 @@
 - **Spec 檔名（`.md`）**：底線格式，放於對應 domain 子目錄，例：`Spec/f_auth/f_auth_01_auth.md`
 - **pytest 檔名**：以 `test_f_{domain}_{NN}.py` 命名，一個子功能一個測試檔
   - 例：`test_f_auth_01.py`、`test_f_evt_01.py`
-- **Commit message**：`feat: f-evt-01 新增事件篩選邏輯`
