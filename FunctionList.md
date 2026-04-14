@@ -54,5 +54,5 @@
 
 ## 維護規則
 
-- 各功能對應程式碼：詳見 [Spec/](Spec/) 各功能資料夾
+- 各功能拆分畫面：詳見 [Spec/](Spec/) 各功能資料夾的 .md
 - 程式碼命名規則：詳見 [Spec/code-naming-rules.md](Spec/code-naming-rules.md)
