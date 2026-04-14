@@ -15,7 +15,7 @@
 
 ## 功能編號說明
 
-每個功能領域有一個固定代碼 `{domain}`，可在 Issue、Commit 中引用。子功能以 `{domain}-{NN}` 延伸，詳見 [Spec/](Spec/) 各功能資料夾。
+每個功能領域有一個固定代碼 `{domain}`，可在 Issue、Commit 中引用。各功能畫面以 `{domain}_{NN}` 延伸，詳見 [Spec/](Spec/) 各功能資料夾。
 
 ## 維護規則
 
