@@ -1,6 +1,6 @@
 # 程式碼命名規則
 
-- **Python 與前端（TSX / JSX / JS）檔名**：以 `f_{domain}_{NN}_{semantic}` 為前綴（底線因 Python 模組命名限制；前端為求一致亦採用）
+- **Python 與前端（TSX / JSX / JS）檔名**：以 `f_{domain}_{NN}_{semantic}` 為前綴
   - 只有一個語意名稱時可省略 semantic，例：`f_auth_01.py`
   - 多個檔案屬同一編號時以 semantic 區分，例：`f_evt_01_ssb_client.py`
 - **Spec 檔名**：同樣使用底線格式，放於對應 domain 子目錄，例：`Spec/f_auth/f_auth_01_auth.md`
