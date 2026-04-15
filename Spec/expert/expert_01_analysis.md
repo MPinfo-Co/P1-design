@@ -1,24 +1,32 @@
-# API Spec：安全事件清單
+# expert-01 資安事件分析
 
-> 對應 Epic：MPinfo-Co/P1-project#50
-> 前置條件：已登入（JWT token 有效）、具資安專家角色
+## 對應程式碼
+
+| 層   | 檔案                                                                                                                                                                                                                                                                                        |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 後端  | `api/events.py`、`models/security_event.py`、`schemas/security_event.py`、`services/ssb_client.py`、`services/log_preaggregator.py`、`services/claude_flash.py`、`services/claude_pro.py`、`tasks/flash_task.py`、`tasks/pro_task.py`、`scripts/run_pipeline.py`、`scripts/run_planb_comparison.py` |
+| 前端  | `pages/AiPartner/IssueList.jsx`、`pages/AiPartner/IssueDetail.jsx`、`contexts/IssuesContext.jsx`、`data/issues.js`                                                                                                                                                                           |
 
 ---
 
-## GET /api/events
+## API Spec
+
+> 前置條件：已登入（JWT token 有效）、具資安專家角色
+
+### GET /api/events
 
 取得安全事件清單，依嚴重度降冪排序。
 
 **Query Parameters**
 
-| 參數 | 型別 | 必填 | 說明 |
-|---|---|---|---|
-| status | string | 否 | 篩選狀態，多選用逗號分隔（pending,investigating,resolved,dismissed）|
-| keyword | string | 否 | 搜尋 title / affected_summary（ILIKE）|
-| date_from | string | 否 | 日期起（ISO8601，event_date >=）|
-| date_to | string | 否 | 日期迄（ISO8601，event_date <=）|
-| page | int | 否 | 頁碼，預設 1 |
-| page_size | int | 否 | 每頁筆數，預設 20，最大 100 |
+| 參數        | 型別     | 必填  | 說明                                                     |
+| --------- | ------ | --- | ------------------------------------------------------ |
+| status    | string | 否   | 篩選狀態，多選用逗號分隔（pending,investigating,resolved,dismissed） |
+| keyword   | string | 否   | 搜尋 title / affected_summary（ILIKE）                     |
+| date_from | string | 否   | 日期起（ISO8601，event_date >=）                             |
+| date_to   | string | 否   | 日期迄（ISO8601，event_date <=）                             |
+| page      | int    | 否   | 頁碼，預設 1                                                |
+| page_size | int    | 否   | 每頁筆數，預設 20，最大 100                                      |
 
 **排序**：`star_rank DESC`（固定）
 
@@ -50,15 +58,9 @@
 
 ---
 
-## GET /api/events/{id}
+### GET /api/events/{id}
 
 取得單一安全事件完整資料（含處理日誌）。
-
-**Path Parameters**
-
-| 參數 | 型別 | 說明 |
-|---|---|---|
-| id | int | 事件 ID |
 
 **Response 200**
 ```json
@@ -102,15 +104,9 @@
 
 ---
 
-## PATCH /api/events/{id}
+### PATCH /api/events/{id}
 
 更新事件狀態或指派人，自動寫入 event_history。
-
-**Path Parameters**
-
-| 參數 | 型別 | 說明 |
-|---|---|---|
-| id | int | 事件 ID |
 
 **Request Body**（擇一或多個）
 ```json
@@ -128,15 +124,9 @@
 
 ---
 
-## POST /api/events/{id}/history
+### POST /api/events/{id}/history
 
 新增處理日誌（留言或結案）。
-
-**Path Parameters**
-
-| 參數 | 型別 | 說明 |
-|---|---|---|
-| id | int | 事件 ID |
 
 **Request Body**
 ```json

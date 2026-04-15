@@ -305,4 +305,4 @@ CREATE INDEX idx_security_events_match_key ON security_events(match_key);
 
 ```sql
 CREATE INDEX idx_event_history_event_id ON event_history(event_id);
-```
+ ```
