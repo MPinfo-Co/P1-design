@@ -1,20 +1,16 @@
 # MP-BOX 功能清單
 
-> **用途**：記錄 MP-BOX 所有產品功能的代碼、實作範疇與完成狀態。
-
-## 功能列表
-
-| 編號 | 功能 | 說明 | 完成狀態 |
-|------|------|------|---------|
-| auth | 登入 / 認證 | 使用 email + 密碼登入；登出後帳號立即下線 | 已完成 |
-| home | 首頁 | 目前導引至 AI 夥伴頁面 | 已完成 |
-| expert | 資安專家 | 自動抓 SSB 的 LOG 資料、透過 Haiku/Sonnet 分析潛在問題、整理事件清單、支援事件詳情及 AI 諮詢、更新處置狀態 | 已完成 |
-| partner | AI 夥伴 | 選擇要使用的 AI 夥伴，並設定其分析行為（模型、提示詞等） | 未開始 |
-| kb | 知識庫 | 管理知識庫、文件與表格型資料上傳，設定存取權限 | 規劃中 |
-| user | 使用者管理 | 管理帳號與角色權限設定 | 未開始 |
-
-## 維護規則
-
-- 編號格式 `{domain}`，各功能畫面以 `{domain}_{NN}` 延伸，詳見 [Spec/](Spec/) 各功能資料夾的 .md
-- 程式碼命名規則：詳見 [Spec/code-naming-rules.md](Spec/code-naming-rules.md)
-- 共用 / 框架檔案：詳見 [Spec/framework/backend.md](Spec/framework/backend.md) 與 [Spec/framework/frontend.md](Spec/framework/frontend.md)
+| 功能        | 功能名稱  | 功能說明           | 完成狀態 |
+| --------- | ----- | -------------- | ---- |
+| auth      | 登入    |                | 已完成  |
+| home      | 首頁    |                | 已完成  |
+| expert    | 資安專家  | 透過AI協助企業處理資安問題 | 進行中  |
+| partner   | AI 夥伴 | 使用及設定 AI 夥伴    | 未開始  |
+| km        | 知識庫   | 管理公司資料         | 規劃中  |
+| user      | 使用者   |                | 未開始  |
+| role      | 角色    | 維護角色及權限        | 未開始  |
+| framework | 框架    | 共用邏輯           | 未開始  |
+# 規格撰寫規則與功能編號的關聯
+1. 規格位置: `P1-design/Spec/`
+2. 每一支功能對應一個子目錄，子目錄名稱=功能編號，如: `P1-design/Spec/auth/`
+3. 同功能有多頁面時，以「序號_ 畫面目的」命名，如: `P1-design/Spec/auth/auth_01_login.md`

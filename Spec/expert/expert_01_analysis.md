@@ -2,10 +2,10 @@
 
 ## 對應程式碼
 
-| 層 | 檔案 |
-|----|------|
-| 後端 | `api/events.py`、`models/security_event.py`、`schemas/security_event.py`、`services/ssb_client.py`、`services/log_preaggregator.py`、`services/claude_flash.py`、`services/claude_pro.py`、`tasks/flash_task.py`、`tasks/pro_task.py`、`scripts/run_pipeline.py`、`scripts/run_planb_comparison.py` |
-| 前端 | `pages/AiPartner/IssueList.jsx`、`pages/AiPartner/IssueDetail.jsx`、`contexts/IssuesContext.jsx`、`data/issues.js` |
+| 層   | 檔案                                                                                                                                                                                                                                                                                        |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 後端  | `api/events.py`、`models/security_event.py`、`schemas/security_event.py`、`services/ssb_client.py`、`services/log_preaggregator.py`、`services/claude_flash.py`、`services/claude_pro.py`、`tasks/flash_task.py`、`tasks/pro_task.py`、`scripts/run_pipeline.py`、`scripts/run_planb_comparison.py` |
+| 前端  | `pages/AiPartner/IssueList.jsx`、`pages/AiPartner/IssueDetail.jsx`、`contexts/IssuesContext.jsx`、`data/issues.js`                                                                                                                                                                           |
 
 ---
 
@@ -19,14 +19,14 @@
 
 **Query Parameters**
 
-| 參數 | 型別 | 必填 | 說明 |
-|---|---|---|---|
-| status | string | 否 | 篩選狀態，多選用逗號分隔（pending,investigating,resolved,dismissed）|
-| keyword | string | 否 | 搜尋 title / affected_summary（ILIKE）|
-| date_from | string | 否 | 日期起（ISO8601，event_date >=）|
-| date_to | string | 否 | 日期迄（ISO8601，event_date <=）|
-| page | int | 否 | 頁碼，預設 1 |
-| page_size | int | 否 | 每頁筆數，預設 20，最大 100 |
+| 參數        | 型別     | 必填  | 說明                                                     |
+| --------- | ------ | --- | ------------------------------------------------------ |
+| status    | string | 否   | 篩選狀態，多選用逗號分隔（pending,investigating,resolved,dismissed） |
+| keyword   | string | 否   | 搜尋 title / affected_summary（ILIKE）                     |
+| date_from | string | 否   | 日期起（ISO8601，event_date >=）                             |
+| date_to   | string | 否   | 日期迄（ISO8601，event_date <=）                             |
+| page      | int    | 否   | 頁碼，預設 1                                                |
+| page_size | int    | 否   | 每頁筆數，預設 20，最大 100                                      |
 
 **排序**：`star_rank DESC`（固定）
 
