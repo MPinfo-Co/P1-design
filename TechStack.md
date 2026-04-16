@@ -10,7 +10,7 @@
 - **React Router v7**（前端路由）
 - **MUI（Material UI）**（UI 元件庫）
 - **Zustand**（Client State 管理）
-- **Axios**（HTTP 請求）
+- **Fetch API**（HTTP 請求）
 
 ## 後端框架
 - **FastAPI**（高效能 Python Web 框架，自動生成 Swagger 文件）
