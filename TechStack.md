@@ -1,41 +1,48 @@
 # MP-BOX 技術棧
 
-## 程式語言
-- **Python 3.12+**（後端語言，AI 函式庫豐富）
-- **TypeScript**（前端語言，新檔案一律使用 `.tsx`；舊 `.jsx` 漸進式遷移）
-
 ## 前端
-- **Vite**（建置工具，熱更新極速）
-- **React 19**（主流 UI 框架）
-- **React Router v7**（前端路由）
-- **MUI（Material UI）**（UI 元件庫）
-- **Zustand**（Client State 管理）
-- **Fetch API**（HTTP 請求）
+- **語言**：TypeScript（新檔案一律使用 `.tsx`；舊 `.jsx` 漸進式遷移）
+- **套件管理**：npm
+- **建置工具**：Vite（熱更新極速）
+- **UI 框架**：React 19
+- **路由**：React Router v7
+- **UI 元件庫**：MUI（Material UI）
+- **Client State**：Zustand
+- **HTTP 請求**：Fetch API
+- **程式碼品質**：ESLint
 
-## 後端框架
-- **FastAPI**（高效能 Python Web 框架，自動生成 Swagger 文件）
-- **Pydantic**（資料驗證）
-- **SQLAlchemy**（ORM，成熟穩定）
-- **Alembic**（Migration 工具）
+## 後端
+- **語言**：Python 3.12+
+- **套件管理**：pip
+- **Web 框架**：FastAPI（自動生成 Swagger 文件）
+- **ASGI 伺服器**：Uvicorn
+- **資料驗證**：Pydantic
+- **ORM**：SQLAlchemy
+- **Migration**：Alembic
+- **環境變數**：pydantic-settings
 
-## 排程與非同步任務（已採用）
+## 資料庫 & 基礎設施
+- **PostgreSQL**（主要關聯式資料庫）
+- **Redis**（Celery Broker；可擴充為 Cache / Session）
+
+## 排程與非同步任務
 - **Celery**（分散式任務佇列，執行 Flash Task / Pro Task）
 - **Celery Beat**（定時排程，觸發 Flash Task 每 10 分鐘、Pro Task 每日 02:00）
-- **Redis**（Celery Broker）
-
-## 資料庫
-- **PostgreSQL**（主要關聯式資料庫）
 
 ## 認證
 - **自建 JWT**（登入 / 登出 / permission guard，bcrypt 密碼 hash）
 
-## AI 整合
+## 測試
+- **pytest**（後端單元測試 / 整合測試）
+
+## AI / LLM 整合
 - **Claude Haiku**（`claude-haiku-4-5-20251001`，SSB log 逐 chunk 分析，高速低成本）
 - **Claude Sonnet**（`claude-sonnet-4-6`，每日彙整、去重、修正嚴重度）
 - **Anthropic Python SDK**（Python 呼叫 Claude API）
 
-## 外部系統串接
-- **SSB（syslog-ng Store Box）**：REST API `/api/5/` 拉取 log，認證用 AUTHENTICATION_TOKEN cookie
+## 部署平台
+- **Vercel**（前端）
+- **Railway**（後端）
 
 ## 檔案儲存（規劃中）
 - **Cloudflare R2**（物件儲存，無流出費用，S3 API 相容）
