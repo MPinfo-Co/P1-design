@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP-Box — 帳號管理</title>
+    <link rel="stylesheet" href="_style.css">
+</head>
+<body data-page="f_user">
+    <div id="appContainer" class="app-container" style="display:grid;">
+        <!-- sidebar + header 由 _nav.js 注入 -->
+        <div class="main-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h2 style="color:#1e293b;">帳號管理</h2>
+                <button class="btn btn-primary" onclick="openUserModal('add')">新增帳號</button>
+            </div>
+            <div class="card filter-bar">
+                <div class="filter-group">
+                    <label>角色職位:</label>
+                    <select id="userFilterRole">
+                        <option value="all">全部</option>
+                        <option value="管理員">管理員</option>
+                        <option value="一般使用者">一般使用者</option>
+                    </select>
+                    <label style="margin-left:10px;">關鍵字搜尋:</label>
+                    <input type="text" id="userSearchKeyword" placeholder="搜尋姓名或信箱...">
+                </div>
+                <button class="btn-filter" onclick="renderUserTable()">套用</button>
+            </div>
+            <div class="card" style="padding:0;">
+                <table class="table">
+                    <thead>
+                        <tr><th>姓名</th><th>電子信箱</th><th>角色</th><th>執行動作</th></tr>
+                    </thead>
+                    <tbody id="userTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- userModal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content" style="max-width:460px; max-height:90vh; display:flex; flex-direction:column;">
+            <h3 id="uModalTitle" style="color:#1e293b; margin-bottom:20px; flex-shrink:0;">帳號設定</h3>
+            <div style="overflow-y:auto; flex:1;">
+                <div class="input-group"><label>名稱</label><input type="text" id="u_name"></div>
+                <div class="input-group"><label>Email</label><input type="text" id="u_email"></div>
+                <div class="input-group">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <label style="margin:0;">角色</label>
+                    </div>
+                    <div id="u_role_checks" style="border:1px solid #e2e8f0; border-radius:8px; padding:4px; background:#f8fafc;">
+                        <div style="display:flex; justify-content:flex-end; padding:4px 6px; border-bottom:1px solid #f1f5f9; margin-bottom:2px;">
+                            <button type="button" onclick="toggleAllRoles()" style="font-size:12px; color:#2e3f6e; background:none; border:none; cursor:pointer; font-weight:600;">全選</button>
+                        </div>
+                        <label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; cursor:pointer; background:white; margin-bottom:4px; border:1px solid #e2e8f0;">
+                            <input type="checkbox" class="role-check" value="管理員" style="width:15px;height:15px;accent-color:#2e3f6e;">
+                            <span style="font-size:13px;">管理員</span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; cursor:pointer; background:white; margin-bottom:4px; border:1px solid #e2e8f0;">
+                            <input type="checkbox" class="role-check" value="一般使用者" style="width:15px;height:15px;accent-color:#2e3f6e;">
+                            <span style="font-size:13px;">一般使用者</span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; cursor:pointer; background:white; border:1px solid #e2e8f0;">
+                            <input type="checkbox" class="role-check" value="資安分析師" style="width:15px;height:15px;accent-color:#2e3f6e;">
+                            <span style="font-size:13px;">資安分析師</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; padding-top:15px; border-top:1px solid #e2e8f0; flex-shrink:0;">
+                <button class="btn btn-outline" onclick="closeModal('userModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveUser()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="_state.js"></script>
+    <script src="_nav.js"></script>
+    <script>
+    let currentEditingUserId = null;
+
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function toggleAllRoles() {
+        const checks = document.querySelectorAll('.role-check');
+        const allChecked = Array.from(checks).every(cb => cb.checked);
+        checks.forEach(cb => cb.checked = !allChecked);
+    }
+
+    function renderUserTable() {
+        const roleFilter = document.getElementById('userFilterRole').value;
+        const keyword = document.getElementById('userSearchKeyword').value.toLowerCase();
+        const tbody = document.getElementById('userTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        allUsers.filter(u => {
+            const matchRole = roleFilter === 'all' || (u.roles && u.roles.includes(roleFilter));
+            const matchKey = u.name.toLowerCase().includes(keyword) || u.email.toLowerCase().includes(keyword);
+            return matchRole && matchKey;
+        }).forEach(u => {
+            const rolesHtml = (u.roles || []).map(r => '<span class="badge-slate" style="margin-right:4px;">' + r + '</span>').join('');
+            tbody.innerHTML += '<tr>' +
+                '<td>' + u.name + '</td>' +
+                '<td>' + u.email + '</td>' +
+                '<td>' + rolesHtml + '</td>' +
+                '<td>' +
+                    '<button class="btn btn-outline" style="padding:4px 8px;" onclick="prepareEditUser(' + u.id + ')">修改</button> ' +
+                    '<button class="btn btn-outline" style="padding:4px 8px; color:#ef4444; border-color:#fca5a5;" onclick="deleteItem(' + u.id + ')">刪除</button>' +
+                '</td></tr>';
+        });
+    }
+
+    function openUserModal(type) {
+        if (type === 'add') {
+            currentEditingUserId = null;
+            document.getElementById('uModalTitle').innerText = '新增帳號';
+            document.getElementById('u_name').value = '';
+            document.getElementById('u_email').value = '';
+            document.querySelectorAll('.role-check').forEach(cb => cb.checked = false);
+            document.getElementById('userModal').style.display = 'flex';
+        }
+    }
+
+    function prepareEditUser(id) {
+        const u = allUsers.find(user => user.id === id);
+        if (!u) return;
+        currentEditingUserId = id;
+        document.getElementById('uModalTitle').innerText = '編輯帳號';
+        document.getElementById('u_name').value = u.name;
+        document.getElementById('u_email').value = u.email;
+        document.querySelectorAll('.role-check').forEach(cb => { cb.checked = u.roles.includes(cb.value); });
+        document.getElementById('userModal').style.display = 'flex';
+    }
+
+    function saveUser() {
+        const name = document.getElementById('u_name').value;
+        const email = document.getElementById('u_email').value;
+        const roles = Array.from(document.querySelectorAll('.role-check:checked')).map(cb => cb.value);
+        if (roles.length === 0) { alert('請至少選擇一個角色'); return; }
+        if (currentEditingUserId) {
+            const idx = allUsers.findIndex(u => u.id === currentEditingUserId);
+            allUsers[idx] = { ...allUsers[idx], name, email, roles };
+            currentEditingUserId = null;
+        } else {
+            allUsers.push({ id: Date.now(), name, email, roles });
+        }
+        closeModal('userModal');
+        renderUserTable();
+    }
+
+    function deleteItem(id) {
+        if (!confirm('確定要刪除此帳號嗎？無法復原。')) return;
+        allUsers = allUsers.filter(u => u.id !== id);
+        renderUserTable();
+    }
+
+    document.addEventListener('DOMContentLoaded', renderUserTable);
+    </script>
+</body>
+</html>
