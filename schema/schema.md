@@ -49,7 +49,7 @@
 | updated_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | 最後更新時間                |
 
 ---
-## fn: partner
+## fn_partner
 
 ### tb_ai_partners
 
