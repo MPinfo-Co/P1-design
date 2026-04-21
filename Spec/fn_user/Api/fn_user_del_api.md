@@ -1,12 +1,9 @@
-# 帳號管理：刪除帳號 API(fn_user_del)
-
-## 說明
+## 介面說明
 
 | 項目     | 內容                                       |
 | ------ | ---------------------------------------- |
 | Method | DELETE                                   |
 | Endpoint | /api/users/{email}                     |
-| 前置條件   | 已登入（JWT 有效），具 `can_manage_accounts` 權限   |
 
 ## 傳入參數
 
