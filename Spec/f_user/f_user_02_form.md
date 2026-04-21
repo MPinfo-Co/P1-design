@@ -4,7 +4,7 @@
 
 ## 畫面
 
-> 圖檔：`Screen/f_user_02_form.png`（待補）
+![f_user_02 帳號表單](Screen/f_user_02_form.png)
 
 以 Modal 呈現，標題「新增帳號」。
 
