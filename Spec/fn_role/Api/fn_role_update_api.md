@@ -37,17 +37,20 @@
 
 # 傳回結果
 
+## 成功
+
 **Response 200**
-```json
-{
-  "name": "資安分析師",
-  "can_access_ai": true,
-  "can_manage_accounts": false,
-  "can_manage_roles": false,
-  "can_edit_ai": false,
-  "ai_partners": ["資安專家"]
-}
-```
+
+| 欄位              | 型別      | 說明                       |
+| --------------- | ------- | ------------------------ |
+| **角色名稱**        | string  | 角色顯示名稱                   |
+| AI 夥伴使用權        | boolean | 可使用 AI 夥伴進行分析            |
+| 帳號管理權           | boolean | 可新增、修改、刪除使用者帳號           |
+| 角色管理權           | boolean | 可新增、修改、刪除角色與權限           |
+| AI 夥伴管理權        | boolean | 可調整 AI 夥伴設定與綁定知識庫        |
+| **可用 AI 夥伴**    | array   | 夥伴名稱清單                   |
+
+## 失敗
 
 **Response 400**：欄位驗證失敗
 **Response 401**：未登入或 Token 過期

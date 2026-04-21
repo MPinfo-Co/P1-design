@@ -24,7 +24,11 @@
 
 # 傳回結果
 
+## 成功
+
 **Response 204**：刪除成功，無回傳內容
+
+## 失敗
 
 **Response 401**：未登入或 Token 過期
 **Response 403**：無 `can_manage_roles` 權限

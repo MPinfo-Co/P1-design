@@ -24,19 +24,18 @@
 
 # 傳回結果
 
-**Response 200**
-```json
-[
-  {
-    "name": "Rex Shen",
-    "email": "rexshen@mpinfo.com.tw",
-    "is_active": true,
-    "roles": [
-      { "name": "管理員" }
-    ]
-  }
-]
-```
+## 成功
+
+**Response 200**：回傳陣列，每筆結構如下
+
+| 欄位        | 型別      | 說明                    |
+| --------- | ------- | --------------------- |
+| **名稱**    | string  | 使用者顯示名稱               |
+| **Email** | string  | 登入信箱                  |
+| 啟用狀態      | boolean | 帳號是否啟用                |
+| **角色**    | array   | 已指派角色清單，每筆含**角色名稱**   |
+
+## 失敗
 
 **Response 401**：未登入或 Token 過期
 **Response 403**：無 `can_manage_accounts` 權限
