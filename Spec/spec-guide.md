@@ -82,7 +82,7 @@ Spec/
 
 **section 結構（皆為 H1）**：
 1. `# 介面說明` — 僅含 Method、Endpoint
-2. `# 傳入參數` — 以 `參數類型：Query Parameter / Path Parameter / Request Body` 標示，混合型可多段
+2. `# 傳入參數` — 以 `## 參數類型：Query Parameter / Path Parameter / Request Body` 次階標示，混合型可多段
 3. `# 處理邏輯` — 含涉及資料表說明
 4. `# 傳回結果` — 成功與失敗情境（含 HTTP 狀態碼）
 
