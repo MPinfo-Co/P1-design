@@ -68,14 +68,6 @@
         const titleEl = document.getElementById('pageTitle');
         if (titleEl && titleMap[page]) titleEl.innerText = titleMap[page];
 
-        // 權限控制：一般使用者隱藏設定選單
-        const user = getUser();
-        if (user) {
-            const myRoles = allRoles.filter(r => user.roles.includes(r.name));
-            const canManage = myRoles.some(r => r.canManageAccounts || r.canManageRoles);
-            const settingItem = document.getElementById('nav-settings');
-            if (settingItem) settingItem.style.display = canManage ? 'flex' : 'none';
-        }
     }
 
     function toggleSubmenu(id) {

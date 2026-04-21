@@ -15,10 +15,6 @@ function clearUser() {
 }
 
 function requireAuth() {
-    if (!getUser()) {
-        location.href = 'login.html';
-        return false;
-    }
     return true;
 }
 
