@@ -95,7 +95,7 @@ Spec/
 
 **傳回結果表格欄標**：欄位 / 型別 / 說明
 
-**型別寫法**：`string`、`integer`、`boolean`、`object`、`array`；陣列元素型別已知時寫 `integer[]`、`string[]`
+**型別寫法**：`string`、`integer`、`boolean`、`object`、`array`；陣列元素型別已知時寫 `integer[]`、`string[]`、`object[]`
 
 ---
 
