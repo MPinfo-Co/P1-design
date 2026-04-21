@@ -43,6 +43,24 @@
 | user_id | INTEGER, PK, FK → tb_users | |
 | role_id | INTEGER, PK, FK → tb_roles | |
 
+### token_blacklist
+
+- **用途**：記錄已登出的 JWT，防止 token 在過期前被重複使用。
+
+| 欄位 | 型別 | 說明 |
+|------|------|------|
+| id | INTEGER, PK | 主鍵 |
+| token_jti | VARCHAR(255), NOT NULL, UK | JWT 的 jti（唯一識別碼） |
+| expired_at | TIMESTAMP, NOT NULL | token 原本的過期時間（用於定期清理） |
+| created_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | 加入黑名單時間 |
+
+每次 API 驗證身分時會查詢 `token_jti`；定期清理過期 token 時會篩選 `expired_at`，兩者都需要加速查詢。
+
+```sql
+CREATE INDEX idx_token_blacklist_token_jti ON token_blacklist(token_jti);
+CREATE INDEX idx_token_blacklist_expired_at ON token_blacklist(expired_at);
+```
+
 ---
 
 ## 2. AI 夥伴
