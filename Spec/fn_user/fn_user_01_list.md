@@ -2,7 +2,7 @@
 
 ## 查詢畫面
 
-![fn_user_01 帳號清單](Screen/fn_user_01_list.png)
+[▶ 開啟雛形](../../Prototype/fn_user.html#userList)
 
 ## 欄位說明
 

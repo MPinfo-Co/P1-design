@@ -2,7 +2,7 @@
 
 ## 新增畫面
 
-![fn_user_02 帳號表單](Screen/fn_user_02_form.png)
+[▶ 開啟雛形](../../Prototype/fn_user.html#userModal)
 
 ## 欄位說明
 
