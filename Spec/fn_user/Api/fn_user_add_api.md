@@ -1,11 +1,11 @@
-## 介面說明
+# 介面說明
 
 | 項目       | 內容                                       |
 | -------- | ---------------------------------------- |
 | Method   | POST                                     |
 | Endpoint | /api/users                               |
 
-## 傳入參數
+# 傳入參數
 
 **Request Body（JSON）**
 
@@ -16,14 +16,14 @@
 | **密碼**    | string    | 是   | 明文密碼，後端 bcrypt hash 後儲存，最少 8 字元   |
 | **角色**    | integer[] | 是   | 至少一個角色                            |
 
-## 處理邏輯
+# 處理邏輯
 
 1. 驗證 JWT，確認使用者具 `can_manage_accounts = true`
 2. 確認 **Email** 在 tb_users 中不重複
 3. 以 bcrypt hash **密碼**，寫入 tb_users（`is_active = true`）
 4. 逐筆寫入 tb_user_roles
 
-## 傳回結果
+# 傳回結果
 
 **Response 201**
 ```json

@@ -1,11 +1,11 @@
-## 介面說明
+# 介面說明
 
 | 項目       | 內容                                     |
 | -------- | ---------------------------------------- |
 | Method   | POST                                     |
 | Endpoint | /api/roles                               |
 
-## 傳入參數
+# 傳入參數
 
 **Request Body（JSON）**
 
@@ -26,7 +26,7 @@
 | manage_roles     | boolean | 角色管理權           |
 | edit_ai          | boolean | AI 夥伴管理權        |
 
-## 處理邏輯
+# 處理邏輯
 
 1. 驗證 JWT，確認使用者具 `can_manage_roles = true`
 2. 確認 **角色名稱** 在 tb_roles 中不重複
@@ -35,7 +35,7 @@
 5. 逐筆寫入 tb_role_ai_partners（可用 AI 夥伴）
 6. 逐筆寫入 tb_role_kb_map（可存取知識庫）
 
-## 傳回結果
+# 傳回結果
 
 **Response 201**
 ```json
