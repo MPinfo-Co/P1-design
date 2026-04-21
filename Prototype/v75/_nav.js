@@ -18,8 +18,8 @@
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 設定 ▾
             </li>
             <ul id="settingSubmenu" class="nav-submenu">
-                <li class="submenu-item" onclick="location.href='f_user.html'">帳號</li>
-                <li class="submenu-item" onclick="location.href='f_role.html'">角色</li>
+                <li class="submenu-item" onclick="location.href='fn_user.html'">帳號</li>
+                <li class="submenu-item" onclick="location.href='fn_role.html'">角色</li>
                 <li class="submenu-item" onclick="location.href='settings-ai.html'">AI夥伴管理</li>
             </ul>
         </ul>
@@ -46,8 +46,8 @@
             'ai-partner': 'nav-aiPartner',
             'ai-detail':  'nav-aiPartner',
             'kb':         'nav-kb',
-            'user': 'nav-settings',
-            'role':    'nav-settings',
+            'fn_user': 'nav-settings',
+            'fn_role': 'nav-settings',
             'settings-ai':      'nav-settings'
         };
         const activeId = navMap[page];
@@ -61,8 +61,8 @@
             'ai-partner':      'AI夥伴',
             'ai-detail':       '事件詳情',
             'kb':              '知識庫',
-            'user':'帳號',
-            'role':   '角色',
+            'fn_user': '帳號',
+            'fn_role': '角色',
             'settings-ai':     'AI夥伴管理'
         };
         const titleEl = document.getElementById('pageTitle');
