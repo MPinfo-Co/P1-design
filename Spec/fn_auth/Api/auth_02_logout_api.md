@@ -15,7 +15,7 @@
 ## 處理邏輯
 
 1. 驗證 JWT 有效性
-2. 取出 `jti`，寫入 `token_blacklist`（記錄 `expired_at` 供定期清理）
+2. 取出 `jti`，寫入 **`token_blacklist`**，需可定期清理
 3. 回傳成功
 
 ## 傳回結果
