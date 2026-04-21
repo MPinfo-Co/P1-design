@@ -2,7 +2,7 @@
 
 ## 查詢畫面
 
-[▶ 開啟雛形](../../Prototype/v75/fn_role.html#roleList)
+[▶ 開啟雛形](../../Prototype/fn_role.html#roleList)
 
 ## 欄位說明
 

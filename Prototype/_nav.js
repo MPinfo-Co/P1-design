@@ -23,7 +23,7 @@
                 <li class="submenu-item" onclick="location.href='settings-ai.html'">AI夥伴管理</li>
             </ul>
         </ul>
-        <div style="padding:12px 25px;font-size:11px;color:#475569;border-top:1px solid #1e293b;">v75</div>
+        <div style="padding:12px 25px;font-size:11px;color:#475569;border-top:1px solid #1e293b;">prototype</div>
     </div>`;
 
     const headerHTML = `

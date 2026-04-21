@@ -2,7 +2,7 @@
 
 ## 新增模式
 
-[▶ 開啟雛形](../../Prototype/v75/fn_role.html#roleModal)
+[▶ 開啟雛形](../../Prototype/fn_role.html#roleModal)
 
 ## 欄位說明
 
