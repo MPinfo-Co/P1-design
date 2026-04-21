@@ -1,73 +1,22 @@
-# f-auth-01 登入 / 登出
+# auth_01 — 登入頁
 
-## 對應程式碼
+## 畫面名稱：登入頁
 
-| 層 | 檔案 |
-|----|------|
-| 後端 | `api/auth.py`、`core/security.py`、`core/deps.py`、`models/token_blacklist.py`、`schemas/auth.py` |
-| 前端 | `pages/Login/Login.tsx`、`stores/authStore.ts` |
+## 畫面
 
----
+![auth_01 登入頁](Screen/auth_01_login.png)
 
-## POST /auth/login
+## 欄位說明
 
-### Request
+| 欄位 | 元件 | 必填 | 說明 |
+|---|---|---|---|
+| 電子信箱 | text input | 是 | email 格式 |
+| 密碼 | password input | 是 | 輸入時遮蔽 |
 
-```json
-{
-  "email": "user@example.com",
-  "password": "plaintext_password"
-}
-```
+## 操作說明
 
-### Response
-
-**200 OK**
-```json
-{
-  "access_token": "<JWT>",
-  "token_type": "bearer"
-}
-```
-
-**401 Unauthorized**
-```json
-{
-  "detail": "帳號或密碼錯誤"
-}
-```
-
-> 帳號不存在、密碼錯誤、帳號停用（is_active=false）統一回傳相同訊息，避免洩漏帳號是否存在。
-
----
-
-## POST /auth/logout
-
-> 需攜帶 Authorization: Bearer \<token\>
-
-### Response
-
-**200 OK**
-```json
-{
-  "detail": "已登出"
-}
-```
-
-**401 Unauthorized**
-```json
-{
-  "detail": "請重新登入"
-}
-```
-
----
-
-## JWT 規格
-
-| 項目 | 說明 |
-|------|------|
-| 演算法 | HS256 |
-| 時效 | 8 小時 |
-| Payload | `sub`（user_id）、`jti`（唯一識別碼）、`exp` |
-| 黑名單 | 登出時將 `jti` 寫入 `token_blacklist`；驗證時需檢查黑名單 |
+**[登入]**（按鈕）
+- → `Api/auth_login.api.md`
+  - 傳入：email、password
+  - 成功：儲存身分憑證，跳轉首頁
+  - 失敗：顯示錯誤訊息「帳號或密碼錯誤」
