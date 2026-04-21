@@ -12,5 +12,5 @@
 
 | 畫面名稱 | 規格檔 | 畫面關聯 |
 |---|---|---|
-| 登入頁 | [auth_01_login.md](auth_01_login.md) | 登入成功 → 首頁 |
-| 頂部登出按鈕 | [auth_02_header.md](auth_02_header.md) | 登出成功 → 登入頁 |
+| 登入頁 | [fn_auth_01_login.md](fn_auth_01_login.md) | 登入成功 → 首頁 |
+| 頂部登出按鈕 | [fn_auth_02_logout.md](fn_auth_02_logout.md) | 登出成功 → 登入頁 |

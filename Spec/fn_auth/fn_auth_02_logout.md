@@ -1,10 +1,10 @@
-# auth_02 — 頂部登出按鈕
+# fn_auth_02 — 頂部登出按鈕
 
 ## 畫面名稱：頂部導覽列
 
 ## 畫面
 
-![auth_02 頂部導覽列](Screen/auth_02_header.png)
+![fn_auth_02 頂部導覽列](Screen/fn_auth_02_logout.png)
 
 ## 欄位說明
 

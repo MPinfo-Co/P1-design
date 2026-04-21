@@ -1,10 +1,10 @@
-# auth_01 — 登入頁
+# fn_auth_01 — 登入頁
 
 ## 畫面名稱：登入頁
 
 ## 畫面
 
-![auth_01 登入頁](Screen/auth_01_login.png)
+![fn_auth_01 登入頁](Screen/fn_auth_01_login.png)
 
 ## 欄位說明
 

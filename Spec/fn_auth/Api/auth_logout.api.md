@@ -18,9 +18,6 @@
 2. 取出 `jti`，寫入 `token_blacklist`（記錄 `expired_at` 供定期清理）
 3. 回傳成功
 
-**涉及資料表：**
-- `token_blacklist`：token_jti、expired_at
-
 ## 傳回結果
 
 **Response 200**

@@ -1,5 +1,3 @@
-# auth_login — 登入
-
 ## 說明
 
 | 項目 | 內容 |
@@ -22,8 +20,6 @@
 3. 驗證通過，簽發 JWT（含 `sub`=user_id、`jti`、`exp`=8小時後）
 4. 回傳 access_token
 
-**涉及資料表：**
-- `users`：email、password_hash、is_active
 
 ## 傳回結果
 
