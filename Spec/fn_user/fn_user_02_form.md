@@ -1,6 +1,6 @@
 # 新增畫面/修改畫面
 
-[▶ 開啟雛形](../../Prototype/fn_user.html#userModal)
+雛形畫面：[▶ 開啟雛形](../../Prototype/fn_user.html#userModal)
 
 ## 欄位說明
 

@@ -1,6 +1,6 @@
 # 查詢畫面
 
-[▶ 開啟雛形](../../Prototype/fn_role.html#roleList)
+雛形畫面：[▶ 開啟雛形](../../Prototype/fn_role.html#roleList)
 
 ## 欄位說明
 

@@ -8,7 +8,7 @@
 
 ## 主要使用角色
 
-具備 `can_manage_roles` 權限的角色（預設：管理員）
+具備 `can_manage_roles` 權限的角色
 
 ## 畫面清單
 
