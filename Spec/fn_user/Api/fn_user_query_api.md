@@ -1,4 +1,4 @@
-# fn_user_query — 查詢帳號清單
+# 帳號管理：查詢帳號清單 API(fn_user_query)
 
 ## 說明
 

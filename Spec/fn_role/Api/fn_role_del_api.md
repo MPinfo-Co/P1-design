@@ -1,4 +1,4 @@
-# fn_role_del — 刪除角色
+# 角色管理：刪除角色 API(fn_role_del)
 
 ## 說明
 

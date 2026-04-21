@@ -1,4 +1,4 @@
-# fn_user_del — 刪除帳號
+# 帳號管理：刪除帳號 API(fn_user_del)
 
 ## 說明
 

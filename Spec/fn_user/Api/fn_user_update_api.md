@@ -1,4 +1,4 @@
-# fn_user_update — 修改帳號
+# 帳號管理：修改帳號 API(fn_user_update)
 
 ## 說明
 

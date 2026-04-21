@@ -1,4 +1,4 @@
-# fn_role_query — 查詢角色清單
+# 角色管理：查詢角色清單 API(fn_role_query)
 
 ## 說明
 

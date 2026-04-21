@@ -1,4 +1,4 @@
-# fn_role — 角色管理
+# 角色管理功能規格(fn_role)
 
 ## 功能說明
 
@@ -12,5 +12,5 @@
 
 | 畫面名稱 | 規格檔                                      | 雛形                                               | 畫面關聯                         |
 | ---- | ---------------------------------------- | ------------------------------------------------ | ---------------------------- |
-| 查詢畫面 | [fn_role_01_list.md](fn_role_01_list.md) | [開啟](../../Prototype/fn_role.html#roleList)  | [新增角色] → 角色表單<br>[修改] → 角色表單 |
-| 角色表單 | [fn_role_02_form.md](fn_role_02_form.md) | [開啟](../../Prototype/fn_role.html#roleModal) | [取消] → 查詢畫面<br>[儲存成功] → 查詢畫面 |
+| 查詢畫面        | [fn_role_01_list.md](fn_role_01_list.md) | [開啟](../../Prototype/fn_role.html#roleList)  | [新增角色] → 新增畫面/修改畫面<br>[修改] → 新增畫面/修改畫面 |
+| 新增畫面/修改畫面  | [fn_role_02_form.md](fn_role_02_form.md) | [開啟](../../Prototype/fn_role.html#roleModal) | [取消] → 查詢畫面<br>[儲存成功] → 查詢畫面             |
