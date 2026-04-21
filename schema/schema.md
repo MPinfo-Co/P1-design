@@ -18,8 +18,8 @@
 | email | VARCHAR(255), NOT NULL, UK | 登入信箱，不可重複 |
 | password_hash | VARCHAR(255), NOT NULL | bcrypt 雜湊密碼 |
 | is_active | BOOLEAN, NOT NULL, DEFAULT TRUE | 帳號啟用狀態 |
-| created_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | |
-| updated_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | |
+| updated_by | INTEGER, NULLABLE, FK → tb_users | 最後更新者 |
+| updated_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | 最後更新時間 |
 
 ### tb_roles
 
@@ -43,7 +43,7 @@
 | user_id | INTEGER, PK, FK → tb_users | |
 | role_id | INTEGER, PK, FK → tb_roles | |
 
-### token_blacklist
+### tb_token_blacklist
 
 - **用途**：記錄已登出的 JWT，防止 token 在過期前被重複使用。
 
@@ -52,14 +52,8 @@
 | id | INTEGER, PK | 主鍵 |
 | token_jti | VARCHAR(255), NOT NULL, UK | JWT 的 jti（唯一識別碼） |
 | expired_at | TIMESTAMP, NOT NULL | token 原本的過期時間（用於定期清理） |
-| created_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | 加入黑名單時間 |
-
-每次 API 驗證身分時會查詢 `token_jti`；定期清理過期 token 時會篩選 `expired_at`，兩者都需要加速查詢。
-
-```sql
-CREATE INDEX idx_token_blacklist_token_jti ON token_blacklist(token_jti);
-CREATE INDEX idx_token_blacklist_expired_at ON token_blacklist(expired_at);
-```
+| updated_by | INTEGER, NULLABLE, FK → tb_users | 最後更新者 |
+| updated_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | 最後更新時間 |
 
 ---
 
@@ -323,4 +317,4 @@ CREATE INDEX idx_tb_security_events_match_key ON tb_security_events(match_key);
 
 ```sql
 CREATE INDEX idx_tb_event_history_event_id ON tb_event_history(event_id);
- ```
+```
