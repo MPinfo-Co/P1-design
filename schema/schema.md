@@ -1,11 +1,6 @@
-# MP-Box Schema
-
-> 版本：v2 | 日期：2026-03-31
-> 對應 Epic：[PM] 安全事件清單 — SSB 串接完整實作（MPinfo-Co/P1-project#50）
 
 ---
-
-## 1. 使用者 / 角色
+## fn_user / role
 
 ### tb_users
 
@@ -45,19 +40,16 @@
 
 ### tb_token_blacklist
 
-- **用途**：記錄已登出的 JWT，防止 token 在過期前被重複使用。
-
-| 欄位 | 型別 | 說明 |
-|------|------|------|
-| id | INTEGER, PK | 主鍵 |
-| token_jti | VARCHAR(255), NOT NULL, UK | JWT 的 jti（唯一識別碼） |
-| expired_at | TIMESTAMP, NOT NULL | token 原本的過期時間（用於定期清理） |
-| updated_by | INTEGER, NULLABLE, FK → tb_users | 最後更新者 |
-| updated_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | 最後更新時間 |
+| 欄位         | 型別                                 | 說明                    |
+| ---------- | ---------------------------------- | --------------------- |
+| id         | INTEGER, PK                        | 主鍵                    |
+| token_jti  | VARCHAR(255), NOT NULL, UK         | JWT 的 jti（唯一識別碼）      |
+| expired_at | TIMESTAMP, NOT NULL                | token 原本的過期時間（用於定期清理） |
+| updated_by | INTEGER, NULLABLE, FK → tb_users   | 最後更新者                 |
+| updated_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | 最後更新時間                |
 
 ---
-
-## 2. AI 夥伴
+## fn: partner
 
 ### tb_ai_partners
 
@@ -81,8 +73,7 @@
 | partner_id | INTEGER, PK, FK → tb_ai_partners | |
 
 ---
-
-## 3. 知識庫
+## fn_km
 
 ### tb_knowledge_bases
 
@@ -171,7 +162,7 @@
 
 ---
 
-## 4. SSB 分析 Pipeline
+## fn_expert - SSB Pipeline
 
 > 對應 Epic：安全事件清單 — SSB 串接完整實作
 
@@ -255,7 +246,7 @@ Pro Task 每日執行紀錄，用於監控與除錯。
 
 ---
 
-## 5. 安全事件
+## fn_expert - Security Event
 
 ### tb_security_events
 
