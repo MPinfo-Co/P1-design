@@ -84,7 +84,7 @@ Spec/
 1. `# 介面說明` — 僅含 Method、Endpoint
 2. `# 傳入參數` — 以 `## 參數類型：Query Parameter / Path Parameter / Request Body` 次階標示，混合型可多段
 3. `# 處理邏輯` — 含涉及資料表說明
-4. `# 傳回結果` — 每個狀態碼一行，格式：`**Response NNN**：message 文字`；有資料時加欄位表格
+4. `# 傳回結果` — 表格格式：Response / Message / Result Field；無資料欄位填「無」
 
 **Response Envelope**
 
@@ -104,7 +104,7 @@ Spec/
 | Query Parameter / Request Body | 欄位 / 型別 / 必填 / 說明 |
 | Path Parameter | 參數 / 型別 / 說明              |
 
-**傳回結果表格欄標**（`data` 有內容時）：欄位 / 型別 / 說明
+**傳回結果表格欄標**：Response / Message / Result Field
 
 **型別寫法**：`string`、`integer`、`boolean`、`object`、`array`；陣列元素型別已知時寫 `integer[]`、`string[]`、`object[]`
 
