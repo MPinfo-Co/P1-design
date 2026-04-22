@@ -83,8 +83,10 @@ Spec/
 **section 結構（皆為 H1）**：
 1. `# 介面說明` — 僅含 Method、Endpoint
 2. `# 傳入參數` — 以 `## 參數類型：Query Parameter / Path Parameter / Request Body` 次階標示，混合型可多段
-3. `# 處理邏輯` — 含涉及資料表說明
-4. `# 傳回結果` — 表格格式：Response / Message / Result Field；無資料欄位填「無」
+3. `# 處理邏輯` — 以 `## 檢核` / `## 執行` 次階區分
+   - `## 檢核`：表格格式，欄標：檢核項目 / 失敗條件 / 回應訊息
+   - `## 執行`：列表，描述通過檢核後的操作步驟
+4. `# 傳回結果` — 表格格式：Response / Message / data；4xx 統一填「依據檢核邏輯」
 
 **Response Envelope**
 
