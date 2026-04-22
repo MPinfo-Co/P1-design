@@ -103,8 +103,8 @@ Spec/
 
 | 參數類型           | 欄標                        |
 | -------------- | ------------------------- |
-| Query Parameter / Request Body | 欄位 / 型別 / 必填 / 說明 |
-| Path Parameter | 參數 / 型別 / 說明              |
+| Query Parameter / Request Body | 欄位 / 型別 / 必填 |
+| Path Parameter | 參數 / 型別        |
 
 **傳回結果表格欄標**：Response / Message / Result Field
 
