@@ -106,7 +106,7 @@ Spec/
 | Query Parameter / Request Body | 欄位 / 型別 / 必填 |
 | Path Parameter | 參數 / 型別        |
 
-**傳回結果表格欄標**：Response / Message / Result Field
+**傳回結果表格欄標**：Response / Message / data
 
 **型別寫法**：`string`、`integer`、`boolean`、`object`、`array`；陣列元素型別已知時寫 `integer[]`、`string[]`、`object[]`
 
