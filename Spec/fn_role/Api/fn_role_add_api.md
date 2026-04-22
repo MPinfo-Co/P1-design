@@ -37,13 +37,8 @@
 
 # 傳回結果
 
-## 成功
-
-**Response 201**：新增成功，無回傳內容
-
-## 失敗
-
+**Response 201**：新增成功
 **Response 400**：欄位驗證失敗
+**Response 400**：此角色名稱已存在
 **Response 401**：未登入或 Token 過期
-**Response 403**：無 `can_manage_roles` 權限
-**Response 409**：**角色名稱**已存在
+**Response 403**：您沒有執行此操作的權限

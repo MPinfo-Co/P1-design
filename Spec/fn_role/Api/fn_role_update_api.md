@@ -37,14 +37,9 @@
 
 # 傳回結果
 
-## 成功
-
-**Response 200**：更新成功，無回傳內容
-
-## 失敗
-
+**Response 200**：更新成功
 **Response 400**：欄位驗證失敗
+**Response 400**：此角色名稱已被其他角色使用
 **Response 401**：未登入或 Token 過期
-**Response 403**：無 `can_manage_roles` 權限
+**Response 403**：您沒有執行此操作的權限
 **Response 404**：角色不存在
-**Response 409**：**角色名稱**已被其他角色使用

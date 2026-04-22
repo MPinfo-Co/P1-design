@@ -84,7 +84,18 @@ Spec/
 1. `# 介面說明` — 僅含 Method、Endpoint
 2. `# 傳入參數` — 以 `## 參數類型：Query Parameter / Path Parameter / Request Body` 次階標示，混合型可多段
 3. `# 處理邏輯` — 含涉及資料表說明
-4. `# 傳回結果` — 以 `## 成功` / `## 失敗` 次階區分；成功用欄位表格，失敗用行內描述
+4. `# 傳回結果` — 每個狀態碼一行，格式：`**Response NNN**：message 文字`；有資料時加欄位表格
+
+**Response Envelope**
+
+所有回應統一格式：
+
+```json
+{ "message": "...", "data": ... }
+```
+
+- `message`：每個狀態碼皆帶，SD 在規格中指定文字內容
+- `data`：有回傳資料時帶（如查詢結果），無資料時省略
 
 **傳入參數表格欄標**：
 
@@ -93,7 +104,7 @@ Spec/
 | Query Parameter / Request Body | 欄位 / 型別 / 必填 / 說明 |
 | Path Parameter | 參數 / 型別 / 說明              |
 
-**傳回結果表格欄標**：欄位 / 型別 / 說明
+**傳回結果表格欄標**（`data` 有內容時）：欄位 / 型別 / 說明
 
 **型別寫法**：`string`、`integer`、`boolean`、`object`、`array`；陣列元素型別已知時寫 `integer[]`、`string[]`、`object[]`
 

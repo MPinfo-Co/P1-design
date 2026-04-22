@@ -24,12 +24,7 @@
 
 # 傳回結果
 
-## 成功
-
-**Response 204**：刪除成功，無回傳內容
-
-## 失敗
-
+**Response 200**：刪除成功
 **Response 401**：未登入或 Token 過期
-**Response 403**：無 `can_manage_roles` 權限
+**Response 403**：您沒有執行此操作的權限
 **Response 404**：角色不存在

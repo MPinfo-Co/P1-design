@@ -1,9 +1,9 @@
 # 介面說明
 
-| 項目     | 內容                                       |
-| ------ | ---------------------------------------- |
-| Method | DELETE                                   |
-| Endpoint | /api/users/{email}                     |
+| 項目       | 內容                                       |
+| -------- | ---------------------------------------- |
+| Method   | DELETE                                   |
+| Endpoint | /api/users/{email}                       |
 
 # 傳入參數
 
@@ -23,13 +23,8 @@
 
 # 傳回結果
 
-## 成功
-
-**Response 204**：刪除成功，無回傳內容
-
-## 失敗
-
-**Response 400**：嘗試刪除自己的帳號
+**Response 200**：刪除成功
+**Response 400**：無法刪除自己的帳號
 **Response 401**：未登入或 Token 過期
-**Response 403**：無 `can_manage_accounts` 權限
+**Response 403**：您沒有執行此操作的權限
 **Response 404**：使用者不存在
