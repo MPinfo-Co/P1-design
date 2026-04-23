@@ -2,8 +2,8 @@
 
 ## 工作項目
 
-| # | 類型 | 名稱 | 說明 |
-|---|------|------|------|
+| # | 類型 | 工作內容 | 細節說明 |
+|---|------|--------|--------|
 | 1 | Schema | 建立 tb_users、tb_user_roles | 含 is_active（BOOLEAN, NOT NULL, DEFAULT TRUE）欄位，建立 migration |
 | 2 | API | 實作 fn_user_query_api | GET /api/users，支援角色職位篩選與關鍵字（姓名/Email）搜尋 |
 | 3 | API | 實作 fn_user_add_api | POST /api/users，密碼 bcrypt hash，寫入 tb_users（is_active=true）及 tb_user_roles |
