@@ -24,10 +24,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Resolve branch name
+        id: branch-info
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let issueNumber, branch;
+            if (context.eventName === 'workflow_dispatch') {
+              issueNumber = '${{ github.event.inputs.issue_number }}';
+              // 用 API 找 issue-{N}-* 的 branch
+              const branches = await github.paginate(github.rest.git.listMatchingRefs, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `heads/issue-${issueNumber}-`,
+              });
+              if (branches.length === 0) {
+                core.setFailed(`找不到 issue-${issueNumber}-* 的 branch`);
+                return;
+              }
+              branch = branches[0].ref.replace('refs/heads/', '');
+              console.log(`Found branch: ${branch}`);
+            } else {
+              branch = '${{ github.ref_name }}';
+              issueNumber = branch.match(/^issue-(\d+)/)?.[1];
+              if (!issueNumber) {
+                core.setFailed(`Cannot parse issue number from branch: ${branch}`);
+                return;
+              }
+            }
+            core.setOutput('issue_number', issueNumber);
+            core.setOutput('branch', branch);
+            console.log(`SD Issue #${issueNumber}, Branch: ${branch}`);
+
       - name: Checkout SD branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && format('issue-{0}', github.event.inputs.issue_number) || github.ref }}
+          ref: ${{ steps.branch-info.outputs.branch }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout P1-analysis（業務邏輯）
@@ -36,24 +68,6 @@ jobs:
           repository: MPinfo-Co/P1-analysis
           path: p1-analysis
           ref: main
-
-      - name: Extract issue number from branch name or inputs
-        id: branch-info
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            ISSUE_NUMBER="${{ github.event.inputs.issue_number }}"
-            BRANCH="issue-${ISSUE_NUMBER}"
-          else
-            BRANCH="${{ github.ref_name }}"
-            ISSUE_NUMBER=$(echo "$BRANCH" | sed 's/^issue-\([0-9]*\).*/\1/')
-          fi
-          if ! [[ "$ISSUE_NUMBER" =~ ^[0-9]+$ ]]; then
-            echo "ERROR: Cannot parse issue number: $ISSUE_NUMBER"
-            exit 1
-          fi
-          echo "issue_number=$ISSUE_NUMBER" >> $GITHUB_OUTPUT
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
-          echo "SD Issue #$ISSUE_NUMBER, Branch: $BRANCH"
 
       - name: Get SA issue number from inputs or SD issue body
         id: sa-info
