@@ -14,33 +14,37 @@
 6. 瀏覽 `./Prototype/` 目錄清單 — 了解現有畫面設計範疇
 
 根據業務需求，判斷是否需要進一步讀取特定 Spec 或 Prototype 檔案（判斷涉及修改哪些現有功能時）。
+若涉及 API 新增或修改，讀取對應功能的 `Spec/{fn_xxx}/Api/_{fn_xxx}_test_api.md`（若存在），了解現有測試案例範疇。
 
 ## 任務
 
 1. 讀取 `TDD/issue-ISSUE_NUMBER.md`（scaffold 已存在）
-2. 依據 business-logic.md 的業務需求填寫工作項目與測試案例
-3. 將完整更新後的檔案寫回 `TDD/issue-ISSUE_NUMBER.md`
+2. 依據 business-logic.md 的業務需求填寫工作項目
+3. 將完整更新後的 TDD 寫回 `TDD/issue-ISSUE_NUMBER.md`
+4. 若有 API 新增或修改，同步更新對應的 `Spec/{fn_xxx}/Api/_{fn_xxx}_test_api.md`
 
 ## TDD 產出規範
 
 ### 工作項目表格
 欄位：`| # | 類型 | 名稱 | 說明 |`
-類型限定：`Schema`、`API`、`畫面`、`其他`
+類型限定：`Schema`、`API`、`畫面`、`Test`、`其他`
 
 判斷原則：
 - 比對 schema.md，列出需新增或修改的 table
 - 比對 Spec/ 目錄，列出需新增或修改的 API
 - 比對 Prototype/ 目錄，列出需新增或修改的畫面
+- 有 API 新增或修改時，加入 Test 類型工作項目（新增或更新 `_{fn_xxx}_test_api.md`）
 
-### 測試案例表格
-欄位：`| ID | 類型 | 前置條件 | 操作 | 預期結果 |`
+### Test 工作項目產出：`_{fn_xxx}_test_api.md`
+
+欄位：`| ID | 說明 | 前置條件 | 操作 | 預期結果 |`
 
 規則：
-- 以 T1、T2... 編號
+- ID 以 T1、T2... 編號，跨 issue 累積，不重置（讀取現有檔案後接續）
 - 每個 API：至少 1 個成功案例（2xx）+ 1 個失敗案例（4xx/5xx）
-- 每個畫面：至少 1 個主要操作流程的正常案例
-- 測試案例總數 ≥ 工作項目數
-- 設計決定只寫結論與理由，不寫曾考慮過的替代方案
+- 新增 API → 新增對應測試案例
+- 修改 API 行為 → 更新對應測試案例
+- 刪除 API → 移除對應測試案例，ID 不補號
 
 ### 標示 AI 填寫區塊
 格式如下：
