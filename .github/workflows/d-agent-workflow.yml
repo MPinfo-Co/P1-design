@@ -12,7 +12,7 @@ permissions:
 jobs:
   sd-worker:
     # 只在 a-workflow scaffold TDD 檔案時觸發
-    if: contains(github.event.head_commit.message, 'scaffold TDD 檔案')
+    if: contains(github.event.head_commit.message, 'scaffold TDD')
     runs-on: ubuntu-latest
 
     steps:
