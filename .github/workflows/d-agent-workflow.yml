@@ -102,9 +102,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "docs(issue-${ISSUE_NUMBER}): SD 產出 TDD
-
-自動產出，對應 SD Issue #${ISSUE_NUMBER}"
+          git commit -m "docs(issue-${ISSUE_NUMBER}): SD 產出 TDD"
           git push origin "$BRANCH"
 
       - name: Post comment to SD issue
