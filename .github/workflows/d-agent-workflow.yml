@@ -27,7 +27,7 @@ jobs:
       - name: Checkout SD branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('issue-{0}', github.event.inputs.issue_number) || github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout P1-analysis（業務邏輯）
