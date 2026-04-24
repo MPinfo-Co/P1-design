@@ -1,25 +1,18 @@
-# MP-Box Schema
-
-> 版本：v2 | 日期：2026-03-31
-> 對應 Epic：[PM] 安全事件清單 — SSB 串接完整實作（MPinfo-Co/P1-project#50）
 
 ---
-
-## 1. 使用者 / 角色
+## fn_user / role
 
 ### tb_users
 
-- **用途**：系統使用者帳號，所有人工操作的身份來源。
-
-| 欄位 | 型別 | 說明 |
-|------|------|------|
-| id | INTEGER, PK | 主鍵 |
-| name | VARCHAR(100), NOT NULL | 使用者顯示名稱 |
-| email | VARCHAR(255), NOT NULL, UK | 登入信箱，不可重複 |
-| password_hash | VARCHAR(255), NOT NULL | bcrypt 雜湊密碼 |
-| is_active | BOOLEAN, NOT NULL, DEFAULT TRUE | 帳號啟用狀態 |
-| created_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | |
-| updated_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | |
+| 欄位            | 型別                                 | 說明          |
+| ------------- | ---------------------------------- | ----------- |
+| id            | INTEGER, PK                        | 主鍵          |
+| name          | VARCHAR(100), NOT NULL             | 使用者顯示名稱     |
+| email         | VARCHAR(255), NOT NULL, UK         | 登入信箱，不可重複   |
+| password_hash | VARCHAR(255), NOT NULL             | bcrypt 雜湊密碼 |
+| is_active     | BOOLEAN, NOT NULL, DEFAULT TRUE    | 帳號啟用狀態      |
+| updated_by    | INTEGER, NULLABLE, FK → tb_users   | 最後更新者       |
+| updated_at    | TIMESTAMP, NOT NULL, DEFAULT NOW() | 最後更新時間      |
 
 ### tb_roles
 
@@ -43,9 +36,18 @@
 | user_id | INTEGER, PK, FK → tb_users | |
 | role_id | INTEGER, PK, FK → tb_roles | |
 
----
+### tb_token_blacklist
 
-## 2. AI 夥伴
+| 欄位          | 型別                                 | 說明                    |
+| ----------- | ---------------------------------- | --------------------- |
+| id          | INTEGER, PK                        | 主鍵                    |
+| token_jti   | VARCHAR(255), NOT NULL, UK         | JWT 的 jti（唯一識別碼）      |
+| expired_at  | TIMESTAMP, NOT NULL                | token 原本的過期時間（用於定期清理） |
+| token_owner | INTEGER, NULLABLE, FK → tb_users   | Token擁有者              |
+| updated_at  | TIMESTAMP, NOT NULL, DEFAULT NOW() | 最後更新時間                |
+
+---
+## fn_partner
 
 ### tb_ai_partners
 
@@ -69,8 +71,7 @@
 | partner_id | INTEGER, PK, FK → tb_ai_partners | |
 
 ---
-
-## 3. 知識庫
+## fn_km
 
 ### tb_knowledge_bases
 
@@ -159,7 +160,7 @@
 
 ---
 
-## 4. SSB 分析 Pipeline
+## fn_expert - SSB Pipeline
 
 > 對應 Epic：安全事件清單 — SSB 串接完整實作
 
@@ -243,7 +244,7 @@ Pro Task 每日執行紀錄，用於監控與除錯。
 
 ---
 
-## 5. 安全事件
+## fn_expert - Security Event
 
 ### tb_security_events
 
@@ -305,4 +306,4 @@ CREATE INDEX idx_tb_security_events_match_key ON tb_security_events(match_key);
 
 ```sql
 CREATE INDEX idx_tb_event_history_event_id ON tb_event_history(event_id);
- ```
+```
