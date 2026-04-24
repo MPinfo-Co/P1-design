@@ -1,6 +1,5 @@
 ## 登入畫面
-![fn_auth_01 登入頁|603](Screen/fn_auth_01_login.png)
-
+<img src="Screen/fn_auth_01_login.png"  width="603">
 ## 欄位說明
 
 | 欄位     | 元件             | 必填  | 說明       |
