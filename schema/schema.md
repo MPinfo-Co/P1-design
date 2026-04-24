@@ -4,15 +4,15 @@
 
 ### tb_users
 
-| 欄位 | 型別 | 說明 |
-|------|------|------|
-| id | INTEGER, PK | 主鍵 |
-| name | VARCHAR(100), NOT NULL | 使用者顯示名稱 |
-| email | VARCHAR(255), NOT NULL, UK | 登入信箱，不可重複 |
-| password_hash | VARCHAR(255), NOT NULL | bcrypt 雜湊密碼 |
-| is_active | BOOLEAN, NOT NULL, DEFAULT TRUE | 帳號啟用狀態 |
-| updated_by | INTEGER, NULLABLE, FK → tb_users | 最後更新者 |
-| updated_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | 最後更新時間 |
+| 欄位            | 型別                                 | 說明          |
+| ------------- | ---------------------------------- | ----------- |
+| id            | INTEGER, PK                        | 主鍵          |
+| name          | VARCHAR(100), NOT NULL             | 使用者顯示名稱     |
+| email         | VARCHAR(255), NOT NULL, UK         | 登入信箱，不可重複   |
+| password_hash | VARCHAR(255), NOT NULL             | bcrypt 雜湊密碼 |
+| is_active     | BOOLEAN, NOT NULL, DEFAULT TRUE    | 帳號啟用狀態      |
+| updated_by    | INTEGER, NULLABLE, FK → tb_users   | 最後更新者       |
+| updated_at    | TIMESTAMP, NOT NULL, DEFAULT NOW() | 最後更新時間      |
 
 ### tb_roles
 
@@ -38,13 +38,13 @@
 
 ### tb_token_blacklist
 
-| 欄位         | 型別                                 | 說明                    |
-| ---------- | ---------------------------------- | --------------------- |
-| id         | INTEGER, PK                        | 主鍵                    |
-| token_jti  | VARCHAR(255), NOT NULL, UK         | JWT 的 jti（唯一識別碼）      |
-| expired_at | TIMESTAMP, NOT NULL                | token 原本的過期時間（用於定期清理） |
-| updated_by | INTEGER, NULLABLE, FK → tb_users   | 最後更新者                 |
-| updated_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | 最後更新時間                |
+| 欄位          | 型別                                 | 說明                    |
+| ----------- | ---------------------------------- | --------------------- |
+| id          | INTEGER, PK                        | 主鍵                    |
+| token_jti   | VARCHAR(255), NOT NULL, UK         | JWT 的 jti（唯一識別碼）      |
+| expired_at  | TIMESTAMP, NOT NULL                | token 原本的過期時間（用於定期清理） |
+| token_owner | INTEGER, NULLABLE, FK → tb_users   | Token擁有者              |
+| updated_at  | TIMESTAMP, NOT NULL, DEFAULT NOW() | 最後更新時間                |
 
 ---
 ## fn_partner
