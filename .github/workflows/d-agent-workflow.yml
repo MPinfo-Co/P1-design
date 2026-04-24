@@ -3,7 +3,7 @@ name: D-Agent-Workflow
 on:
   push:
     branches:
-      - 'issue-*'
+      - 'sd-*'
   workflow_dispatch:
     inputs:
       issue_number:
@@ -32,21 +32,21 @@ jobs:
             let issueNumber, branch;
             if (context.eventName === 'workflow_dispatch') {
               issueNumber = '${{ github.event.inputs.issue_number }}';
-              // 用 API 找 issue-{N}-* 的 branch
+              // 用 API 找 sd-{N}-* 的 branch
               const branches = await github.paginate(github.rest.git.listMatchingRefs, {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: `heads/issue-${issueNumber}-`,
+                ref: `heads/sd-${issueNumber}-`,
               });
               if (branches.length === 0) {
-                core.setFailed(`找不到 issue-${issueNumber}-* 的 branch`);
+                core.setFailed(`找不到 sd-${issueNumber}-* 的 branch`);
                 return;
               }
               branch = branches[0].ref.replace('refs/heads/', '');
               console.log(`Found branch: ${branch}`);
             } else {
               branch = '${{ github.ref_name }}';
-              issueNumber = branch.match(/^issue-(\d+)/)?.[1];
+              issueNumber = branch.match(/^sd-(\d+)/)?.[1];
               if (!issueNumber) {
                 core.setFailed(`Cannot parse issue number from branch: ${branch}`);
                 return;
@@ -61,13 +61,6 @@ jobs:
         with:
           ref: ${{ steps.branch-info.outputs.branch }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout P1-analysis（業務邏輯）
-        uses: actions/checkout@v4
-        with:
-          repository: MPinfo-Co/P1-analysis
-          path: p1-analysis
-          ref: main
 
       - name: Get SA issue number from inputs or SD issue body
         id: sa-info
@@ -87,7 +80,7 @@ jobs:
               issue_number: issueNumber,
             });
             const body = issue.data.body || '';
-            const saMatch = body.match(/SA Issue：(?:MPinfo-Co\/P1-analysis#|P1-analysis #)(\d+)/);
+            const saMatch = body.match(/SA Issue：(?:MPinfo-Co\/P1-design#|P1-design #)(\d+)/);
             if (!saMatch) {
               core.setFailed(`SD Issue #${issueNumber} body 找不到 SA Issue 編號`);
               return;
@@ -128,14 +121,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add "TDD/issue-${ISSUE_NUMBER}.md"
+          git add "SD/sd-${ISSUE_NUMBER}-TDD.md"
 
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
 
-          git commit -m "docs(issue-${ISSUE_NUMBER}): SD 產出 TDD"
+          git commit -m "docs(sd-${ISSUE_NUMBER}): SD 產出 TDD"
           git push origin "$BRANCH"
 
       - name: Post comment to SD issue
@@ -151,7 +144,7 @@ jobs:
               issue_number: issueNumber,
               body: [
                 '🤖 TDD 已自動產出，請至 branch 確認：',
-                `- 檔案：\`TDD/issue-${issueNumber}.md\``,
+                `- 檔案：\`SD/sd-${issueNumber}-TDD.md\``,
                 `- Branch：\`${branch}\``,
                 '',
                 '確認無誤後請 merge。',

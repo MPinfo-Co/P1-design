@@ -6,7 +6,7 @@
 
 執行任務前，先了解現有系統設計：
 
-1. 讀取 `./p1-analysis/issue-SA_NUMBER/business-logic.md` — 業務需求（SA 分析結果）
+1. 讀取 `./SA/sa-SA_NUMBER-logic.md` — 業務需求（SA 分析結果）
 2. 讀取 `./spec-guide.md` — TDD 格式規範與撰寫標準
 3. 讀取 `./functionList.md` — 現有功能清單
 4. 讀取 `./schema/schema.md` — 現有資料表，確認 Schema 工作項目範疇
@@ -17,9 +17,9 @@
 
 ## 任務
 
-1. 讀取 `TDD/issue-ISSUE_NUMBER.md`（scaffold 已存在）
+1. 讀取 `SD/sd-ISSUE_NUMBER-TDD.md`（scaffold 已存在）
 2. 依據 business-logic.md 的業務需求填寫工作項目與測試案例
-3. 將完整更新後的檔案寫回 `TDD/issue-ISSUE_NUMBER.md`
+3. 將完整更新後的檔案寫回 `SD/sd-ISSUE_NUMBER-TDD.md`
 
 ## TDD 產出規範
 
