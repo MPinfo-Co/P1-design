@@ -1,5 +1,5 @@
 ## 登出畫面
-![fn_auth_02 頂部導覽列|1060](Screen/fn_auth_02_logout.png)
+<img src="Screen/fn_auth_02_logout.png" width="1060">
 
 ## 欄位說明
 
