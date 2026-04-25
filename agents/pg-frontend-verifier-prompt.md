@@ -85,6 +85,7 @@ npx eslint src/pages/Settings/fn_xxx/ --ext .tsx,.ts 2>&1
 
 **API 呼叫：**
 - 讀取 `Spec/fn_xxx/Api/fn_xxx_query_api.md`，確認 Fetch URL path 與 method 正確
+- 確認所有 `fetch(...)` 呼叫使用**相對路徑**（例如 `/api/users`），不得使用 `VITE_API_URL`、`BASE_URL` 或 `import.meta.env` 拼接完整 URL。專案透過 Vite proxy 統一轉發，直接使用相對路徑才是正確模式（參考 `src/pages/AiPartner/IssueList.jsx`）。
 
 #### 新增/修改畫面（FnXxxForm.tsx）
 
@@ -101,6 +102,7 @@ npx eslint src/pages/Settings/fn_xxx/ --ext .tsx,.ts 2>&1
 **API 呼叫：**
 - 新增模式：確認有 POST API 呼叫（讀 fn_xxx_add_api.md）
 - 修改模式：確認有 PATCH API 呼叫（讀 fn_xxx_update_api.md，若存在）
+- 確認所有 `fetch(...)` 呼叫使用**相對路徑**，不得使用 `VITE_API_URL`、`BASE_URL` 或 `import.meta.env` 拼接。
 
 ### Step 6：輸出結果
 
