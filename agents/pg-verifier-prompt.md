@@ -24,6 +24,16 @@ git checkout test/pg-agent-{ISSUE_N}
 1. TDD 工作項目清單 — 依序嘗試：
    - `SD/sd-{ISSUE_N}-TDD.md`（新命名）
    - `TDD/issue-{ISSUE_N}.md`（舊命名）
+
+若兩個路徑皆不存在，立即輸出：
+```
+---
+VERIFICATION_RESULT: FAIL
+ISSUE: TDD file not found (tried SD/sd-{ISSUE_N}-TDD.md and TDD/issue-{ISSUE_N}.md)
+---
+```
+並停止執行。
+
 2. `schema/schema.md` — DB schema
 3. 每支 API 工作項目對應的 `Spec/fn_xxx/Api/*.md`
 4. `Spec/fn_xxx/Api/_fn_xxx_test_api.md` — 測試案例（若存在）
@@ -51,6 +61,10 @@ git checkout test/pg-agent-{ISSUE_N}
 - 讀取 `backend/tests/test_*.py` 對應測試檔案
 - 確認每個 test function 有 TestSpec ID 標注
 - 若 `_fn_xxx_test_api.md` 存在，確認 pytest 數量 ≥ 測試案例數
+- 若 pytest 數量 < test_api.md 測試案例數，記錄：
+  ```
+  ISSUE: [TDD#N] Test：pytest 數量（X）< 測試案例數（Y）
+  ```
 
 ### Step 4：執行 pytest
 
@@ -60,6 +74,10 @@ python -m pytest tests/ -v 2>&1
 ```
 
 記錄通過數、失敗數、失敗原因。
+
+若 exit code 非零（任何測試失敗或語法錯誤），將失敗原因加入 PYTEST_FAILURE: 行。
+若 pytest 命令本身無法執行（套件未裝、路徑錯誤），視為 VERIFICATION_RESULT: FAIL，
+ISSUE: 說明環境問題。
 
 ### Step 5：輸出結果
 
@@ -91,16 +109,22 @@ python -m pytest tests/ -v 2>&1
 ```
 
 然後輸出：
+
 ```
+---
 VERIFICATION_RESULT: PASS
+---
 ```
 
 #### 若有問題
 
 輸出：
+
 ```
+---
 VERIFICATION_RESULT: FAIL
 ISSUE: [TDD#N] [工作內容]: [具體問題描述]
 ISSUE: [TDD#N] [工作內容]: [具體問題描述]
 PYTEST_FAILURE: [test_name]: [錯誤訊息]
+---
 ```
