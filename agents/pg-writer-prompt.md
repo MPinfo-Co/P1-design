@@ -27,11 +27,14 @@ git checkout test/pg-agent-{ISSUE_N} 2>/dev/null || git checkout -b test/pg-agen
 ### Step 2：閱讀 SD 文件
 
 依序讀取（路徑以 `/Users/rex/Desktop/P1/P1-design/` 為根）：
-1. `TDD/issue-{ISSUE_N}.md` — 工作項目清單（必讀）
+1. TDD 工作項目清單（必讀）— 依序嘗試以下路徑，讀取第一個存在的：
+   - `/Users/rex/Desktop/P1/P1-design/SD/sd-{ISSUE_N}-TDD.md`（新命名）
+   - `/Users/rex/Desktop/P1/P1-design/TDD/issue-{ISSUE_N}.md`（舊命名）
 2. `SA/sa-{ISSUE_N}-logic.md` — 商業邏輯背景（若不存在則跳過）
 3. `schema/schema.md` — DB schema
 4. 每支 API 工作項目對應的 `Spec/fn_xxx/Api/*.md`
-5. `techStack.md` — 技術選型
+5. `Spec/fn_xxx/Api/_fn_xxx_test_api.md` — 測試案例（若存在則讀取；不存在則跳過）
+6. `techStack.md` — 技術選型
 
 ### Step 3：依工作項目實作
 
@@ -39,6 +42,8 @@ git checkout test/pg-agent-{ISSUE_N} 2>/dev/null || git checkout -b test/pg-agen
 
 讀取 `/Users/rex/Desktop/P1/P1-code/backend/app/db/models/user.py`，
 比對 schema.md，補充缺少的欄位。**不刪除現有欄位。**
+
+注意：所有 code 中 import models 請使用 `from app.db.models.user import User, Role, UserRole`（不是 app.models.user）。
 
 User 模型需補充（若 `updated_by` 不存在）：
 ```python
