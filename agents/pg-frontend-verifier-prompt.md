@@ -106,26 +106,33 @@ npx eslint src/pages/Settings/fn_xxx/ --ext .tsx,.ts 2>&1
 
 #### 若全部通過
 
-產出 `/Users/rex/Desktop/P1/P1-code/TestReport/issue-{ISSUE_N}.md`（前端版）：
+寫入前端區塊至 `/Users/rex/Desktop/P1/P1-code/TestReport/issue-{ISSUE_N}.md`：
+
+**規則：**
+- 若檔案**已存在**（後端 agent 已產出）：在檔案末尾追加以下前端區塊（不覆蓋現有內容）
+- 若檔案**不存在**：建立新檔，以下方格式為完整內容
 
 ```markdown
-# TestReport：issue-{ISSUE_N}（前端）
+---
 
-## TDD 規格合規（畫面類型）
+## 前端 TDD 規格合規（畫面類型）
 
 | # | 工作內容 | 結果 |
 |---|---------|------|
-| 1 | ... | ✓ |
+| 6 | 建立 fn_user_01_list | ✓ |
+| 7 | 建立 fn_user_02_form | ✓ |
 
-## TypeScript + ESLint
+## 前端 TypeScript + ESLint
 
 TypeScript: 通過（0 錯誤）
 ESLint: 通過（0 警告）
 
-## 備註
+## 前端備註
 
 （特殊情況說明）
 ```
+
+> 若為新建檔案，開頭加上 `# TestReport：issue-{ISSUE_N}` 標題行。
 
 然後輸出：
 
