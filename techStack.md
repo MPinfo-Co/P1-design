@@ -7,7 +7,8 @@
 - **UI 框架**：React 19
 - **路由**：React Router v7
 - **UI 元件庫**：MUI（Material UI）
-- **Client State**：Zustand
+- **Client State**：Zustand（auth token、登入身份、全域 UI 設定）
+- **Server State**：React Query（API 資料 fetch、cache、loading/error 管理）
 - **HTTP 請求**：Fetch API
 - **程式碼品質**：ESLint
 
