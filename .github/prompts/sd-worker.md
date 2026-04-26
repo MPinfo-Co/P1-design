@@ -7,7 +7,7 @@
 執行任務前，先了解現有系統設計：
 
 1. 讀取 `./SA/sa-SA_NUMBER-logic.md` — 業務需求（SA 分析結果）
-2. 讀取 `./spec-guide.md` — TDD 格式規範與撰寫標準
+2. 讀取 `./P1-project/docs/spec-guide.md` — TDD 格式規範與撰寫標準
 3. 讀取 `./functionList.md` — 現有功能清單
 4. 讀取 `./schema/schema.md` — 現有資料表，確認 Schema 工作項目範疇
 5. 瀏覽 `./Spec/` 目錄清單 — 了解現有 API 規格範疇
@@ -18,14 +18,14 @@
 ## 任務
 
 1. 讀取 `SD/sd-ISSUE_NUMBER-TDD.md`（scaffold 已存在）
-2. 依據 business-logic.md 的業務需求填寫工作項目與測試案例
+2. 依據 sa-SA_NUMBER-logic.md 的業務需求填寫工作項目與測試案例
 3. 將完整更新後的檔案寫回 `SD/sd-ISSUE_NUMBER-TDD.md`
 
 ## TDD 產出規範
 
 ### 工作項目表格
-欄位：`| # | 類型 | 名稱 | 說明 |`
-類型限定：`Schema`、`API`、`畫面`、`其他`
+欄位：`| # | 類型 | 工作內容 | 參照規格 |`
+類型限定：`Schema`、`API`、`畫面`、`Test`、`其他`
 
 判斷原則：
 - 比對 schema.md，列出需新增或修改的 table

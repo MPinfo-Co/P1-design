@@ -56,11 +56,25 @@ jobs:
             core.setOutput('branch', branch);
             console.log(`SD Issue #${issueNumber}, Branch: ${branch}`);
 
+      - name: Create GitHub App token
+        id: app-token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Checkout SD branch
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.branch-info.outputs.branch }}
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout P1-project (for spec-guide.md)
+        uses: actions/checkout@v4
+        with:
+          repository: MPinfo-Co/P1-project
+          path: P1-project
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Get SA issue number from inputs or SD issue body
         id: sa-info
