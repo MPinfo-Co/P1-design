@@ -153,7 +153,8 @@
     }
 
     function deleteItem(id) {
-        if (!confirm('確定要刪除此帳號嗎？無法復原。')) return;
+        const user = allUsers.find(u => u.id === id);
+        if (!confirm(`確定要刪除 ${user ? user.name : ''}？此操作無法還原`)) return;
         allUsers = allUsers.filter(u => u.id !== id);
         renderUserTable();
     }
