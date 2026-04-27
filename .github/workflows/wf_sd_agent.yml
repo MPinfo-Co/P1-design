@@ -116,7 +116,7 @@ jobs:
           ISSUE_NUMBER="${{ steps.branch-info.outputs.issue_number }}"
           SA_NUMBER="${{ steps.sa-info.outputs.sa_number }}"
           sed "s/ISSUE_NUMBER/${ISSUE_NUMBER}/g; s/SA_NUMBER/${SA_NUMBER}/g" \
-            .github/prompts/sd-worker.md > /tmp/sd-prompt.txt
+            prompts/sd-writer-prompt.md > /tmp/sd-prompt.txt
           echo "Prompt built for SD #$ISSUE_NUMBER (SA #$SA_NUMBER)"
           cat /tmp/sd-prompt.txt
 

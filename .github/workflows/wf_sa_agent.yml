@@ -47,7 +47,7 @@ jobs:
       - name: Build prompt with issue number
         run: |
           ISSUE_NUMBER="${{ steps.branch-info.outputs.issue_number }}"
-          sed "s/ISSUE_NUMBER/${ISSUE_NUMBER}/g" .github/prompts/sa-worker.md > /tmp/sa-prompt.txt
+          sed "s/ISSUE_NUMBER/${ISSUE_NUMBER}/g" prompts/sa-writer-prompt.md > /tmp/sa-prompt.txt
           echo "Prompt built for SA #$ISSUE_NUMBER"
           cat /tmp/sa-prompt.txt
 
