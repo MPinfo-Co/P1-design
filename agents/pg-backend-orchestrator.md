@@ -18,12 +18,12 @@ feedback = ""
 
 ### 迴圈（最多 max_retries 次）
 
-1. **呼叫** `Agent()` tool，prompt 為 [writer-prompt文件](P1-design/agents/v2/pg-backend-writer-prompt.md) 的內容，傳入參數如下：
+1. **呼叫** `Agent()` tool，prompt 為 [writer-prompt文件](P1-design/agents/pg-backend-writer-prompt.md) 的內容，傳入參數如下：
    {ISSUE_N}: 實際 issue 編號
    {SD_BRANCH}: P1-design branch
    {PG_BRANCH}: P1-code branch
    {FEEDBACK}: 當前 feedback
-2. **呼叫** `Agent()` tool，prompt 為 [verifier-prompt文件](P1-design/agents/v2/pg-backend-verifier-prompt.md) 的內容，傳入參數如下：
+2. **呼叫** `Agent()` tool，prompt 為 [verifier-prompt文件](P1-design/agents/pg-backend-verifier-prompt.md) 的內容，傳入參數如下：
    {ISSUE_N}: 實際 issue 編號
    {PG_BRANCH}: P1-code branch
 3. **讀取** verifier agent 的回傳內容（尋找 `---` 邊界之間的內容）：

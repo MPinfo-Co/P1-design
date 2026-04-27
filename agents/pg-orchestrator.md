@@ -42,10 +42,10 @@ git branch -a | grep "issue-{ISSUE_N}-"
 
 ### Step 3：後端流程（has_backend = true 時執行）
 
-呼叫 `Agent()` tool，prompt 為 [pg-backend-orchestrator](P1-design/agents/v2/pg-backend-orchestrator.md) 的內容，傳入參數：
+呼叫 `Agent()` tool，prompt 為 [pg-backend-orchestrator](P1-design/agents/pg-backend-orchestrator.md) 的內容，傳入參數：
 - `{ISSUE_N}`, `{SD_BRANCH}`, `{PG_BRANCH}`
 
 ### Step 4：前端流程（has_frontend = true 時執行）
 
-呼叫 `Agent()` tool，prompt 為 [pg-frontend-orchestrator](P1-design/agents/v2/pg-frontend-orchestrator.md) 的內容，傳入參數：
+呼叫 `Agent()` tool，prompt 為 [pg-frontend-orchestrator](P1-design/agents/pg-frontend-orchestrator.md) 的內容，傳入參數：
 - `{ISSUE_N}`, `{SD_BRANCH}`, `{PG_BRANCH}`
