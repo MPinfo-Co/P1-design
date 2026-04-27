@@ -1,6 +1,7 @@
 # 查詢畫面
 
 路由路徑：`/settings/account`
+Sidebar：設定群組，標籤「帳號管理」，icon: PeopleAlt
 
 雛形畫面：[▶ 開啟雛形](../../Prototype/fn_user.html#userList)
 

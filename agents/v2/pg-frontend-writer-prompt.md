@@ -29,7 +29,13 @@ git checkout {PG_BRANCH}
 5. 若需要，在 [畫面規格目錄](P1-design/Spec/fn_xxx/) 下，依 `0X` 序號順序讀取所有畫面規格 .md 文件。（檔名格式：`fn_xxx_0X_*.md`）
 6. 若需要，讀取[畫面雛形](P1-design/Prototype/fn_xxx.html) — 視覺參考
 7. **逐項目實作畫面工作**：嚴格依 [coding-rule-frontend文件](P1-project/docs/coding-rule-frontend.md) 規範執行。
-8. **更新路由**：讀取 [App.jsx](P1-code/frontend/src/App.jsx)，依畫面規格中的「路由路徑」欄位，將對應路由指向新元件，取代舊元件（不新增多餘路由）。
+8. **更新路由與 Sidebar**：
+   - 讀取 [App.jsx](P1-code/frontend/src/App.jsx) 與 [Sidebar.jsx](P1-code/frontend/src/components/Layout/Sidebar.jsx)
+   - 依畫面規格的「路由路徑」欄位：
+     - 若路由已存在 → 取代舊元件
+     - 若路由不存在 → 新增路由
+   - 依畫面規格的「Sidebar」欄位，在 Sidebar.jsx 對應群組新增或更新入口（label、icon、path）
+   - 若規格未提供 Sidebar 資訊 → 跳過此步驟
 
 ### Step 3：commit（不 push）
 
