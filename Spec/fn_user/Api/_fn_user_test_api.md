@@ -16,3 +16,4 @@
 | T10 | 刪除自己 | 已登入且具 `can_manage_accounts` 權限 | DELETE /api/users/{操作者自己的 email} | 400 無法刪除自己的帳號 |
 | T11 | 依角色過濾 | 已登入且具 `can_manage_accounts` 權限，DB 有多筆不同角色的使用者 | GET /api/users?role_id={id} | 200，data 只包含具該角色的使用者 |
 | T12 | 依關鍵字過濾 | 已登入且具 `can_manage_accounts` 權限，DB 有多筆名稱或 Email 不同的使用者 | GET /api/users?keyword=xxx | 200，data 只包含名稱或 Email 含 xxx 的使用者 |
+| T13 | 修改密碼不足 8 字元 | 已登入且具 `can_manage_accounts` 權限，目標使用者存在 | PATCH /api/users/{email}，密碼傳入 7 字元字串 | 400 密碼最少 8 字元 |
