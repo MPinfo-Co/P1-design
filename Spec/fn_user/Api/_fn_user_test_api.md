@@ -14,3 +14,5 @@
 | T8 | 修改使用者不存在 | 已登入且具 `can_manage_accounts` 權限 | PATCH /api/users/notexist@example.com，傳入任意姓名 | 404 使用者不存在 |
 | T9 | 刪除成功 | 已登入且具 `can_manage_accounts` 權限，目標使用者存在且非操作者本身 | DELETE /api/users/{email} | 200 刪除成功，tb_users 及 tb_user_roles 對應紀錄移除 |
 | T10 | 刪除自己 | 已登入且具 `can_manage_accounts` 權限 | DELETE /api/users/{操作者自己的 email} | 400 無法刪除自己的帳號 |
+| T11 | 依角色過濾 | 已登入且具 `can_manage_accounts` 權限，DB 有多筆不同角色的使用者 | GET /api/users?role_id={id} | 200，data 只包含具該角色的使用者 |
+| T12 | 依關鍵字過濾 | 已登入且具 `can_manage_accounts` 權限，DB 有多筆名稱或 Email 不同的使用者 | GET /api/users?keyword=xxx | 200，data 只包含名稱或 Email 含 xxx 的使用者 |
