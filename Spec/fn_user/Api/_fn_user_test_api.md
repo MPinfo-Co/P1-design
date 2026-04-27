@@ -9,7 +9,7 @@
 | T3 | 新增成功 | 已登入且具 `can_manage_accounts` 權限 | POST /api/users，傳入有效姓名、Email、密碼（≥ 8 字元）、至少一個角色 | 201 新增成功 |
 | T4 | 新增 Email 重複 | 已登入且具 `can_manage_accounts` 權限，系統中 Email 已存在 | POST /api/users，傳入相同 Email | 400 此 Email 已被使用 |
 | T5 | 新增密碼不足 | 已登入且具 `can_manage_accounts` 權限 | POST /api/users，密碼傳入 7 字元字串 | 400 密碼最少 8 字元 |
-| T6 | 新增角色為空 | 已登入且具 `can_manage_accounts` 權限 | POST /api/users，角色陣列為空 | 400 角色未設定 |
+| T6 | 角色不可為空 | 已登入且具 `can_manage_accounts` 權限 | POST /api/users，角色陣列為空 | 400 角色未設定 |
 | T7 | 修改成功 | 已登入且具 `can_manage_accounts` 權限，目標使用者存在 | PATCH /api/users/{email}，傳入有效新姓名 | 200 更新成功 |
 | T8 | 修改使用者不存在 | 已登入且具 `can_manage_accounts` 權限 | PATCH /api/users/notexist@example.com，傳入任意姓名 | 404 使用者不存在 |
 | T9 | 刪除成功 | 已登入且具 `can_manage_accounts` 權限，目標使用者存在且非操作者本身 | DELETE /api/users/{email} | 200 刪除成功，tb_users 及 tb_user_roles 對應紀錄移除 |
