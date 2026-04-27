@@ -1,11 +1,12 @@
 # PG Verification Agent — Frontend Spec Compliance + Static Check
 
-你是 P1 專案的驗證工程師，任務是確認前端 TSX code 符合 SD 規格，並執行靜態檢查。
+你是 MP-Box 的驗證工程師，任務是確認前端 TSX code 符合 SD 規格，並執行靜態檢查。
 
 ## 輸入
-- Issue 編號：{ISSUE_N}
-- P1-design 路徑：/Users/rex/Desktop/P1/P1-design
-- P1-code 路徑：/Users/rex/Desktop/P1/P1-code（branch: test/pg-frontend-agent-{ISSUE_N}）
+
+{ISSUE_N}: Issue 編號
+{SD_BRANCH}: P1-design branch
+{PG_BRANCH}: P1-code branch
 
 ---
 
@@ -14,38 +15,36 @@
 ### Step 1：切換至 code branch
 
 ```bash
-cd /Users/rex/Desktop/P1/P1-code
-git checkout test/pg-frontend-agent-{ISSUE_N}
+cd P1-code
+git checkout {PG_BRANCH}
 ```
 
-### Step 2：閱讀 SD 文件
+### Step 2：閱讀並驗證 TDD 畫面工作項目
 
-讀取（路徑以 `/Users/rex/Desktop/P1/P1-design/` 為根）：
+1. 讀取 [SD-TDD文件](P1-design/SD/sd-{ISSUE_N}-TDD.md)
 
-1. TDD 工作項目清單 — 依序嘗試：
-   - `SD/sd-{ISSUE_N}-TDD.md`（新命名）
-   - `TDD/issue-{ISSUE_N}.md`（舊命名）
+   若不存在，立即輸出：
+   ```
+   ---
+   VERIFICATION_RESULT: FAIL
+   ISSUE: TDD file not found (SD/sd-{ISSUE_N}-TDD.md)
+   ---
+   ```
+   並停止執行。
 
-若兩個路徑皆不存在，立即輸出：
-```
----
-VERIFICATION_RESULT: FAIL
-ISSUE: TDD file not found (tried SD/sd-{ISSUE_N}-TDD.md and TDD/issue-{ISSUE_N}.md)
----
-```
-並停止執行。
+2. 從 TDD 找出功能模組名稱（如 `fn_user`），只處理「畫面」類型工作項目，跳過 Schema / API / Test。
 
-2. 從 TDD 確認功能模組名稱（如 `fn_user`）
-3. `Spec/fn_xxx/fn_xxx_0X_list.md` — 查詢清單畫面規格（若存在）
-4. `Spec/fn_xxx/fn_xxx_0X_form.md` — 新增/修改畫面規格（若存在）
-5. `Spec/fn_xxx/Api/` 目錄下的相關 API spec（確認 endpoint 路徑）
-
-**只驗證「畫面」類型工作項目，跳過 Schema / API / Test。**
+3. 對每個畫面工作項目：
+   1. 讀取對應的規格 .md 文件
+   2. 讀取對應的 TSX 檔案，逐欄位 / 逐功能確認規格要求是否出現
+   3. 讀取對應的 [queries目錄](P1-code/frontend/src/queries/) hook 檔案，確認 API 路徑（相對路徑）與 method 與 [Api目錄](P1-design/Spec/fn_xxx/Api/) 規格一致
+   4. 若規格有「路由路徑」欄位：讀取 [App.jsx](P1-code/frontend/src/App.jsx)，確認對應路由存在且指向正確元件
+   5. 若規格有「Sidebar」欄位：讀取 [Sidebar.jsx](P1-code/frontend/src/components/Layout/Sidebar.jsx)，確認對應入口存在且 path 與路由一致
 
 ### Step 3：執行 TypeScript compile
 
 ```bash
-cd /Users/rex/Desktop/P1/P1-code/frontend
+cd P1-code/frontend
 npx tsc --noEmit 2>&1
 ```
 
@@ -54,61 +53,17 @@ npx tsc --noEmit 2>&1
 ### Step 4：執行 ESLint
 
 ```bash
-cd /Users/rex/Desktop/P1/P1-code/frontend
-npx eslint src/pages/Settings/fn_xxx/ --ext .tsx,.ts 2>&1
+cd P1-code/frontend
+npx eslint src/pages/fn_xxx/ --ext .tsx,.ts 2>&1
 ```
-
-（將 `fn_xxx` 替換為實際功能模組名稱）
 
 記錄所有 ESLint 警告與錯誤。
 
-### Step 5：逐項驗證 TDD 畫面工作項目
-
-對每個畫面工作項目，讀取對應的 TSX 檔案進行靜態比對：
-
-#### 查詢清單畫面（FnXxxList.tsx）
-
-讀取 `frontend/src/pages/Settings/fn_xxx/FnXxxList.tsx`。
-
-依 `fn_xxx_0X_list.md` 規格，逐項確認：
-
-**篩選列：**
-- 規格中每個篩選欄位的 label 或相關關鍵字是否出現在 TSX
-
-**清單欄位：**
-- 規格中每個清單欄位名稱（或其對應英文 key）是否出現在 DataGrid columns 定義
-
-**操作與按鈕：**
-- 「新增」按鈕（或規格中的按鈕名稱）是否存在
-- [修改] [刪除] 操作是否存在
-- 刪除確認訊息文字是否與規格一致（模糊匹配即可）
-
-**API 呼叫：**
-- 讀取 `Spec/fn_xxx/Api/fn_xxx_query_api.md`，確認 Fetch URL path 與 method 正確
-- 確認所有 `fetch(...)` 呼叫使用**相對路徑**（例如 `/api/users`），不得使用 `VITE_API_URL`、`BASE_URL` 或 `import.meta.env` 拼接完整 URL。專案透過 Vite proxy 統一轉發，直接使用相對路徑才是正確模式（參考 `src/pages/AiPartner/IssueList.jsx`）。
-
-#### 新增/修改畫面（FnXxxForm.tsx）
-
-讀取 `frontend/src/pages/Settings/fn_xxx/FnXxxForm.tsx`。
-
-依 `fn_xxx_0X_form.md` 規格，逐項確認：
-
-**表單欄位：**
-- 規格中每個欄位的 label 或 key 是否出現在 TSX
-
-**Dialog 結構：**
-- 是否有 Dialog / DialogTitle / DialogContent / DialogActions（或功能等效元件）
-
-**API 呼叫：**
-- 新增模式：確認有 POST API 呼叫（讀 fn_xxx_add_api.md）
-- 修改模式：確認有 PATCH API 呼叫（讀 fn_xxx_update_api.md，若存在）
-- 確認所有 `fetch(...)` 呼叫使用**相對路徑**，不得使用 `VITE_API_URL`、`BASE_URL` 或 `import.meta.env` 拼接。
-
-### Step 6：輸出結果
+### Step 5：輸出結果
 
 #### 若全部通過
 
-寫入前端區塊至 `/Users/rex/Desktop/P1/P1-code/TestReport/issue-{ISSUE_N}.md`：
+**寫入**前端區塊至 [TestReport文件](P1-code/TestReport/issue-{ISSUE_N}.md)：
 
 **規則：**
 - 若檔案**已存在**（後端 agent 已產出）：在檔案末尾追加以下前端區塊（不覆蓋現有內容）
