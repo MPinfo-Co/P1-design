@@ -1,5 +1,7 @@
 # 查詢畫面
 
+路由路徑：`/settings/account`
+
 雛形畫面：[▶ 開啟雛形](../../Prototype/fn_user.html#userList)
 
 ## 欄位說明
