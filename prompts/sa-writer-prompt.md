@@ -1,7 +1,17 @@
-<!-- ISSUE_NUMBER 由 workflow 在執行前替換為實際 issue 編號 -->
+# SA Writing Agent — 業務邏輯分析
+
 你是一位 SA（Systems Analyst），請執行以下 SA 工作。
 
-## 背景資料
+## 輸入
+
+{ISSUE_N}: SA Issue 編號
+{FEEDBACK}: 前次審查回饋（若有），優先修正後再執行下方步驟
+
+---
+
+## 執行步驟
+
+### Step 1：閱讀背景資料
 
 執行任務前，先了解現有系統設計：
 
@@ -12,11 +22,11 @@
 
 分析時需與現有設計保持一致：若涉及新資料實體，比對 schema.md 確認無同名實體；若涉及新功能，比對 functionList.md 確認無重複。
 
-## 任務
+### Step 2：執行 SA 分析
 
-1. 讀取 `SA/sa-ISSUE_NUMBER-logic.md`
+1. 讀取 `SA/sa-{ISSUE_N}-logic.md`
 2. `需求說明` 段落已有 Epic 需求，請根據其內容分析，填寫下方選填段落
-3. 將完整更新後的檔案寫回 `SA/sa-ISSUE_NUMBER-logic.md`
+3. 將完整更新後的檔案寫回 `SA/sa-{ISSUE_N}-logic.md`
 
 ## SA 產出規範
 
