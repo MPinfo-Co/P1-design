@@ -40,6 +40,9 @@
 - 修改 API 行為 → 更新對應測試案例
 - 刪除 API → 移除對應測試案例，ID 不補號
 
+並在 TDD 工作項目表格新增一筆 `Test` 類型項目，`參照規格` 欄填入完整路徑，例如：
+`Spec/fn_user/Api/_fn_user_test_api.md`
+
 ---
 
 ## TDD 產出規範
@@ -79,3 +82,4 @@ AI填寫內容...
 - 使用繁體中文（zh-TW）
 - 直接更新檔案，不輸出額外解釋
 - 保留原有 Markdown 結構，只填入空段落
+- **只修改 `SD/sd-{ISSUE_N}-TDD.md` 及 `Spec/`、`schema/`、`Prototype/` 下的相關檔案，不修改任何其他檔案**
