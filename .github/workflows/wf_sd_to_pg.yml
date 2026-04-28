@@ -26,6 +26,7 @@ jobs:
           private_key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: Create PG Issue + C-Branch, update Epic
+        id: create-pg
         uses: actions/github-script@v7
         with:
           github-token: ${{ steps.app-token.outputs.token }}
@@ -300,6 +301,11 @@ jobs:
               state_reason: 'completed',
             });
 
+            core.setOutput('pg_number', String(pgNumber));
+            core.setOutput('sd_number', String(sdNumber));
+            core.setOutput('sa_number', saNumber ? String(saNumber) : '');
+            core.setOutput('pg_branch', cBranchName);
+
       - name: Generate SpecDiff
         uses: actions/github-script@v7
         with:
@@ -405,3 +411,84 @@ jobs:
             });
 
             console.log(`✅ SpecDiff 已寫入：${filePath}`);
+
+      - name: Checkout P1-code PG branch
+        uses: actions/checkout@v4
+        with:
+          repository: MPinfo-Co/P1-code
+          ref: ${{ steps.create-pg.outputs.pg_branch }}
+          path: P1-code
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Checkout P1-design main
+        uses: actions/checkout@v4
+        with:
+          repository: MPinfo-Co/P1-design
+          ref: main
+          path: P1-design
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Checkout P1-project
+        uses: actions/checkout@v4
+        with:
+          repository: MPinfo-Co/P1-project
+          path: P1-project
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install backend dependencies
+        run: pip install -r P1-code/backend/requirements.txt
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code@latest
+
+      - name: Build PG prompt
+        run: |
+          SD_NUMBER="${{ steps.create-pg.outputs.sd_number }}"
+          PG_BRANCH="${{ steps.create-pg.outputs.pg_branch }}"
+          {
+            echo "ISSUE_N=${SD_NUMBER}"
+            echo "SD_BRANCH=main"
+            echo "PG_BRANCH=${PG_BRANCH}"
+            echo ""
+            echo "以上為本次執行參數。sd_branch 與 pg_branch 已提供，請從 Step 2 開始執行。"
+            echo "---"
+            sed "s/{ISSUE_N}/${SD_NUMBER}/g; s/{SD_BRANCH}/main/g; s/{PG_BRANCH}/${PG_BRANCH}/g" \
+              P1-design/prompts/pg-orchestrator.md
+          } > /tmp/pg-prompt.txt
+          echo "Prompt built for PG (SD #$SD_NUMBER, branch: $PG_BRANCH)"
+
+      - name: Run PG Orchestrator Agent
+        timeout-minutes: 60
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: claude --dangerously-skip-permissions --print < /tmp/pg-prompt.txt
+
+      - name: Post comment to PG issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const pgNumber = parseInt('${{ steps.create-pg.outputs.pg_number }}');
+            const pgBranch = '${{ steps.create-pg.outputs.pg_branch }}';
+
+            await github.rest.issues.createComment({
+              owner: 'MPinfo-Co',
+              repo: 'P1-code',
+              issue_number: pgNumber,
+              body: [
+                '🤖 PG 自動實作已完成，請至 branch 確認：',
+                `- Branch：\`${pgBranch}\``,
+                '',
+                '確認無誤後請 merge。',
+              ].join('\n'),
+            });
