@@ -29,10 +29,10 @@
         const passVal = document.getElementById('loginPass').value;
         if (userVal === 'rex' && passVal === '123') {
             setUser({ name: 'Rex Shen', roles: ['管理員'] });
-        } else if (userVal === 'user' && passVal === '123') {
-            setUser({ name: '一般用戶', roles: ['一般使用者'] });
+        } else if (userVal === 'robert' && passVal === '123') {
+            setUser({ name: 'Robert Huang', roles: ['一般使用者'] });
         } else {
-            alert('帳號或密碼錯誤 (測試用: rex/123 或 user/123)');
+            alert('帳號或密碼錯誤 (測試用：rex/123 或 robert/123)');
             return;
         }
         location.href = 'ai-partner.html';
