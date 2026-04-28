@@ -87,7 +87,7 @@
                         <label>Password</label>
                         <div style="display:flex; gap:6px; align-items:center;">
                             <input type="password" id="ssbPass" value="mock_password" style="flex:1;">
-                            <button class="btn btn-outline" type="button" style="font-size:12px; padding:6px 10px;" onclick="togglePass()">顯示</button>
+                            <button id="ssbPassToggle" class="btn btn-outline" type="button" style="font-size:12px; padding:6px 10px;" onclick="togglePass()">顯示</button>
                         </div>
                     </div>
                 </div>
@@ -149,7 +149,9 @@
 
     function togglePass() {
         var el = document.getElementById('ssbPass');
+        var btn = document.getElementById('ssbPassToggle');
         el.type = el.type === 'password' ? 'text' : 'password';
+        if (btn) btn.textContent = el.type === 'password' ? '顯示' : '隱藏';
     }
 
     function toggleWebhookField() {
@@ -162,7 +164,7 @@
         var checks = document.querySelectorAll('#settingKbBindings input[type=checkbox]');
         partnerKbBindings['資安專家'] = Array.prototype.filter.call(checks, function(c){ return c.checked; })
             .map(function(c){ return parseInt(c.dataset.kbid, 10); });
-        alert('✅ 設定已儲存');
+        alert('✅ 知識庫綁定已儲存（其他設定為雛型 UI 佔位，未持久化）');
     }
 
     // 初始
