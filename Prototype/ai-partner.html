@@ -10,7 +10,6 @@
     <div id="appContainer" class="app-container" style="display:grid;">
         <!-- sidebar + header 由 _nav.js 注入 -->
         <div class="main-content">
-            <!-- 夥伴選擇 -->
             <div id="aiSelector">
                 <h2 style="margin-bottom:15px;color:#1e293b;">選擇 AI 夥伴</h2>
                 <div class="card filter-bar" style="margin-bottom:15px;">
@@ -19,72 +18,12 @@
                         <input type="text" id="aiPartnerSearchKeyword" placeholder="搜尋 AI 夥伴名稱或說明..." oninput="filterAiPartnerCards()">
                     </div>
                 </div>
+                <p style="margin-bottom:12px;font-size:13px;color:#64748b;">MVP 雛型階段僅顯示『資安專家』，其他自訂夥伴待後續版本。</p>
                 <div class="ai-grid" id="aiPartnerCardGrid">
-                    <div class="ai-card" onclick="openSecurityExpert()">
+                    <div class="ai-card" onclick="location.href='events.html'">
                         <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
                         <h3 style="color:#1e293b;">資安專家<span class="badge-builtin">預設</span></h3>
                         <p style="color:#64748b;font-size:13px;margin-top:10px;">解析防火牆與系統日誌，自動偵測安全事件並提供優先級評估、處置建議與歷程追蹤。</p>
-                    </div>
-                    <div class="ai-card disabled">
-                        <svg viewBox="0 0 24 24" stroke="#94a3b8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                        <h3 style="color:#1e293b;">訂單智能秘書<span class="badge-new">自訂</span></h3>
-                        <p style="color:#ef4444;font-weight:700;">● 停用中</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 事件清單（openSecurityExpert 後顯示） -->
-            <div id="aiIssueList" style="display:none;flex-direction:column;height:calc(100vh - 110px);">
-                <div id="aiIssueListOuter">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-shrink:0;">
-                        <h2 style="color:#1e293b;">安全事件清單</h2>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#2e3f6e;color:white;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                上傳分析
-                                <input type="file" accept=".csv,.xlsx,.xls" style="display:none;" onchange="mockUploadAnalysis(this)">
-                            </label>
-                            <button class="btn btn-outline" onclick="backToSelector()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-                                回上一頁
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card filter-bar" style="flex-shrink:0;">
-                        <div class="filter-group" style="flex-wrap:wrap;gap:10px;align-items:center;">
-                            <label style="font-weight:600;white-space:nowrap;">處理狀態:</label>
-                            <select id="filterStatus" style="height:36px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;outline:none;min-width:90px;">
-                                <option value="all">全部</option>
-                                <option value="未處理">未處理</option>
-                                <option value="處理中">處理中</option>
-                                <option value="已完成">已完成</option>
-                                <option value="擱置">擱置</option>
-                            </select>
-                            <label style="white-space:nowrap;">發生日期:</label>
-                            <input type="date" id="filterStart" style="height:36px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;outline:none;box-sizing:border-box;">
-                            <span>至</span>
-                            <input type="date" id="filterEnd" style="height:36px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;outline:none;box-sizing:border-box;">
-                            <label style="white-space:nowrap;">關鍵字:</label>
-                            <input type="text" id="filterKeyword" placeholder="搜尋事件說明、狀態..." style="height:36px;padding:0 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;outline:none;box-sizing:border-box;width:200px;">
-                        </div>
-                        <button class="btn-filter" onclick="applyFilters()">套用</button>
-                        <button class="btn btn-outline" onclick="resetFilters()">重設</button>
-                    </div>
-                    <div style="flex:1;min-height:0;overflow:hidden;">
-                        <div id="listTableArea" style="height:100%;overflow-y:auto;display:flex;flex-direction:column;">
-                            <div class="card" style="padding:0;flex-shrink:0;">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>事件說明</th><th>處理優先級</th><th>發生期間</th>
-                                            <th>影響範圍</th><th>處理狀態</th><th>負責人員</th><th>執行動作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="issueTableBody"></tbody>
-                                </table>
-                            </div>
-                            <div class="pagination" id="pagination"></div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -95,134 +34,11 @@
     <script src="_state.js"></script>
     <script src="_nav.js"></script>
     <script>
-    // ─── 狀態 ───
-    let currentPage = 1;
-    let filteredData = [...allIssues].sort((a,b) => b.starRank - a.starRank);
-    const pageSize = 10;
-
-    // ─── 導航 ───
-    function openSecurityExpert() {
-        document.getElementById('pageTitle').innerText = '資安專家';
-        document.getElementById('aiSelector').style.display = 'none';
-        const listEl = document.getElementById('aiIssueList');
-        listEl.style.display = 'flex';
-        filteredData = [...allIssues].sort((a,b) => b.starRank - a.starRank);
-        currentPage = 1;
-        renderTable();
-    }
-
-    function backToSelector() {
-        document.getElementById('aiIssueList').style.display = 'none';
-        document.getElementById('aiSelector').style.display = 'block';
-        document.getElementById('pageTitle').innerText = 'AI夥伴';
-    }
-
-    function goToDetail(id) {
-        location.href = 'ai-detail.html?id=' + id;
-    }
-
-    // ─── 篩選 ───
     function filterAiPartnerCards() {
         var kw = (document.getElementById('aiPartnerSearchKeyword').value || '').toLowerCase().trim();
         document.querySelectorAll('#aiPartnerCardGrid .ai-card').forEach(function(card) {
             card.style.display = (!kw || card.textContent.toLowerCase().includes(kw)) ? '' : 'none';
         });
-    }
-
-    function applyFilters() {
-        const statusFilter = document.getElementById('filterStatus').value;
-        const rawKeyword = document.getElementById('filterKeyword').value.trim();
-        const startDate = document.getElementById('filterStart').value;
-        const endDate = document.getElementById('filterEnd').value;
-        const kw = rawKeyword.toLowerCase();
-        let data = allIssues.filter(item => {
-            const matchStatus = statusFilter === 'all' || item.currentStatus === statusFilter;
-            const matchKeyword = !rawKeyword || [item.title, item.affected, item.currentStatus, item.date, item.desc, String(item.starRank)].some(t => t && String(t).toLowerCase().includes(kw));
-            const matchStart = !startDate || item.date >= startDate;
-            const matchEnd = !endDate || item.date <= endDate;
-            return matchStatus && matchKeyword && matchStart && matchEnd;
-        });
-        filteredData = data.sort((a,b) => b.starRank - a.starRank);
-        currentPage = 1;
-        renderTable();
-    }
-
-    function resetFilters() {
-        document.getElementById('filterStatus').value = 'all';
-        document.getElementById('filterKeyword').value = '';
-        document.getElementById('filterStart').value = '';
-        document.getElementById('filterEnd').value = '';
-        filteredData = [...allIssues].sort((a,b) => b.starRank - a.starRank);
-        currentPage = 1;
-        renderTable();
-    }
-
-    function mockUploadAnalysis(input) {
-        if (!input.files || !input.files.length) return;
-        alert('已收到「' + input.files[0].name + '」，系統將開始 AI 分析 pipeline。（此為 MVP 展示）');
-        input.value = '';
-    }
-
-    // ─── 渲染 ───
-    const starColorMap = { 5:{color:'#b91c1c'}, 4:{color:'#c2410c'}, 3:{color:'#b45309'}, 2:{color:'#1e40af'}, 1:{color:'#475569'} };
-
-    function starHtml(starRank) {
-        const c = starColorMap[starRank] || starColorMap[1];
-        return '<span style="white-space:nowrap;"><span style="color:' + c.color + ';font-size:15px;letter-spacing:1px;">' + '★'.repeat(starRank) + '</span><span style="color:#e2e8f0;font-size:15px;letter-spacing:1px;">' + '★'.repeat(5-starRank) + '</span></span>';
-    }
-
-    function statusIconHtml(status) {
-        const icons = {
-            '未處理': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-            '處理中': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
-            '已完成': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
-            '擱置':   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
-        };
-        return icons[status] || icons['擱置'];
-    }
-
-    function toggleAffectedPopover(id) {
-        const pop = document.getElementById('affected-pop-' + id);
-        if (!pop) return;
-        const isOpen = pop.classList.contains('show');
-        document.querySelectorAll('.affected-popover.show').forEach(el => el.classList.remove('show'));
-        if (!isOpen) pop.classList.add('show');
-    }
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.affected-popover-wrap')) {
-            document.querySelectorAll('.affected-popover.show').forEach(el => el.classList.remove('show'));
-        }
-    });
-
-    function renderTable() {
-        const tbody = document.getElementById('issueTableBody');
-        tbody.innerHTML = '';
-        const start = (currentPage - 1) * pageSize;
-        filteredData.slice(start, start + pageSize).forEach(item => {
-            tbody.innerHTML += '<tr>' +
-                '<td style="font-weight:600;">' + item.title + '</td>' +
-                '<td>' + starHtml(item.starRank) + '</td>' +
-                '<td><div>' + item.date + '</div>' + (item.detectionCount ? '<div style="font-size:11px;color:#94a3b8;margin-top:2px;">發生 ' + (item.detectionCount >= 10000 ? (item.detectionCount/10000).toFixed(1)+'萬次' : item.detectionCount.toLocaleString()+'次') + '</div>' : '') + '</td>' +
-                '<td><div class="affected-popover-wrap"><div class="affected-badge" onclick="event.stopPropagation();toggleAffectedPopover(' + item.id + ')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> ' + (item.affectedSummary || item.affected) + ' <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="affected-popover" id="affected-pop-' + item.id + '"><div class="affected-popover-label">完整影響範圍</div>' + item.affected + '</div></div></td>' +
-                '<td><span class="status-icon">' + statusIconHtml(item.currentStatus) + ' ' + item.currentStatus + '</span></td>' +
-                '<td style="font-size:13px;color:#334155;">' + (item.history && item.history.length > 0 ? item.history[item.history.length-1].user : '<span style="color:#94a3b8;">未指派</span>') + '</td>' +
-                '<td><button class="btn btn-primary" onclick="goToDetail(' + item.id + ')">事件處理</button></td>' +
-                '</tr>';
-        });
-        renderPagination();
-    }
-
-    function renderPagination() {
-        const totalPages = Math.ceil(filteredData.length / pageSize);
-        const container = document.getElementById('pagination');
-        container.innerHTML = '';
-        for (let i = 1; i <= totalPages; i++) {
-            const btn = document.createElement('button');
-            btn.innerText = i;
-            btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
-            btn.onclick = (function(p) { return function() { currentPage = p; renderTable(); }; })(i);
-            container.appendChild(btn);
-        }
     }
     </script>
 </body>
