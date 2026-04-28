@@ -109,6 +109,8 @@
                 '<td>' + rolesHtml + '</td>' +
                 '<td>' +
                     '<button class="btn btn-outline" style="padding:4px 8px;" onclick="prepareEditUser(' + u.id + ')">修改</button> ' +
+                    '<button class="btn btn-outline" style="padding:4px 8px;" onclick="toggleUserStatus(' + u.id + ')">' + (u.status === '停用' ? '啟用' : '停用') + '</button> ' +
+                    '<button class="btn btn-outline" style="padding:4px 8px;" onclick="resetUserPassword(' + u.id + ')">重設密碼</button> ' +
                     '<button class="btn btn-outline" style="padding:4px 8px; color:#ef4444; border-color:#fca5a5;" onclick="deleteItem(' + u.id + ')">刪除</button>' +
                 '</td></tr>';
         });
@@ -156,6 +158,21 @@
         if (!confirm('確定要刪除此帳號嗎？無法復原。')) return;
         allUsers = allUsers.filter(u => u.id !== id);
         renderUserTable();
+    }
+
+    function toggleUserStatus(id) {
+        var u = allUsers.find(function(x){ return x.id === id; });
+        if (!u) return;
+        u.status = (u.status === '停用') ? '啟用' : '停用';
+        alert('已將「' + u.name + '」狀態切換為：' + u.status);
+        renderUserTable();
+    }
+
+    function resetUserPassword(id) {
+        var u = allUsers.find(function(x){ return x.id === id; });
+        if (!u) return;
+        var newPass = 'P' + Math.random().toString(36).substr(2, 7);
+        alert('「' + u.name + '」的新密碼為：\n\n' + newPass + '\n\n請通知使用者首次登入後修改。');
     }
 
     document.addEventListener('DOMContentLoaded', renderUserTable);
