@@ -11,7 +11,7 @@
             <li class="nav-item" id="nav-aiPartner" onclick="location.href='ai-partner.html'">
                 <svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 13h0M15 13h0" stroke-width="3" stroke-linecap="round"/><path d="M12 2v4M2 12h2M20 12h2"/></svg> AI夥伴
             </li>
-            <li class="nav-item" id="nav-companyData" onclick="location.href='company-data.html'">
+            <li class="nav-item" id="nav-companyData" onclick="location.href='fn_company_data.html'">
                 <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 公司資料
             </li>
             <li class="nav-item" id="nav-settings" onclick="toggleSubmenu('settingSubmenu')">
@@ -46,7 +46,7 @@
             'ai-partner': 'nav-aiPartner',
             'events':     'nav-aiPartner',
             'ai-detail':  'nav-aiPartner',
-            'company-data': 'nav-companyData',
+            'fn_company_data': 'nav-companyData',
             'fn_user': 'nav-settings',
             'fn_role': 'nav-settings',
             'settings-ai':      'nav-settings'
@@ -62,7 +62,7 @@
             'ai-partner':      'AI夥伴',
             'events':          '資安專家 — 事件清單',
             'ai-detail':       '事件詳情',
-            'company-data':    '公司資料',
+            'fn_company_data': '公司資料',
             'fn_user': '帳號',
             'fn_role': '角色',
             'settings-ai':     '資安專家設定'
