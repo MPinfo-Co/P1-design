@@ -57,6 +57,10 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                         存取設定
                     </button>
+                    <button class="detail-tab-btn" id="kb-tab-btn-rules" onclick="switchKbTab('rules')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+                        分析規則
+                    </button>
                 </div>
 
                 <!-- Tab 1：文件 -->
@@ -136,11 +140,26 @@
                 <div class="detail-tab-panel" id="kb-tab-access" style="border-radius:0 0 8px 8px; border:1px solid #e2e8f0; border-top:none; padding:20px;">
                     <div style="margin-bottom:16px;">
                         <span style="font-size:14px; font-weight:700; color:#1e293b;">角色存取控制</span>
-                        <span style="font-size:11px; color:#94a3b8; margin-left:8px;">勾選可存取此知識庫的角色，未勾選的角色在使用 AI 夥伴時將無法引用此知識庫內容</span>
+                        <span style="font-size:11px; color:#94a3b8; margin-left:8px;">勾選可存取此知識庫的角色</span>
+                        <div style="margin-top:8px; padding:10px 12px; background:#fef9c3; border-left:3px solid #ca8a04; border-radius:4px; font-size:12px; color:#713f12; line-height:1.6;">
+                            此處只控制「誰能編輯本知識庫」。若要設定 AI 夥伴可參考此 KB（一個維度）vs. 誰能讀寫此 KB（另一個維度），是兩件事 —— 請至「AI 夥伴管理」設定夥伴綁哪些 KB。
+                        </div>
                     </div>
                     <div id="kbAccessRoleChecks" style="display:flex; flex-direction:column; gap:8px;"></div>
                     <div style="margin-top:20px; text-align:right;">
                         <button class="btn btn-primary" onclick="saveKbAccess()">儲存存取設定</button>
+                    </div>
+                </div>
+
+                <!-- Tab 4：分析規則（A1） -->
+                <div class="detail-tab-panel" id="kb-tab-rules" style="border-radius:0 0 8px 8px; border:1px solid #e2e8f0; border-top:none; padding:20px;">
+                    <div style="margin-bottom:12px;">
+                        <span style="font-size:14px; font-weight:700; color:#1e293b;">分析規則（自然語言）</span>
+                        <span style="font-size:11px; color:#94a3b8; margin-left:8px;">本知識庫對應的分析規則，AI 夥伴執行分析時將參考此處設定</span>
+                    </div>
+                    <textarea id="kbAnalysisRules" rows="10" style="width:100%; box-sizing:border-box; padding:12px; border:1px solid #cbd5e1; border-radius:6px; font-family:inherit; font-size:13px; line-height:1.7; outline:none; resize:vertical;"></textarea>
+                    <div style="margin-top:14px; text-align:right;">
+                        <button class="btn btn-primary" onclick="saveKbRules()">儲存規則</button>
                     </div>
                 </div>
             </div>
@@ -311,6 +330,7 @@
         renderKbDocs(kb);
         renderKbTables(kb);
         renderKbAccess(kb);
+        renderKbRules(kb);
     }
 
     function closeKbDetail() {
@@ -322,12 +342,24 @@
     }
 
     function switchKbTab(tab) {
-        ['docs','tables','access'].forEach(function(t) {
+        ['docs','tables','access','rules'].forEach(function(t) {
             var b = document.getElementById('kb-tab-btn-'+t), p = document.getElementById('kb-tab-'+t);
             if (b) b.classList.toggle('active', t===tab);
             if (p) p.classList.toggle('active', t===tab);
         });
         if (tab === 'tables') { document.getElementById('kbTableListView').style.display='block'; document.getElementById('kbTableDetailView').style.display='none'; viewingTableId=null; }
+    }
+
+    function saveKbRules() {
+        var kb = allKnowledgeBases.find(function(k){return k.id===currentKbId;});
+        if (!kb) return;
+        kb.analysis_rules = document.getElementById('kbAnalysisRules').value;
+        alert('✅ 分析規則已儲存');
+    }
+
+    function renderKbRules(kb) {
+        var el = document.getElementById('kbAnalysisRules');
+        if (el) el.value = kb.analysis_rules || '';
     }
 
     function renderKbDocsFromCurrent() { kbDocPage=1; var kb=allKnowledgeBases.find(function(k){return k.id===currentKbId;}); if(kb) renderKbDocs(kb); }

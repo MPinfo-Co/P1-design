@@ -44,6 +44,7 @@
         const page = document.body.dataset.page || '';
         const navMap = {
             'ai-partner': 'nav-aiPartner',
+            'events':     'nav-aiPartner',
             'ai-detail':  'nav-aiPartner',
             'kb':         'nav-kb',
             'fn_user': 'nav-settings',
@@ -59,11 +60,12 @@
         // 設定頁面標題
         const titleMap = {
             'ai-partner':      'AI夥伴',
+            'events':          '資安專家 — 事件清單',
             'ai-detail':       '事件詳情',
             'kb':              '知識庫',
             'fn_user': '帳號',
             'fn_role': '角色',
-            'settings-ai':     'AI夥伴管理'
+            'settings-ai':     '資安專家設定'
         };
         const titleEl = document.getElementById('pageTitle');
         if (titleEl && titleMap[page]) titleEl.innerText = titleMap[page];
