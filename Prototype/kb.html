@@ -330,6 +330,7 @@
         renderKbDocs(kb);
         renderKbTables(kb);
         renderKbAccess(kb);
+        renderKbRules(kb);
     }
 
     function closeKbDetail() {
@@ -347,10 +348,6 @@
             if (p) p.classList.toggle('active', t===tab);
         });
         if (tab === 'tables') { document.getElementById('kbTableListView').style.display='block'; document.getElementById('kbTableDetailView').style.display='none'; viewingTableId=null; }
-        if (tab === 'rules') {
-            var kb = allKnowledgeBases.find(function(k){return k.id===currentKbId;});
-            if (kb) document.getElementById('kbAnalysisRules').value = kb.analysis_rules || '';
-        }
     }
 
     function saveKbRules() {
@@ -358,6 +355,11 @@
         if (!kb) return;
         kb.analysis_rules = document.getElementById('kbAnalysisRules').value;
         alert('✅ 分析規則已儲存');
+    }
+
+    function renderKbRules(kb) {
+        var el = document.getElementById('kbAnalysisRules');
+        if (el) el.value = kb.analysis_rules || '';
     }
 
     function renderKbDocsFromCurrent() { kbDocPage=1; var kb=allKnowledgeBases.find(function(k){return k.id===currentKbId;}); if(kb) renderKbDocs(kb); }
