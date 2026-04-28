@@ -1,4 +1,4 @@
-name: D-workflow
+name: SD to PG
 
 on:
   pull_request:

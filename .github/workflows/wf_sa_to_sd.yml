@@ -1,4 +1,4 @@
-name: A-workflow
+name: SA to SD
 
 on:
   pull_request:
