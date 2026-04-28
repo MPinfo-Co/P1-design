@@ -14,7 +14,7 @@
 | 欄位             | 型別        | 必填  |
 | -------------- | --------- | --- |
 | **角色名稱**       | string    | 是   |
-| **成員帳號**       | integer[] | 否   |
+| **成員**       | integer[] | 否   |
 | **可用 AI 夥伴**   | integer[] | 否   |
 | **可存取知識庫**     | integer[] | 否   |
 | **功能權限**       | object    | 否   |
@@ -42,7 +42,7 @@
 ### 執行
 
 - 寫入 tb_roles
-- 逐筆寫入 tb_user_roles（成員帳號）
+- 逐筆寫入 tb_user_roles（成員）
 - 逐筆寫入 tb_role_ai_partners（可用 AI 夥伴）
 - 逐筆寫入 tb_role_kb_map（可存取知識庫）
 

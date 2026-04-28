@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MP-Box — 帳號管理</title>
+    <title>MP-Box — 使用者管理</title>
     <link rel="stylesheet" href="_style.css">
 </head>
 <body data-page="fn_user">
@@ -13,8 +13,8 @@
             <!-- ===== SECTION: 查詢畫面 #userList ===== -->
             <div id="userList">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h2 style="color:#1e293b;">帳號管理</h2>
-                <button class="btn btn-primary" onclick="openUserModal('add')">新增帳號</button>
+                <h2 style="color:#1e293b;">使用者管理</h2>
+                <button class="btn btn-primary" onclick="openUserModal('add')">新增使用者</button>
             </div>
             <div class="card filter-bar">
                 <div class="filter-group">
@@ -44,7 +44,7 @@
     <!-- ===== SECTION: 帳號表單 Modal #userModal ===== -->
     <div id="userModal" class="modal">
         <div class="modal-content" style="max-width:460px; max-height:90vh; display:flex; flex-direction:column;">
-            <h3 id="uModalTitle" style="color:#1e293b; margin-bottom:20px; flex-shrink:0;">帳號設定</h3>
+            <h3 id="uModalTitle" style="color:#1e293b; margin-bottom:20px; flex-shrink:0;">使用者設定</h3>
             <div style="overflow-y:auto; flex:1;">
                 <div class="input-group"><label>名稱</label><input type="text" id="u_name"></div>
                 <div class="input-group"><label>Email</label><input type="text" id="u_email"></div>
@@ -117,7 +117,7 @@
     function openUserModal(type) {
         if (type === 'add') {
             currentEditingUserId = null;
-            document.getElementById('uModalTitle').innerText = '新增帳號';
+            document.getElementById('uModalTitle').innerText = '新增使用者';
             document.getElementById('u_name').value = '';
             document.getElementById('u_email').value = '';
             document.querySelectorAll('.role-check').forEach(cb => cb.checked = false);
@@ -129,7 +129,7 @@
         const u = allUsers.find(user => user.id === id);
         if (!u) return;
         currentEditingUserId = id;
-        document.getElementById('uModalTitle').innerText = '編輯帳號';
+        document.getElementById('uModalTitle').innerText = '編輯使用者';
         document.getElementById('u_name').value = u.name;
         document.getElementById('u_email').value = u.email;
         document.querySelectorAll('.role-check').forEach(cb => { cb.checked = u.roles.includes(cb.value); });
