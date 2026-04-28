@@ -318,18 +318,20 @@ const similarCasesData = {
 };
 
 // ─── 公司資料（每筆 = 一條規則） ───
-let companyDataTypes = ['公司架構', '公司白名單', '公司背景手冊'];
+let companyDataTypes = ['設備手冊', '白名單'];
 
 let allCompanyData = [
-    { id: 1, type: '公司架構', content: '公司內網主要使用 192.168.0.0/16 網段；VPN 用戶端使用 172.18.0.0/16，亦屬授權內網。任何來自非上述網段的請求應視為外部行為。' },
-    { id: 2, type: '公司架構', content: 'DMZ 對外服務固定為 192.168.10.30 (Web)、192.168.10.40 (Mail)，其餘對外連線需另行確認。' },
-    { id: 3, type: '公司白名單', content: 'Windows 4625 登入失敗事件，若來源 IP 屬於內網（192.168.x.x）且帳號為服務帳號（svc_*），視為已知正常，不需報警。' },
-    { id: 4, type: '公司白名單', content: '每月 1 號 02:00–04:00 的 svc_backup 大量 4624/4634 事件為定期備份排程。' },
-    { id: 5, type: '公司白名單', content: '來源 IP 192.168.1.100 的全網掃描為 IT 弱掃主機定期作業。' },
-    { id: 6, type: '公司背景手冊', content: 'FortiGate deny 內部廣播位址（dstport 137-139, 445）為網路廣播正常行為，不需報警。' },
-    { id: 7, type: '公司背景手冊', content: 'subtype=virus 但 action=blocked 表示已被防毒攔截，可降為 INFO 等級。' },
-    { id: 8, type: '公司背景手冊', content: 'level=notice 的 traffic log 為一般通過紀錄，量大時不視為事件。' }
+    // 設備手冊：網段拓撲、設備清單、log 解讀、處置方式
+    { id: 1, type: '設備手冊', content: '公司內網主要使用 192.168.0.0/16 網段；VPN 用戶端使用 172.18.0.0/16，亦屬授權內網。任何來自非上述網段的請求應視為外部行為。' },
+    { id: 2, type: '設備手冊', content: 'DMZ 對外服務固定為 192.168.10.30 (Web)、192.168.10.40 (Mail)，其餘對外連線需另行確認。' },
+    { id: 3, type: '設備手冊', content: 'FortiGate deny 內部廣播位址（dstport 137-139, 445）為網路廣播正常行為，不需報警。' },
+    { id: 4, type: '設備手冊', content: 'FortiGate subtype=virus 但 action=blocked 表示已被防毒攔截，可降為 INFO 等級。' },
+    { id: 5, type: '設備手冊', content: 'FortiGate level=notice 的 traffic log 為一般通過紀錄，量大時不視為事件。' },
+    // 白名單：已知正常的 IP / 帳號 / 行為
+    { id: 6, type: '白名單', content: 'Windows 4625 登入失敗事件，若來源 IP 屬於內網（192.168.x.x）且帳號為服務帳號（svc_*），視為已知正常，不需報警。' },
+    { id: 7, type: '白名單', content: '每月 1 號 02:00–04:00 的 svc_backup 大量 4624/4634 事件為定期備份排程。' },
+    { id: 8, type: '白名單', content: '來源 IP 192.168.1.100 的全網掃描為 IT 弱掃主機定期作業。' }
 ];
 
 // 夥伴對「資料類型」的綁定（按類型，不按單筆；兩邊 UI 共享此資料結構）
-let partnerDataBindings = { '資安專家': ['公司架構', '公司白名單', '公司背景手冊'] };
+let partnerDataBindings = { '資安專家': ['設備手冊', '白名單'] };

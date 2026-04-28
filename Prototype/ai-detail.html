@@ -200,9 +200,9 @@
 
     // ─── D2：事件 → 規則的 mock 對應表（硬寫，不改 allIssues 結構）───
     const eventRuleMap = {
-        1: { rule:'稽核政策遭大規模竄改超過每日 100 筆基線視為高度可疑，需立即備份既有日誌並還原 GPO。', dataType:'公司白名單' },
-        2: { rule:'內部主機若曾被列入 C2 IOC 名單（如 180.76.76.95 dnscat2），21 天內仍對 DC 發起 Kerberos 認證視為持續活躍。', dataType:'公司架構' },
-        3: { rule:'單一內部 IP 對 DC 短時間多次 4625 失敗，且帳號非 svc_*，視為暴力破解嘗試（不適用服務帳號白名單）。', dataType:'公司白名單' }
+        1: { rule:'稽核政策遭大規模竄改超過每日 100 筆基線視為高度可疑，需立即備份既有日誌並還原 GPO。', dataType:'白名單' },
+        2: { rule:'內部主機若曾被列入 C2 IOC 名單（如 180.76.76.95 dnscat2），21 天內仍對 DC 發起 Kerberos 認證視為持續活躍。', dataType:'設備手冊' },
+        3: { rule:'單一內部 IP 對 DC 短時間多次 4625 失敗，且帳號非 svc_*，視為暴力破解嘗試（不適用服務帳號白名單）。', dataType:'白名單' }
     };
 
     function renderEventRule(issueId) {
