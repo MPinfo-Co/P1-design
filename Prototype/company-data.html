@@ -19,23 +19,17 @@
             </div>
             <div class="card filter-bar" style="margin-bottom:15px;">
                 <div class="filter-group">
-                    <label>資料類型：</label>
-                    <select id="filterType" onchange="renderCompanyDataTable()" style="height:36px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;outline:none;min-width:140px;">
-                        <option value="all">全部</option>
-                    </select>
-                </div>
-                <div class="filter-group">
                     <label>關鍵字：</label>
-                    <input type="text" id="filterKeyword" oninput="renderCompanyDataTable()" placeholder="搜尋資料內容或類型..." style="height:36px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;outline:none;width:240px;">
+                    <input type="text" id="filterKeyword" oninput="renderCompanyDataTable()" placeholder="搜尋類別或內容..." style="height:36px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;outline:none;width:280px;">
                 </div>
             </div>
             <div class="card" style="padding:0;">
                 <table>
                     <thead>
                         <tr>
-                            <th style="width:140px;">資料類型</th>
-                            <th>資料內容</th>
-                            <th style="width:160px;">可使用的 AI 夥伴</th>
+                            <th style="width:140px;">類別</th>
+                            <th>內容</th>
+                            <th style="width:160px;">適用夥伴</th>
                             <th style="width:140px;">執行動作</th>
                         </tr>
                     </thead>
@@ -50,17 +44,17 @@
         <div class="modal-content" style="max-width:600px;">
             <h3 id="companyDataModalTitle" style="color:#1e293b; margin-bottom:14px;">新增資料</h3>
             <div class="input-group">
-                <label>資料類型</label>
+                <label>類別</label>
                 <input type="text" id="cdType" list="cdTypeOptions" placeholder="例：公司架構">
                 <datalist id="cdTypeOptions"></datalist>
-                <small style="color:#94a3b8; font-size:11px; display:block; margin-top:4px;">建議用既有類型；如需新類型直接輸入即可。同類型的「可使用的 AI 夥伴」會自動共享。</small>
+                <small style="color:#94a3b8; font-size:11px; display:block; margin-top:4px;">建議用既有類別；如需新類別直接輸入即可。同類別的「適用夥伴」會自動共享。</small>
             </div>
             <div class="input-group">
-                <label>資料內容</label>
+                <label>內容</label>
                 <textarea id="cdContent" rows="5" placeholder="用白話寫一條規則或背景知識..."></textarea>
             </div>
             <div class="input-group" style="margin-bottom:0;">
-                <label>可使用的 AI 夥伴<span style="font-weight:400; color:#94a3b8; font-size:11px;">（同類型共享）</span></label>
+                <label>適用夥伴<span style="font-weight:400; color:#94a3b8; font-size:11px;">（依類別共享）</span></label>
                 <div id="cdPartnerChecks" style="display:flex; flex-direction:column; gap:8px; margin-top:6px;"></div>
             </div>
             <div class="modal-footer">
@@ -91,14 +85,6 @@
         return result;
     }
 
-    function renderTypeFilter() {
-        var sel = document.getElementById('filterType');
-        var types = distinctTypes();
-        sel.innerHTML = '<option value="all">全部</option>' + types.map(function(t){
-            return '<option value="' + t + '">' + t + '</option>';
-        }).join('');
-    }
-
     function renderTypeDatalist() {
         var dl = document.getElementById('cdTypeOptions');
         dl.innerHTML = distinctTypes().map(function(t){
@@ -107,11 +93,9 @@
     }
 
     function renderCompanyDataTable() {
-        var typeFilter = document.getElementById('filterType').value;
         var kw = (document.getElementById('filterKeyword').value || '').toLowerCase().trim();
         var rows = allCompanyData.filter(function(d){
-            return (typeFilter === 'all' || d.type === typeFilter) &&
-                   (!kw || d.content.toLowerCase().indexOf(kw) !== -1 || d.type.toLowerCase().indexOf(kw) !== -1);
+            return !kw || d.content.toLowerCase().indexOf(kw) !== -1 || d.type.toLowerCase().indexOf(kw) !== -1;
         });
         var tbody = document.getElementById('companyDataTableBody');
         if (rows.length === 0) {
@@ -177,7 +161,7 @@
     function saveCompanyData() {
         var type = document.getElementById('cdType').value.trim();
         var content = document.getElementById('cdContent').value.trim();
-        if (!type || !content) { alert('請填寫資料類型與資料內容'); return; }
+        if (!type || !content) { alert('請填寫類別與內容'); return; }
 
         // 收集勾選的夥伴
         var partnersToBind = Array.prototype.filter.call(
@@ -208,7 +192,6 @@
         });
 
         closeCompanyDataModal();
-        renderTypeFilter();
         renderCompanyDataTable();
         alert('✅ 已儲存');
     }
@@ -222,7 +205,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', function(){
-        renderTypeFilter();
         renderCompanyDataTable();
         document.getElementById('cdType').addEventListener('input', function(){
             renderPartnerChecks(this.value.trim());
