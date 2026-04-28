@@ -4,7 +4,8 @@ SA issue 自動分析工具。呼叫寫作 agent 產出 SA 分析文件，再由
 
 ## 使用方式
 
-在 Claude Code 中以此 skill 執行，並提供 issue 編號（例如：42）。
+由 GitHub Actions workflow（`wf_epic_to_sa.yml`）自動執行，無需手動呼叫。
+Workflow 以 sed 將 `{ISSUE_N}` 替換為實際 SA issue 編號後，作為 prompt 傳入 Claude。
 
 ## 執行流程
 
@@ -18,10 +19,10 @@ feedback = ""
 
 ### 迴圈（最多 max_retries 次）
 
-1. **呼叫** `Agent()` tool，prompt 為 [sa-writer-prompt文件](P1-design/prompts/sa-writer-prompt.md) 的內容，傳入參數如下：
+1. **呼叫** `Agent()` tool，prompt 為 [sa-writer-prompt文件](prompts/sa-writer-prompt.md) 的內容，傳入參數如下：
    {ISSUE_N}: 實際 issue 編號（已被 sed 替換）
    {FEEDBACK}: 當前 feedback
-2. **呼叫** `Agent()` tool，prompt 為 [sa-reviewer-prompt文件](P1-design/prompts/sa-reviewer-prompt.md) 的內容，傳入參數如下：
+2. **呼叫** `Agent()` tool，prompt 為 [sa-reviewer-prompt文件](prompts/sa-reviewer-prompt.md) 的內容，傳入參數如下：
    {ISSUE_N}: 實際 issue 編號（已被 sed 替換）
 3. **讀取** reviewer agent 的回傳內容（尋找 `---` 邊界之間的內容）：
    - 若包含 `VERIFICATION_RESULT: PASS` → 跳到「完成」

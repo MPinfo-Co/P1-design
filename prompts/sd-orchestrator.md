@@ -18,13 +18,13 @@ feedback = ""
 
 ### 迴圈（最多 max_retries 次）
 
-1. **呼叫** `Agent()` tool，prompt 為 [sd-writer-prompt文件](P1-design/prompts/sd-writer-prompt.md) 的內容，傳入參數如下：
-   {ISSUE_N}: {ISSUE_N}
-   {SA_N}: {SA_N}
+1. **呼叫** `Agent()` tool，prompt 為 [sd-writer-prompt文件](prompts/sd-writer-prompt.md) 的內容，傳入參數如下：
+   {ISSUE_N}: SD issue 編號（已被 sed 替換）
+   {SA_N}: 關聯 SA issue 編號（已被 sed 替換）
    {FEEDBACK}: 當前 feedback
-2. **呼叫** `Agent()` tool，prompt 為 [sd-reviewer-prompt文件](P1-design/prompts/sd-reviewer-prompt.md) 的內容，傳入參數如下：
-   {ISSUE_N}: {ISSUE_N}
-   {SA_N}: {SA_N}
+2. **呼叫** `Agent()` tool，prompt 為 [sd-reviewer-prompt文件](prompts/sd-reviewer-prompt.md) 的內容，傳入參數如下：
+   {ISSUE_N}: SD issue 編號（已被 sed 替換）
+   {SA_N}: 關聯 SA issue 編號（已被 sed 替換）
 3. **讀取** reviewer agent 的回傳內容（尋找 `---` 邊界之間的內容）：
    - 若包含 `VERIFICATION_RESULT: PASS` → 跳到「完成」
    - 若包含 `VERIFICATION_RESULT: FAIL` → 提取所有 `ISSUE:` 行作為新的 feedback
