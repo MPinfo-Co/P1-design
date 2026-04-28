@@ -318,28 +318,18 @@ const similarCasesData = {
 };
 
 // ─── 知識庫 ───
-let partnerKbBindings = { '資安專家': [1, 2] };
+let partnerKbBindings = { '資安專家': [1, 2, 3] };
 
 let allKnowledgeBases = [
     {
-        id: 1, name: '資安相關', desc: '資安事件應變 SOP、防火牆政策、安全規範等資安相關文件與資料。',
+        id: 1, name: '公司網路架構',
+        desc: '公司網段、伺服器清單、服務對應、DMZ / 內網分區等網路拓撲基礎資料。',
         accessRoles: ['管理員', '一般使用者'],
+        analysis_rules: '公司內網僅使用 192.168.0.0/16 網段；任何來自非此網段的請求應視為外部行為。\nDMZ 對外服務固定為 192.168.10.30 (Web)、192.168.10.40 (Mail)，其餘對外連線需另行確認。',
         docs: [
-            { id:'d01', name:'資安事件應變SOP_v3.pdf',         size:'245 KB',  uploadDate:'2026-01-15' },
-            { id:'d02', name:'防火牆政策白名單_IT.txt',         size:'12 KB',   uploadDate:'2026-01-20' },
-            { id:'d03', name:'資安通報流程_2026Q1.pdf',         size:'180 KB',  uploadDate:'2026-02-01' },
-            { id:'d04', name:'Fortinet_Best_Practice_Guide.pdf',size:'1.2 MB',  uploadDate:'2026-01-08' },
-            { id:'d05', name:'Windows_Security_Event_ID_Reference.pdf', size:'890 KB', uploadDate:'2026-01-10' },
-            { id:'d06', name:'VPN_連線管理辦法_v2.docx',        size:'78 KB',   uploadDate:'2026-01-12' },
-            { id:'d07', name:'弱點掃描報告_2025Q4.pdf',         size:'3.4 MB',  uploadDate:'2025-12-28' },
-            { id:'d08', name:'ISO27001_資安政策手冊.pdf',        size:'520 KB',  uploadDate:'2025-11-15' },
-            { id:'d09', name:'MITRE_ATT&CK_對應表_v5.xlsx',     size:'156 KB',  uploadDate:'2026-02-05' },
-            { id:'d10', name:'社交工程防範教育訓練.pptx',        size:'2.1 MB',  uploadDate:'2026-01-25' },
-            { id:'d11', name:'郵件安全政策_2026.pdf',           size:'95 KB',   uploadDate:'2026-02-10' },
-            { id:'d12', name:'帳號密碼管理規範.docx',           size:'45 KB',   uploadDate:'2026-01-18' },
-            { id:'d13', name:'端點偵測回應EDR_部署指南.pdf',     size:'1.8 MB',  uploadDate:'2025-12-20' },
-            { id:'d14', name:'網段劃分與防火牆規則總表.xlsx',    size:'210 KB',  uploadDate:'2026-02-15' },
-            { id:'d15', name:'DDoS_防禦SOP.pdf',                size:'135 KB',  uploadDate:'2026-01-30' }
+            { id:'d01', name:'網段劃分與防火牆規則總表.xlsx', size:'210 KB', uploadDate:'2026-02-15' },
+            { id:'d02', name:'IDC機房設備清單_2026Q1.pdf',     size:'180 KB', uploadDate:'2026-01-20' },
+            { id:'d03', name:'DMZ_服務對應表.docx',            size:'78 KB',  uploadDate:'2026-02-01' }
         ],
         tables: [
             { id:'t1', name:'設備資產表', template:'asset', createdDate:'2026-01-10',
@@ -348,63 +338,60 @@ let allKnowledgeBases = [
                 ['MPIDCFW','192.168.1.1','00:09:0F:AA:BB:01','FortiOS 7.4','Rex Shen','IDC 機房 A','主防火牆'],
                 ['DC-SVR-01','192.168.10.20','00:50:56:B2:11:22','Windows Server 2022','Dama Wang','IDC 機房 B','主 DNS 伺服器'],
                 ['WEB-SVR-01','192.168.10.30','00:50:56:B2:33:44','Ubuntu 22.04 LTS','Frank Liu','IDC 機房 B','Web 應用伺服器'],
-                ['VPN-GW','10.0.0.1','00:09:0F:CC:DD:02','FortiOS 7.4','Rex Shen','IDC 機房 A','VPN 閘道器'],
-                ['MAIL-SVR','192.168.10.40','00:50:56:B2:55:66','Windows Server 2022','Dama Wang','IDC 機房 B','郵件伺服器'],
-                ['AP-CORE','192.168.1.10','00:1A:2B:CC:DD:03','FortiAP','Rex Shen','3F 辦公區','核心 AP'],
-                ['NAS-01','192.168.10.50','00:11:32:AA:00:01','Synology DSM 7','Pong Chang','IDC 機房 A','備份 NAS'],
-                ['SW-CORE','192.168.1.2','00:09:0F:EE:FF:04','FortiSwitch OS','Rex Shen','IDC 機房 A','核心交換器'],
-                ['PROXY-SVR','192.168.10.60','00:50:56:B2:77:88','Ubuntu 22.04 LTS','Frank Liu','IDC 機房 B','反向代理'],
-                ['LOG-SVR','192.168.10.70','00:50:56:B2:99:AA','CentOS 8','Pong Chang','IDC 機房 B','日誌收集伺服器'],
-                ['DB-SVR-01','192.168.10.80','00:50:56:B2:BB:CC','Windows Server 2022','Dama Wang','IDC 機房 B','資料庫主機'],
-                ['SCAN-SVR','192.168.10.90','00:50:56:B2:DD:EE','Kali Linux','Frank Liu','IDC 機房 B','弱掃主機']
+                ['MAIL-SVR','192.168.10.40','00:50:56:B2:55:66','Windows Server 2022','Dama Wang','IDC 機房 B','郵件伺服器']
               ]},
-            { id:'t2', name:'安全 IP 白名單', template:'asset', createdDate:'2026-02-01',
-              columns:['IP / CIDR','說明','加入日期','負責人'],
-              rows:[
-                ['192.168.1.100','IT 掃描主機','2026-01-05','Rex Shen'],
-                ['10.0.0.0/8','內部 VPN 網段','2026-01-05','Rex Shen'],
-                ['203.0.113.50','外部監控服務','2026-01-10','Frank Liu']
-              ]},
-            { id:'t3', name:'防火牆規則清單', template:'excel_import', createdDate:'2026-02-08',
-              columns:['規則編號','來源','目的','服務','動作','備註'],
-              rows:[
-                ['P-001','LAN','WAN','HTTP/HTTPS','Allow','一般上網'],
-                ['P-002','SVR','WAN','DNS','Allow','DNS 查詢'],
-                ['P-003','WAN','DMZ','HTTPS','Allow','Web 服務'],
-                ['P-004','ANY','ANY','ANY','Deny','預設拒絕']
-              ]},
-            { id:'t4', name:'VLAN 網段規劃表', template:'asset', createdDate:'2026-01-15',
+            { id:'t2', name:'VLAN 網段規劃表', template:'asset', createdDate:'2026-01-15',
               columns:['VLAN ID','網段','用途','備註'],
               rows:[
                 ['10','192.168.10.0/24','伺服器段','IDC 機房'],
                 ['20','192.168.20.0/24','辦公區','3F-5F'],
-                ['30','172.18.0.0/16','VPN 用戶端','遠端連線'],
-                ['99','192.168.99.0/24','管理段','網管設備']
-              ]},
-            { id:'t5', name:'通報聯絡人清單', template:'asset', createdDate:'2026-02-12',
-              columns:['姓名','職稱','電話','Email','通報層級'],
-              rows:[
-                ['Rex Shen','資安主管','0912-345-678','rexshen@mpinfo.com.tw','L1'],
-                ['Dama Wang','系統管理員','0923-456-789','damawang@mpinfo.com.tw','L1'],
-                ['Frank Liu','網路工程師','0934-567-890','frankliu@mpinfo.com.tw','L2']
+                ['30','172.18.0.0/16','VPN 用戶端','遠端連線']
               ]}
         ]
     },
     {
-        id: 2, name: 'MIS 維運', desc: '內部 MIS 維運相關的 SOP、變更管理流程、系統維護排程等。',
-        accessRoles: ['管理員'],
+        id: 2, name: '已知正常行為與白名單',
+        desc: '常見誤判場景：服務帳號批次行為、內網 AD 失敗、合法掃描來源等，避免 AI 過度告警。',
+        accessRoles: ['管理員', '一般使用者'],
+        analysis_rules: 'Windows 4625 登入失敗事件，若來源 IP 屬於內網（192.168.x.x）且帳號為服務帳號（svc_*），視為已知正常，不需報警。\n每月 1 號 02:00–04:00 的 svc_backup 大量 4624/4634 事件為定期備份排程。\n來源 IP 192.168.1.100 的全網掃描為 IT 弱掃主機定期作業。',
         docs: [
-            { id:'d16', name:'系統維護排程_2026.xlsx', size:'67 KB',  uploadDate:'2026-01-05' },
-            { id:'d17', name:'變更管理流程_v2.pdf',    size:'120 KB', uploadDate:'2026-01-22' },
-            { id:'d18', name:'機房管理辦法.docx',       size:'55 KB',  uploadDate:'2025-12-10' }
+            { id:'d04', name:'已知誤報案例清單_2026Q1.pdf', size:'95 KB',  uploadDate:'2026-02-10' },
+            { id:'d05', name:'服務帳號白名單.xlsx',         size:'42 KB',  uploadDate:'2026-01-25' }
         ],
         tables: [
-            { id:'t6', name:'帳號權限矩陣', template:'account_perm', createdDate:'2026-02-10',
-              columns:['帳號名稱','所屬部門','權限等級','系統存取範圍','最後登入時間','狀態'],
+            { id:'t3', name:'安全 IP 白名單', template:'asset', createdDate:'2026-02-01',
+              columns:['IP / CIDR','說明','加入日期','負責人'],
               rows:[
-                ['rex','資訊部','Admin','全系統','2026-02-23 08:30','啟用'],
-                ['robert','資訊部','User','MP-Box / VPN','2026-02-23 09:15','啟用'],
-                ['pong','資訊部','User','MP-Box','2026-02-22 17:45','啟用']
+                ['192.168.1.100','IT 弱掃主機','2026-01-05','Rex Shen'],
+                ['10.0.0.0/8','內部 VPN 網段','2026-01-05','Rex Shen'],
+                ['203.0.113.50','外部監控服務','2026-01-10','Frank Liu']
+              ]},
+            { id:'t4', name:'服務帳號清單', template:'account_perm', createdDate:'2026-02-12',
+              columns:['帳號','用途','負責人','備註'],
+              rows:[
+                ['svc_backup','每日備份排程','Pong Chang','02:00–04:00 大量 IO 為正常'],
+                ['svc_monitor','監控收集','Frank Liu','跨主機讀取 EventLog 為正常'],
+                ['svc_ad_sync','AD 同步','Dama Wang','整點觸發']
+              ]}
+        ]
+    },
+    {
+        id: 3, name: 'FortiGate 規則手冊',
+        desc: 'FortiGate subtype / log level 含義對照、典型誤報案例與排除規則。',
+        accessRoles: ['管理員'],
+        analysis_rules: 'FortiGate deny 內部廣播位址（dstport 137-139, 445）為網路廣播正常行為，不需報警。\nsubtype=virus 但 action=blocked 表示已被防毒攔截，可降為 INFO 等級。\nlevel=notice 的 traffic log 為一般通過紀錄，量大時不視為事件。',
+        docs: [
+            { id:'d06', name:'Fortinet_Best_Practice_Guide.pdf', size:'1.2 MB', uploadDate:'2026-01-08' },
+            { id:'d07', name:'FortiGate_LogID_對照表.xlsx',       size:'156 KB', uploadDate:'2026-02-05' }
+        ],
+        tables: [
+            { id:'t5', name:'FortiGate subtype 對照', template:'asset', createdDate:'2026-02-08',
+              columns:['subtype','log level','典型場景','建議處置'],
+              rows:[
+                ['forward','notice','一般通過','記錄即可'],
+                ['virus','warning','防毒攔截','若 action=blocked 可降級'],
+                ['attack','alert','IPS 偵測攻擊','需立即查證'],
+                ['webfilter','warning','URL 過濾','視策略決定']
               ]}
         ]
     }
