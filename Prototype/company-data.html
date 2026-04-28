@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP-Box — 公司資料</title>
+    <link rel="stylesheet" href="_style.css">
+</head>
+<body data-page="company-data">
+    <div id="appContainer" class="app-container" style="display:grid;">
+        <!-- sidebar + header 由 _nav.js 注入 -->
+        <div class="main-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+                <h2 style="color:#1e293b;">公司資料</h2>
+                <button class="btn btn-primary" onclick="openCompanyDataModal('add')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    新增資料
+                </button>
+            </div>
+            <div class="card filter-bar" style="margin-bottom:15px;">
+                <div class="filter-group">
+                    <label>資料類型：</label>
+                    <select id="filterType" onchange="renderCompanyDataTable()" style="height:36px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;outline:none;min-width:140px;">
+                        <option value="all">全部</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>關鍵字：</label>
+                    <input type="text" id="filterKeyword" oninput="renderCompanyDataTable()" placeholder="搜尋資料內容或類型..." style="height:36px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;outline:none;width:240px;">
+                </div>
+            </div>
+            <div class="card" style="padding:0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:140px;">資料類型</th>
+                            <th>資料內容</th>
+                            <th style="width:160px;">可使用的 AI 夥伴</th>
+                            <th style="width:140px;">執行動作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="companyDataTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增 / 編輯 modal -->
+    <div id="companyDataModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:600px;">
+            <h3 id="companyDataModalTitle" style="color:#1e293b; margin-bottom:14px;">新增資料</h3>
+            <div class="input-group">
+                <label>資料類型</label>
+                <input type="text" id="cdType" list="cdTypeOptions" placeholder="例：公司架構">
+                <datalist id="cdTypeOptions"></datalist>
+                <small style="color:#94a3b8; font-size:11px; display:block; margin-top:4px;">建議用既有類型；如需新類型直接輸入即可。同類型的「可使用的 AI 夥伴」會自動共享。</small>
+            </div>
+            <div class="input-group">
+                <label>資料內容</label>
+                <textarea id="cdContent" rows="5" placeholder="用白話寫一條規則或背景知識..."></textarea>
+            </div>
+            <div class="input-group" style="margin-bottom:0;">
+                <label>可使用的 AI 夥伴<span style="font-weight:400; color:#94a3b8; font-size:11px;">（同類型共享）</span></label>
+                <div id="cdPartnerChecks" style="display:flex; flex-direction:column; gap:8px; margin-top:6px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeCompanyDataModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveCompanyData()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="_mockdata.js"></script>
+    <script src="_state.js"></script>
+    <script src="_nav.js"></script>
+    <script>
+    let editingId = null;
+
+    function distinctTypes() {
+        var s = {};
+        companyDataTypes.forEach(function(t){ s[t] = true; });
+        allCompanyData.forEach(function(d){ s[d.type] = true; });
+        return Object.keys(s);
+    }
+
+    function partnersForType(type) {
+        var result = [];
+        Object.keys(partnerDataBindings).forEach(function(p){
+            if (partnerDataBindings[p].indexOf(type) !== -1) result.push(p);
+        });
+        return result;
+    }
+
+    function renderTypeFilter() {
+        var sel = document.getElementById('filterType');
+        var types = distinctTypes();
+        sel.innerHTML = '<option value="all">全部</option>' + types.map(function(t){
+            return '<option value="' + t + '">' + t + '</option>';
+        }).join('');
+    }
+
+    function renderTypeDatalist() {
+        var dl = document.getElementById('cdTypeOptions');
+        dl.innerHTML = distinctTypes().map(function(t){
+            return '<option value="' + t + '">';
+        }).join('');
+    }
+
+    function renderCompanyDataTable() {
+        var typeFilter = document.getElementById('filterType').value;
+        var kw = (document.getElementById('filterKeyword').value || '').toLowerCase().trim();
+        var rows = allCompanyData.filter(function(d){
+            return (typeFilter === 'all' || d.type === typeFilter) &&
+                   (!kw || d.content.toLowerCase().indexOf(kw) !== -1 || d.type.toLowerCase().indexOf(kw) !== -1);
+        });
+        var tbody = document.getElementById('companyDataTableBody');
+        if (rows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:#94a3b8;">沒有符合條件的資料</td></tr>';
+            return;
+        }
+        tbody.innerHTML = rows.map(function(d){
+            var partners = partnersForType(d.type);
+            var partnersHtml = partners.length > 0 ? partners.join('、') : '<span style="color:#94a3b8;">未綁定</span>';
+            return '<tr>' +
+                '<td><span style="font-weight:600;color:#1e293b;">' + d.type + '</span></td>' +
+                '<td style="line-height:1.6;">' + d.content + '</td>' +
+                '<td style="font-size:13px;color:#334155;">' + partnersHtml + '</td>' +
+                '<td>' +
+                    '<button class="btn btn-outline" style="padding:4px 8px;" onclick="prepareEditCompanyData(' + d.id + ')">修改</button> ' +
+                    '<button class="btn btn-outline" style="padding:4px 8px; color:#ef4444; border-color:#fca5a5;" onclick="deleteCompanyData(' + d.id + ')">刪除</button>' +
+                '</td></tr>';
+        }).join('');
+    }
+
+    function renderPartnerChecks(currentType) {
+        var box = document.getElementById('cdPartnerChecks');
+        var partnersOfType = currentType ? Object.keys(partnerDataBindings).filter(function(p){
+            return partnerDataBindings[p].indexOf(currentType) !== -1;
+        }) : [];
+        box.innerHTML = allPartners.map(function(p){
+            var checked = partnersOfType.indexOf(p.name) !== -1 ? 'checked' : '';
+            return '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-weight:400;">' +
+                '<input type="checkbox" data-partner="' + p.name + '" ' + checked + '>' +
+                '<span><strong style="color:#1e293b;">' + p.name + '</strong>' +
+                '<small style="display:block;color:#64748b;font-size:11px;">' + p.desc + '</small></span>' +
+                '</label>';
+        }).join('');
+    }
+
+    function openCompanyDataModal() {
+        editingId = null;
+        document.getElementById('companyDataModalTitle').textContent = '新增資料';
+        document.getElementById('cdType').value = '';
+        document.getElementById('cdContent').value = '';
+        renderTypeDatalist();
+        renderPartnerChecks('');
+        document.getElementById('companyDataModal').style.display = 'flex';
+    }
+
+    function prepareEditCompanyData(id) {
+        var d = allCompanyData.find(function(x){ return x.id === id; });
+        if (!d) return;
+        editingId = id;
+        document.getElementById('companyDataModalTitle').textContent = '編輯資料';
+        document.getElementById('cdType').value = d.type;
+        document.getElementById('cdContent').value = d.content;
+        renderTypeDatalist();
+        renderPartnerChecks(d.type);
+        document.getElementById('companyDataModal').style.display = 'flex';
+    }
+
+    function closeCompanyDataModal() {
+        editingId = null;
+        document.getElementById('companyDataModal').style.display = 'none';
+    }
+
+    function saveCompanyData() {
+        var type = document.getElementById('cdType').value.trim();
+        var content = document.getElementById('cdContent').value.trim();
+        if (!type || !content) { alert('請填寫資料類型與資料內容'); return; }
+
+        // 收集勾選的夥伴
+        var partnersToBind = Array.prototype.filter.call(
+            document.querySelectorAll('#cdPartnerChecks input[type=checkbox]'),
+            function(c){ return c.checked; }
+        ).map(function(c){ return c.dataset.partner; });
+
+        // 寫入或更新 allCompanyData
+        if (editingId == null) {
+            var newId = allCompanyData.length === 0 ? 1 : Math.max.apply(null, allCompanyData.map(function(d){return d.id;})) + 1;
+            allCompanyData.push({ id: newId, type: type, content: content });
+        } else {
+            var d = allCompanyData.find(function(x){ return x.id === editingId; });
+            if (d) { d.type = type; d.content = content; }
+        }
+
+        // 同步 partnerDataBindings：對「該類型」的綁定（同類共享）
+        // 已存在的 partner：依 partnersToBind 加入或移除該 type
+        Object.keys(partnerDataBindings).forEach(function(p){
+            var hasType = partnerDataBindings[p].indexOf(type) !== -1;
+            var shouldHave = partnersToBind.indexOf(p) !== -1;
+            if (shouldHave && !hasType) partnerDataBindings[p].push(type);
+            if (!shouldHave && hasType) partnerDataBindings[p] = partnerDataBindings[p].filter(function(t){ return t !== type; });
+        });
+        // 新加的 partner（如果之前未存在綁定 map 中）也補上
+        partnersToBind.forEach(function(p){
+            if (!partnerDataBindings[p]) partnerDataBindings[p] = [type];
+        });
+
+        closeCompanyDataModal();
+        renderTypeFilter();
+        renderCompanyDataTable();
+        alert('✅ 已儲存');
+    }
+
+    function deleteCompanyData(id) {
+        var d = allCompanyData.find(function(x){ return x.id === id; });
+        if (!d) return;
+        if (!confirm('確定要刪除這筆「' + d.type + '」資料？')) return;
+        allCompanyData = allCompanyData.filter(function(x){ return x.id !== id; });
+        renderCompanyDataTable();
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+        renderTypeFilter();
+        renderCompanyDataTable();
+        document.getElementById('cdType').addEventListener('input', function(){
+            renderPartnerChecks(this.value.trim());
+        });
+    });
+    </script>
+</body>
+</html>

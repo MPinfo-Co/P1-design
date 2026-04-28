@@ -19,9 +19,9 @@
             <div class="card" style="margin-bottom:18px;">
                 <h3 style="font-size:15px; color:#1e293b; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #e2e8f0;">區 A · 分析行為</h3>
                 <div class="input-group">
-                    <label style="font-weight:700;">綁定知識庫（多選）</label>
+                    <label style="font-weight:700;">綁定公司資料類型（多選）</label>
                     <div style="margin:6px 0 10px; padding:10px 12px; background:#fef9c3; border-left:3px solid #ca8a04; border-radius:4px; font-size:12px; color:#713f12; line-height:1.6;">
-                        此處選擇資安專家分析時可參考的知識庫；<strong>規則內容寫在 KB 的「分析規則」tab 內</strong>。若要設定誰能編輯該 KB，請至 KB 詳情 → 存取設定 tab。
+                        此處選擇資安專家分析時可參考的公司資料類型；<strong>每一筆規則的內容在「公司資料」頁編輯</strong>。同樣的綁定也可以從「公司資料」頁的每筆「可使用的 AI 夥伴」欄位設定，兩邊雙向同步。
                     </div>
                     <div id="settingKbBindings" style="display:flex; flex-direction:column; gap:8px;"></div>
                 </div>
@@ -134,16 +134,21 @@
     <script src="_state.js"></script>
     <script src="_nav.js"></script>
     <script>
-    // 渲染 KB 綁定 checkbox（依 partnerKbBindings 預設勾選狀態）
+    // 渲染公司資料類型綁定 checkbox（依 partnerDataBindings 預設勾選狀態）
     function renderKbBindings() {
         var box = document.getElementById('settingKbBindings');
-        var bound = partnerKbBindings['資安專家'] || [];
-        box.innerHTML = allKnowledgeBases.map(function(kb) {
-            var checked = bound.indexOf(kb.id) !== -1 ? 'checked' : '';
+        var bound = partnerDataBindings['資安專家'] || [];
+        var typeSet = {};
+        companyDataTypes.forEach(function(t){ typeSet[t] = true; });
+        allCompanyData.forEach(function(d){ typeSet[d.type] = true; });
+        var types = Object.keys(typeSet);
+        box.innerHTML = types.map(function(t) {
+            var checked = bound.indexOf(t) !== -1 ? 'checked' : '';
+            var count = allCompanyData.filter(function(d){ return d.type === t; }).length;
             return '<label style="display:flex; align-items:flex-start; gap:8px; padding:8px 10px; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer; font-weight:400;">' +
-                '<input type="checkbox" data-kbid="' + kb.id + '" ' + checked + ' style="margin-top:3px;">' +
-                '<span><strong style="color:#1e293b;">' + kb.name + '</strong>' +
-                '<small style="display:block; color:#64748b; font-size:11px; margin-top:2px;">' + kb.desc + '</small></span></label>';
+                '<input type="checkbox" data-type="' + t + '" ' + checked + ' style="margin-top:3px;">' +
+                '<span><strong style="color:#1e293b;">' + t + '</strong>' +
+                '<small style="display:block; color:#64748b; font-size:11px; margin-top:2px;">目前有 ' + count + ' 筆資料</small></span></label>';
         }).join('');
     }
 
@@ -160,11 +165,11 @@
     }
 
     function saveSettings() {
-        // 將 KB 勾選回寫到 partnerKbBindings（雛型只在記憶體內）
+        // 將類型勾選回寫到 partnerDataBindings（雛型只在記憶體內）
         var checks = document.querySelectorAll('#settingKbBindings input[type=checkbox]');
-        partnerKbBindings['資安專家'] = Array.prototype.filter.call(checks, function(c){ return c.checked; })
-            .map(function(c){ return parseInt(c.dataset.kbid, 10); });
-        alert('✅ 知識庫綁定已儲存（其他設定為雛型 UI 佔位，未持久化）');
+        partnerDataBindings['資安專家'] = Array.prototype.filter.call(checks, function(c){ return c.checked; })
+            .map(function(c){ return c.dataset.type; });
+        alert('✅ 公司資料類型綁定已儲存（其他設定為雛型 UI 佔位，未持久化）');
     }
 
     // 初始
