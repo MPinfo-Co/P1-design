@@ -15,11 +15,11 @@ let allPartners = [
 ];
 
 let allUsers = [
-    { id: 1, name: 'Rex Shen',    email: 'rexshen@mpinfo.com.tw',    roles: ['管理員'] },
-    { id: 2, name: 'Robert Huang',email: 'roberthuang@mpinfo.com.tw', roles: ['一般使用者'] },
-    { id: 3, name: 'Pong Chang',  email: 'pongchang@mpinfo.com.tw',   roles: ['一般使用者'] },
-    { id: 4, name: 'Dama Wang',   email: 'damawang@mpinfo.com.tw',    roles: ['管理員'] },
-    { id: 5, name: 'Frank Liu',   email: 'frankliu@mpinfo.com.tw',    roles: ['管理員'] }
+    { id: 1, name: 'Rex Shen',    email: 'rexshen@mpinfo.com.tw',    roles: ['管理員'],     status: '啟用' },
+    { id: 2, name: 'Robert Huang',email: 'roberthuang@mpinfo.com.tw', roles: ['一般使用者'], status: '啟用' },
+    { id: 3, name: 'Pong Chang',  email: 'pongchang@mpinfo.com.tw',   roles: ['一般使用者'], status: '啟用' },
+    { id: 4, name: 'Dama Wang',   email: 'damawang@mpinfo.com.tw',    roles: ['管理員'],     status: '啟用' },
+    { id: 5, name: 'Frank Liu',   email: 'frankliu@mpinfo.com.tw',    roles: ['管理員'],     status: '停用' }
 ];
 
 let allRoles = [
