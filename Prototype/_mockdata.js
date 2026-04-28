@@ -318,24 +318,24 @@ const similarCasesData = {
 };
 
 // ─── 公司資料（每筆 = 一條規則） ───
-let companyDataTypes = ['公司環境', '白名單', '公司規則'];
+let companyDataTypes = ['環境', '白名單', '規則'];
 
 let allCompanyData = [
-    // 公司環境：網段拓撲 + 設備清冊（What is — 公司內部長什麼樣）
-    { id: 1, type: '公司環境', content: '公司內網主要使用 192.168.0.0/16 網段；VPN 用戶端使用 172.18.0.0/16，亦屬授權內網。任何來自非上述網段的請求應視為外部行為。' },
-    { id: 2, type: '公司環境', content: 'DMZ 對外服務固定為 192.168.10.30 (Web)、192.168.10.40 (Mail)，其餘對外連線需另行確認。' },
-    { id: 3, type: '公司環境', content: 'DC-SVR-01：IP 192.168.10.20，Windows Server 2022，Domain Controller（主 DNS），負責人 Dama Wang，位置 IDC 機房 B。' },
-    { id: 4, type: '公司環境', content: 'MPIDCFW：IP 192.168.1.1，FortiOS 7.4，主邊界防火牆，負責人 Rex Shen，位置 IDC 機房 A。' },
-    { id: 5, type: '公司環境', content: 'WEB-SVR-01：IP 192.168.10.30，Ubuntu 22.04 LTS，DMZ Web 應用伺服器，負責人 Frank Liu，位置 IDC 機房 B。' },
+    // 環境：網段拓撲 + 設備清冊（What is — 公司內部長什麼樣）
+    { id: 1, type: '環境', content: '公司內網主要使用 192.168.0.0/16 網段；VPN 用戶端使用 172.18.0.0/16，亦屬授權內網。任何來自非上述網段的請求應視為外部行為。' },
+    { id: 2, type: '環境', content: 'DMZ 對外服務固定為 192.168.10.30 (Web)、192.168.10.40 (Mail)，其餘對外連線需另行確認。' },
+    { id: 3, type: '環境', content: 'DC-SVR-01：IP 192.168.10.20，Windows Server 2022，Domain Controller（主 DNS），負責人 Dama Wang，位置 IDC 機房 B。' },
+    { id: 4, type: '環境', content: 'MPIDCFW：IP 192.168.1.1，FortiOS 7.4，主邊界防火牆，負責人 Rex Shen，位置 IDC 機房 A。' },
+    { id: 5, type: '環境', content: 'WEB-SVR-01：IP 192.168.10.30，Ubuntu 22.04 LTS，DMZ Web 應用伺服器，負責人 Frank Liu，位置 IDC 機房 B。' },
     // 白名單：已知正常的 IP / 帳號 / 行為（What to ignore）
     { id: 6, type: '白名單', content: 'Windows 4625 登入失敗事件，若來源 IP 屬於內網（192.168.x.x）且帳號為服務帳號（svc_*），視為已知正常，不需報警。' },
     { id: 7, type: '白名單', content: '每月 1 號 02:00–04:00 的 svc_backup 大量 4624/4634 事件為定期備份排程。' },
     { id: 8, type: '白名單', content: '來源 IP 192.168.1.100 的全網掃描為 IT 弱掃主機定期作業。' },
-    // 公司規則：log 解讀 + 處置 SOP + 判斷門檻（How to handle）
-    { id: 9, type: '公司規則', content: 'FortiGate deny 內部廣播位址（dstport 137-139, 445）為網路廣播正常行為，不需報警。' },
-    { id: 10, type: '公司規則', content: 'FortiGate subtype=virus 但 action=blocked 表示已被防毒攔截，可降為 INFO 等級。' },
-    { id: 11, type: '公司規則', content: 'FortiGate level=notice 的 traffic log 為一般通過紀錄，量大時不視為事件。' }
+    // 規則：log 解讀 + 處置 SOP + 判斷門檻（How to handle）
+    { id: 9, type: '規則', content: 'FortiGate deny 內部廣播位址（dstport 137-139, 445）為網路廣播正常行為，不需報警。' },
+    { id: 10, type: '規則', content: 'FortiGate subtype=virus 但 action=blocked 表示已被防毒攔截，可降為 INFO 等級。' },
+    { id: 11, type: '規則', content: 'FortiGate level=notice 的 traffic log 為一般通過紀錄，量大時不視為事件。' }
 ];
 
 // 夥伴對「資料類型」的綁定（按類型，不按單筆；兩邊 UI 共享此資料結構）
-let partnerDataBindings = { '資安專家': ['公司環境', '白名單', '公司規則'] };
+let partnerDataBindings = { '資安專家': ['環境', '白名單', '規則'] };
