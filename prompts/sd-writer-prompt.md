@@ -1,12 +1,22 @@
-<!-- ISSUE_NUMBER 由 workflow 在執行前替換為實際 SD issue 編號 -->
-<!-- SA_NUMBER 由 workflow 在執行前替換為實際 SA issue 編號 -->
+# SD Writing Agent — TDD 產出
+
 你是一位 SD（System Designer），請執行以下 SD 工作。
 
-## 背景資料
+## 輸入
+
+{ISSUE_N}: SD Issue 編號
+{SA_N}: 關聯 SA Issue 編號
+{FEEDBACK}: 前次審查回饋（若有），優先修正後再執行下方步驟
+
+---
+
+## 執行步驟
+
+### Step 1：讀取背景資料
 
 執行任務前，先了解現有系統設計：
 
-1. 讀取 `./SA/sa-SA_NUMBER-logic.md` — 業務需求（SA 分析結果）
+1. 讀取 `./SA/sa-{SA_N}-logic.md` — 業務需求（SA 分析結果）
 2. 讀取 `./P1-project/docs/spec-guide.md` — TDD 格式規範與撰寫標準
 3. 讀取 `./functionList.md` — 現有功能清單
 4. 讀取 `./schema/schema.md` — 現有資料表，確認 Schema 工作項目範疇
@@ -15,11 +25,22 @@
 
 根據業務需求，判斷是否需要進一步讀取特定 Spec 或 Prototype 檔案（判斷涉及修改哪些現有功能時）。
 
-## 任務
+### Step 2：填寫 TDD
 
-1. 讀取 `SD/sd-ISSUE_NUMBER-TDD.md`（scaffold 已存在）
-2. 依據 sa-SA_NUMBER-logic.md 的業務需求填寫工作項目與測試案例
-3. 將完整更新後的檔案寫回 `SD/sd-ISSUE_NUMBER-TDD.md`
+1. 讀取 `SD/sd-{ISSUE_N}-TDD.md`（scaffold 已存在）
+2. 依據 `sa-{SA_N}-logic.md` 的業務需求填寫工作項目與測試案例
+3. 將完整更新後的檔案寫回 `SD/sd-{ISSUE_N}-TDD.md`
+
+### Step 3：調整相關文件
+
+依 TDD 工作項目內容，判斷是否需調整 `Prototype/`、`Spec/`、`schema/`（如有異動則直接修改，反映最新狀態）。
+
+若有 API 新增或修改（非刪除），同步更新對應的 `Spec/{fn_xxx}/Api/_{fn_xxx}_test_api.md`：
+- 新增 API → 新增測試案例，ID 接續上一筆
+- 修改 API 行為 → 更新對應測試案例
+- 刪除 API → 移除對應測試案例，ID 不補號
+
+---
 
 ## TDD 產出規範
 
@@ -50,6 +71,8 @@
 AI填寫內容...
 
 **── AI 填寫結束 ──**
+
+---
 
 ## 輸出規範
 

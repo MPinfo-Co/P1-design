@@ -281,8 +281,8 @@ jobs:
         run: |
           SD_NUMBER="${{ steps.create-sd.outputs.sd_number }}"
           SA_NUMBER="${{ steps.create-sd.outputs.sa_number }}"
-          sed "s/ISSUE_NUMBER/${SD_NUMBER}/g; s/SA_NUMBER/${SA_NUMBER}/g" \
-            prompts/sd-writer-prompt.md > /tmp/sd-prompt.txt
+          sed "s/{ISSUE_N}/${SD_NUMBER}/g; s/{SA_N}/${SA_NUMBER}/g" \
+            prompts/sd-orchestrator.md > /tmp/sd-prompt.txt
           echo "Prompt built for SD #$SD_NUMBER (SA #$SA_NUMBER)"
 
       - name: Run SD Worker Agent
