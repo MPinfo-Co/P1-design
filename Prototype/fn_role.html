@@ -238,13 +238,47 @@
         renderRoleTable();
     }
 
+    let pendingDeleteRoleId = null;
+
     function deleteRole(id) {
-        if (!confirm('確定要刪除此角色嗎？無法復原。')) return;
-        allRoles = allRoles.filter(r => r.id !== id);
+        var r = allRoles.find(function(x){ return x.id === id; });
+        if (!r) return;
+        pendingDeleteRoleId = id;
+        document.getElementById('deleteRoleName').textContent = r.name;
+        document.getElementById('deleteRoleModal').style.display = 'flex';
+    }
+
+    function closeDeleteRoleModal() {
+        pendingDeleteRoleId = null;
+        document.getElementById('deleteRoleModal').style.display = 'none';
+    }
+
+    function confirmDeleteRole() {
+        if (pendingDeleteRoleId == null) return;
+        var id = pendingDeleteRoleId;
+        allRoles = allRoles.filter(function(r) { return r.id !== id; });
         renderRoleTable();
+        closeDeleteRoleModal();
     }
 
     document.addEventListener('DOMContentLoaded', renderRoleTable);
     </script>
+
+    <!-- 自訂刪除確認 modal -->
+    <div id="deleteRoleModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:420px;">
+            <h3 style="color:#b91c1c; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                確認刪除角色
+            </h3>
+            <p style="font-size:13px; color:#475569; line-height:1.6; margin-bottom:18px;">
+                確定要刪除角色「<strong id="deleteRoleName" style="color:#1e293b;"></strong>」嗎？此動作無法復原，且會解除該角色與使用者、夥伴、KB 的所有綁定。
+            </p>
+            <div style="text-align:right; display:flex; gap:8px; justify-content:flex-end;">
+                <button class="btn btn-outline" onclick="closeDeleteRoleModal()">取消</button>
+                <button class="btn btn-primary" style="background:#b91c1c;" onclick="confirmDeleteRole()">確認刪除</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
