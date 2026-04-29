@@ -12,10 +12,6 @@
         <div class="main-content">
             <!-- ===== SECTION: 查詢畫面 #userList ===== -->
             <div id="userList">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h2 style="color:#1e293b;">使用者管理</h2>
-                <button class="btn btn-primary" onclick="openUserModal('add')">新增使用者</button>
-            </div>
             <div class="card filter-bar">
                 <div class="filter-group">
                     <label>角色職位:</label>
@@ -28,6 +24,7 @@
                     <input type="text" id="userSearchKeyword" placeholder="搜尋名稱或信箱...">
                 </div>
                 <button class="btn-filter" onclick="renderUserTable()">套用</button>
+                <button class="btn btn-primary" style="margin-left:auto" onclick="openUserModal('add')">＋ 新增使用者</button>
             </div>
             <div class="card" style="padding:0;">
                 <table class="table">
