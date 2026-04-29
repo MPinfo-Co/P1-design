@@ -2,25 +2,19 @@
 
 ## 工作項目
 
-**⚠️ ── AI 填寫開始，請逐行審查 ──**
-
 | # | 類型 | 工作內容 | 參照規格 |
 |---|------|--------|--------|
-| 1 | Schema | 建立 `tb_notices` | `schema/schema.md` |
-| 2 | Schema | 調整 `tb_functions` 初始資料：新增 `(3, fn_notice)` | `schema/schema.md` |
-| 3 | Schema | 調整 `tb_role_function` 初始資料：設定管理員角色擁有 `fn_notice` 權限 | `schema/schema.md` |
-| 4 | API | 建立 `fn_notice_list_api`（GET /api/notices，所有登入使用者） | `Spec/fn_notice/Api/fn_notice_list_api.md` |
-| 5 | API | 建立 `fn_notice_add_api`（POST /api/notices，需 fn_notice 權限） | `Spec/fn_notice/Api/fn_notice_add_api.md` |
-| 6 | 畫面 | 建立功能總覽 `fn_notice_00_overview.md` | `Spec/fn_notice/fn_notice_00_overview.md` |
-| 7 | 畫面 | 建立畫面規格 `fn_notice_01_home_block.md`（首頁公告區塊 + 新增 Dialog） | `Spec/fn_notice/fn_notice_01_home_block.md` |
-| 8 | 畫面 | 調整首頁規格 `home_01.md`：新增系統公告區塊說明 | `Spec/home/home_01.md` |
-| 9 | Test | 建立 `_fn_notice_test_api.md` | `Spec/fn_notice/Api/_fn_notice_test_api.md` |
-
-**── AI 填寫結束 ──**
+| 1 | Schema | 建立 `tb_notices` | [schema/schema.md](../schema/schema.md) |
+| 2 | Schema | 調整 `tb_functions` 初始資料：新增 `(3, fn_notice)` | [schema/schema.md](../schema/schema.md) |
+| 3 | Schema | 調整 `tb_role_function` 初始資料：設定管理員角色擁有 `fn_notice` 權限 | [schema/schema.md](../schema/schema.md) |
+| 4 | API | 建立 `fn_notice_list_api`（GET /api/notices，所有登入使用者） | [Spec/fn_notice/Api/fn_notice_list_api.md](../Spec/fn_notice/Api/fn_notice_list_api.md) |
+| 5 | API | 建立 `fn_notice_add_api`（POST /api/notices，需 fn_notice 權限） | [Spec/fn_notice/Api/fn_notice_add_api.md](../Spec/fn_notice/Api/fn_notice_add_api.md) |
+| 6 | 畫面 | 建立功能總覽 `fn_notice_00_overview.md` | [Spec/fn_notice/fn_notice_00_overview.md](../Spec/fn_notice/fn_notice_00_overview.md) |
+| 7 | 畫面 | 建立畫面規格 `fn_notice_01_home_block.md`（首頁公告區塊 + 新增 Dialog） | [Spec/fn_notice/fn_notice_01_home_block.md](../Spec/fn_notice/fn_notice_01_home_block.md) |
+| 8 | 畫面 | 調整首頁規格 `home_01.md`：新增系統公告區塊說明 | [Spec/home/home_01.md](../Spec/home/home_01.md) |
+| 9 | Test | 建立 `_fn_notice_test_api.md` | [Spec/fn_notice/Api/_fn_notice_test_api.md](../Spec/fn_notice/Api/_fn_notice_test_api.md) |
 
 ## 測試案例
-
-**⚠️ ── AI 填寫開始，請逐行審查 ──**
 
 | ID | 類型 | 前置條件 | 操作 | 預期結果 |
 |----|------|--------|------|--------|
@@ -38,5 +32,3 @@
 | T12 | 畫面 | 已登入，DB 無有效公告 | 進入首頁 | 公告區塊顯示「目前無公告」提示文字 |
 | T13 | 畫面 | 已登入（管理員），在首頁公告區塊 | 點擊 [新增公告] → 填入合法標題、內容、有效期限 → 點擊 [儲存] | 表單送出成功，Dialog 關閉，公告立即出現在清單中 |
 | T14 | 畫面 | 已登入（管理員），新增表單已開啟 | 未填任一必填欄位直接點擊 [儲存] | 顯示欄位驗證提示，禁止送出 |
-
-**── AI 填寫結束 ──**
