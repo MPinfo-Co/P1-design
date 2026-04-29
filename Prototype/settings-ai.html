@@ -13,36 +13,9 @@
 
             <p style="font-size:12px; color:#94a3b8; margin-bottom:8px;">內建夥伴 · 不可刪除</p>
 
-            <!-- 區 A · 分析行為 -->
+            <!-- 排程 -->
             <div class="card" style="margin-bottom:18px;">
-                <h3 style="font-size:15px; color:#1e293b; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #e2e8f0;">區 A · 分析行為</h3>
-                <div class="input-group">
-                    <label style="font-weight:700;">綁定公司資料類型（多選）</label>
-                    <div style="margin:6px 0 10px; padding:10px 12px; background:#fef9c3; border-left:3px solid #ca8a04; border-radius:4px; font-size:12px; color:#713f12; line-height:1.6;">
-                        此處選擇資安專家分析時可參考的公司資料類型；<strong>每一筆規則的內容在「公司資料」頁編輯</strong>。同樣的綁定也可以從「公司資料」頁的每筆「可使用的 AI 夥伴」欄位設定，兩邊雙向同步。
-                    </div>
-                    <div id="settingKbBindings" style="display:flex; flex-direction:column; gap:8px;"></div>
-                </div>
-                <div class="input-group" style="margin-bottom:0;">
-                    <label style="font-weight:700;">分析模式</label>
-                    <div style="display:flex; gap:18px; margin-top:6px;">
-                        <label style="display:flex; align-items:center; gap:6px; font-weight:400; cursor:pointer;">
-                            <input type="radio" name="analysisMode" value="full" checked> 完整（Windows + FortiGate）
-                        </label>
-                        <label style="display:flex; align-items:center; gap:6px; font-weight:400; cursor:pointer;">
-                            <input type="radio" name="analysisMode" value="windows_only"> 僅 Windows
-                        </label>
-                        <label style="display:flex; align-items:center; gap:6px; font-weight:400; cursor:pointer;">
-                            <input type="radio" name="analysisMode" value="fortigate_only"> 僅防火牆
-                        </label>
-                    </div>
-                    <div style="margin-top:6px; font-size:11px; color:#94a3b8;">註：「僅防火牆」後端目前未實作，雛型 UI 先到位。</div>
-                </div>
-            </div>
-
-            <!-- 區 B · 排程 -->
-            <div class="card" style="margin-bottom:18px;">
-                <h3 style="font-size:15px; color:#1e293b; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #e2e8f0;">區 B · 排程</h3>
+                <h3 style="font-size:15px; color:#1e293b; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #e2e8f0;">排程</h3>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                     <div class="input-group" style="margin-bottom:0;">
                         <label style="font-weight:700;">觸發時間</label>
@@ -65,9 +38,9 @@
                 </div>
             </div>
 
-            <!-- 區 C · 資料來源（SSB） -->
+            <!-- 資料來源（SSB） -->
             <div class="card" style="margin-bottom:18px;">
-                <h3 style="font-size:15px; color:#1e293b; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #e2e8f0;">區 C · 資料來源（SSB）</h3>
+                <h3 style="font-size:15px; color:#1e293b; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #e2e8f0;">資料來源（SSB）</h3>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                     <div class="input-group" style="margin-bottom:0;">
                         <label>Host</label>
@@ -94,33 +67,6 @@
                 </div>
             </div>
 
-            <!-- 區 D · 通知 -->
-            <div class="card" style="margin-bottom:18px;">
-                <h3 style="font-size:15px; color:#1e293b; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #e2e8f0;">區 D · 通知</h3>
-                <div class="input-group">
-                    <label style="font-weight:700;">通知方式</label>
-                    <div style="display:flex; gap:18px; margin-top:6px;">
-                        <label style="display:flex; align-items:center; gap:6px; font-weight:400; cursor:pointer;">
-                            <input type="checkbox" id="notifyEmail" checked> Email
-                        </label>
-                        <label style="display:flex; align-items:center; gap:6px; font-weight:400; cursor:pointer;">
-                            <input type="checkbox" id="notifyWebhook" onchange="toggleWebhookField()"> Webhook
-                        </label>
-                        <label style="display:flex; align-items:center; gap:6px; font-weight:400; cursor:pointer;">
-                            <input type="checkbox" id="notifyInApp" checked> 系統內
-                        </label>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>Email 收件人（多筆以逗號分隔）</label>
-                    <input type="text" id="notifyEmailRecipients" value="admin@company.com">
-                </div>
-                <div class="input-group" id="webhookUrlGroup" style="display:none; margin-bottom:0;">
-                    <label>Webhook URL</label>
-                    <input type="text" id="notifyWebhookUrl" placeholder="https://hooks.example.com/...">
-                </div>
-            </div>
-
             <!-- 儲存 -->
             <div style="text-align:right;">
                 <button class="btn btn-primary" style="padding:10px 28px; font-size:14px;" onclick="saveSettings()">儲存</button>
@@ -132,24 +78,6 @@
     <script src="_state.js"></script>
     <script src="_nav.js"></script>
     <script>
-    // 渲染公司資料類型綁定 checkbox（依 partnerDataBindings 預設勾選狀態）
-    function renderKbBindings() {
-        var box = document.getElementById('settingKbBindings');
-        var bound = partnerDataBindings['資安專家'] || [];
-        var typeSet = {};
-        companyDataTypes.forEach(function(t){ typeSet[t] = true; });
-        allCompanyData.forEach(function(d){ typeSet[d.type] = true; });
-        var types = Object.keys(typeSet);
-        box.innerHTML = types.map(function(t) {
-            var checked = bound.indexOf(t) !== -1 ? 'checked' : '';
-            var count = allCompanyData.filter(function(d){ return d.type === t; }).length;
-            return '<label style="display:flex; align-items:flex-start; gap:8px; padding:8px 10px; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer; font-weight:400;">' +
-                '<input type="checkbox" data-type="' + t + '" ' + checked + ' style="margin-top:3px;">' +
-                '<span><strong style="color:#1e293b;">' + t + '</strong>' +
-                '<small style="display:block; color:#64748b; font-size:11px; margin-top:2px;">目前有 ' + count + ' 筆資料</small></span></label>';
-        }).join('');
-    }
-
     function togglePass() {
         var el = document.getElementById('ssbPass');
         var btn = document.getElementById('ssbPassToggle');
@@ -157,21 +85,9 @@
         if (btn) btn.textContent = el.type === 'password' ? '顯示' : '隱藏';
     }
 
-    function toggleWebhookField() {
-        document.getElementById('webhookUrlGroup').style.display =
-            document.getElementById('notifyWebhook').checked ? 'block' : 'none';
-    }
-
     function saveSettings() {
-        // 將類型勾選回寫到 partnerDataBindings（雛型只在記憶體內）
-        var checks = document.querySelectorAll('#settingKbBindings input[type=checkbox]');
-        partnerDataBindings['資安專家'] = Array.prototype.filter.call(checks, function(c){ return c.checked; })
-            .map(function(c){ return c.dataset.type; });
-        alert('✅ 公司資料類型綁定已儲存（其他設定為雛型 UI 佔位，未持久化）');
+        alert('✅ 設定已儲存（雛型 UI 佔位，未持久化）');
     }
-
-    // 初始
-    renderKbBindings();
     </script>
 </body>
 </html>
