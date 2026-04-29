@@ -12,21 +12,18 @@
         <div class="main-content">
             <!-- ===== SECTION: 查詢畫面 #roleList ===== -->
             <div id="roleList">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h2 style="color:#1e293b;">角色設定</h2>
-                <button class="btn btn-primary" onclick="openRoleModal('add')">新增角色</button>
-            </div>
             <div class="card filter-bar">
                 <div class="filter-group">
                     <label>關鍵字搜尋:</label>
                     <input type="text" id="roleSearchKeyword" placeholder="搜尋角色名稱...">
                 </div>
                 <button class="btn-filter" onclick="renderRoleTable()">套用</button>
+                <button class="btn btn-primary" style="margin-left:auto" onclick="openRoleModal('add')">＋ 新增角色</button>
             </div>
             <div class="card" style="padding:0;">
                 <table class="table">
                     <thead>
-                        <tr><th>角色名稱</th><th>資安專家存取權</th><th>執行動作</th></tr>
+                        <tr><th>角色名稱</th><th>使用者</th><th>執行動作</th></tr>
                     </thead>
                     <tbody id="roleTableBody"></tbody>
                 </table>
@@ -45,62 +42,16 @@
                     <label style="font-weight:600; font-size:14px; color:#1e293b;">角色名稱</label>
                     <input type="text" id="r_name" style="margin-top:6px;">
                 </div>
-                <!-- 成員帳號 -->
+                <!-- 成員 -->
                 <div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <label style="font-weight:600; font-size:14px; color:#1e293b;">成員帳號</label>
+                        <label style="font-weight:600; font-size:14px; color:#1e293b;">成員</label>
                         <button type="button" class="btn btn-outline" style="padding:3px 10px; font-size:12px;" onclick="toggleAllRoleUsers()">全選</button>
                     </div>
                     <div id="r_users_checks" style="border:1px solid #e2e8f0; border-radius:8px; padding:4px; background:#f8fafc; max-height:110px; overflow-y:auto;"></div>
                 </div>
-                <!-- 可用 AI 夥伴 -->
-                <div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <label style="font-weight:600; font-size:14px; color:#1e293b;">可用 AI 夥伴</label>
-                        <button type="button" class="btn btn-outline" style="padding:3px 10px; font-size:12px;" onclick="toggleAllPartners()">全選</button>
-                    </div>
-                    <div id="r_partners_checks" style="border:1px solid #e2e8f0; border-radius:8px; padding:4px; background:#f8fafc;">
-                        <label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; cursor:pointer; background:white; margin-bottom:4px; border:1px solid #e2e8f0;">
-                            <input type="checkbox" class="partner-check" value="資安專家" style="width:15px;height:15px;accent-color:#2e3f6e;">
-                            <span style="font-size:13px;">資安專家</span>
-                            <span class="badge-builtin">預設</span>
-                        </label>
-                        <label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; cursor:pointer; background:white; border:1px solid #e2e8f0; opacity:0.5;">
-                            <input type="checkbox" class="partner-check" value="訂單智能秘書" style="width:15px;height:15px;accent-color:#2e3f6e;">
-                            <span style="font-size:13px;">訂單智能秘書</span>
-                            <span class="badge-new">自訂</span>
-                            <span style="font-size:11px; color:#ef4444; font-weight:600;">停用中</span>
-                        </label>
-                    </div>
-                </div>
-                <!-- 可存取知識庫 -->
-                <div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <label style="font-weight:600; font-size:14px; color:#1e293b;">可存取知識庫</label>
-                        <button type="button" class="btn btn-outline" style="padding:3px 10px; font-size:12px;" onclick="toggleAllRoleKbs()">全選</button>
-                    </div>
-                    <div id="r_kb_checks" style="border:1px solid #e2e8f0; border-radius:8px; padding:4px; background:#f8fafc;"></div>
-                </div>
-                <!-- 功能權限 -->
-                <div style="padding:14px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
-                    <label style="font-weight:700; display:block; margin-bottom:12px; color:#1e293b; font-size:14px;">🔐 功能權限</label>
-                    <label class="permission-item" style="display:flex; align-items:center; gap:10px; padding:8px; border-radius:6px; background:white; border:1px solid #e2e8f0; margin-bottom:8px;">
-                        <input type="checkbox" id="p_ai_partner" style="width:16px;height:16px;accent-color:#2e3f6e;cursor:pointer;">
-                        <span><strong style="display:block;font-size:13px;">AI 夥伴</strong><small style="color:#64748b;">可使用 AI 夥伴進行分析</small></span>
-                    </label>
-                    <label class="permission-item" style="display:flex; align-items:center; gap:10px; padding:8px; border-radius:6px; background:white; border:1px solid #e2e8f0; margin-bottom:8px;">
-                        <input type="checkbox" id="p_manage_accounts" style="width:16px;height:16px;accent-color:#2e3f6e;cursor:pointer;">
-                        <span><strong style="display:block;font-size:13px;">帳號管理</strong><small style="color:#64748b;">可新增、修改、刪除使用者帳號</small></span>
-                    </label>
-                    <label class="permission-item" style="display:flex; align-items:center; gap:10px; padding:8px; border-radius:6px; background:white; border:1px solid #e2e8f0; margin-bottom:8px;">
-                        <input type="checkbox" id="p_manage_roles" style="width:16px;height:16px;accent-color:#2e3f6e;cursor:pointer;">
-                        <span><strong style="display:block;font-size:13px;">角色管理</strong><small style="color:#64748b;">可新增、修改、刪除角色與權限</small></span>
-                    </label>
-                    <label class="permission-item" style="display:flex; align-items:center; gap:10px; padding:8px; border-radius:6px; background:white; border:1px solid #e2e8f0;">
-                        <input type="checkbox" id="p_edit_ai" style="width:16px;height:16px;accent-color:#2e3f6e;cursor:pointer;">
-                        <span><strong style="display:block;font-size:13px;">AI 夥伴管理</strong><small style="color:#64748b;">可調整 AI 夥伴設定與綁定知識庫</small></span>
-                    </label>
-                </div>
+<<<<<<< HEAD
+
             </div>
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; flex-shrink:0; padding-top:15px; border-top:1px solid #e2e8f0;">
                 <button class="btn btn-outline" onclick="closeModal('roleModal')">取消</button>
@@ -117,20 +68,17 @@
 
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function toggleAllRoles() { const checks=document.querySelectorAll('.role-check'); const all=Array.from(checks).every(cb=>cb.checked); checks.forEach(cb=>cb.checked=!all); }
-    function toggleAllPartners() { const checks=document.querySelectorAll('.partner-check'); const all=Array.from(checks).every(cb=>cb.checked); checks.forEach(cb=>cb.checked=!all); }
     function toggleAllRoleUsers() { const checks=document.querySelectorAll('.role-user-check'); const all=Array.from(checks).every(cb=>cb.checked); checks.forEach(cb=>cb.checked=!all); }
-    function toggleAllRoleKbs() { const checks=document.querySelectorAll('.role-kb-check'); const all=Array.from(checks).every(cb=>cb.checked); checks.forEach(cb=>cb.checked=!all); }
-
     function renderRoleTable() {
         const keyword = document.getElementById('roleSearchKeyword').value.toLowerCase();
         const tbody = document.getElementById('roleTableBody');
         if (!tbody) return;
         tbody.innerHTML = '';
         allRoles.filter(r => r.name.toLowerCase().includes(keyword)).forEach(r => {
-            const partnersText = r.partners ? r.partners.join(', ') : '無權限';
+            const usersText = allUsers.filter(u => (u.roles || []).includes(r.name)).map(u => u.name).join(', ') || '無';
             tbody.innerHTML += '<tr>' +
                 '<td style="font-weight:600;">' + r.name + '</td>' +
-                '<td>' + partnersText + '</td>' +
+                '<td>' + usersText + '</td>' +
                 '<td>' +
                     '<button class="btn btn-outline" style="padding:4px 8px;" onclick="prepareEditRole(' + r.id + ')">修改</button> ' +
                     '<button class="btn btn-outline" style="padding:4px 8px; color:#ef4444; border-color:#fca5a5;" onclick="deleteRole(' + r.id + ')">刪除</button>' +
@@ -152,43 +100,12 @@
         });
     }
 
-    function renderRoleKbChecks(roleName) {
-        var container = document.getElementById('r_kb_checks');
-        if (!container) return;
-        if (allKnowledgeBases.length === 0) {
-            container.innerHTML = '<div style="font-size:13px; color:#94a3b8; padding:8px 10px;">尚未建立任何知識庫</div>';
-            return;
-        }
-        container.innerHTML = allKnowledgeBases.map(function(kb) {
-            var checked = roleName && (kb.accessRoles || []).includes(roleName);
-            return '<label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; cursor:pointer; background:white; margin-bottom:4px; border:1px solid #e2e8f0;">' +
-                '<input type="checkbox" class="role-kb-check" value="' + kb.id + '"' + (checked ? ' checked' : '') + ' style="width:15px;height:15px;accent-color:#2e3f6e;">' +
-                '<span style="font-size:13px;">' + kb.name + '</span>' +
-                '<span style="font-size:11px; color:#94a3b8;">（' + kb.docs.length + ' 文件 · ' + kb.tables.length + ' 資料表）</span>' +
-                '</label>';
-        }).join('');
-    }
-
-    function syncRoleKbAccess(roleName, oldName) {
-        var selectedKbIds = Array.from(document.querySelectorAll('.role-kb-check:checked')).map(function(cb) { return parseInt(cb.value); });
-        allKnowledgeBases.forEach(function(kb) {
-            kb.accessRoles = (kb.accessRoles || []).filter(function(r) { return r !== (oldName || roleName); });
-            if (selectedKbIds.indexOf(kb.id) !== -1) kb.accessRoles.push(roleName);
-        });
-    }
-
     function openRoleModal(type) {
         if (type === 'add') {
             currentEditingRoleId = null;
             document.getElementById('rModalTitle').innerText = '新增角色';
             document.getElementById('r_name').value = '';
-            document.querySelectorAll('.partner-check').forEach(cb => cb.checked = false);
-            document.getElementById('p_ai_partner').checked = false;
-            document.getElementById('p_manage_accounts').checked = false;
-            document.getElementById('p_manage_roles').checked = false;
-            document.getElementById('p_edit_ai').checked = false;
             renderRoleUserChecks([]);
-            renderRoleKbChecks(null);
             document.getElementById('roleModal').style.display = 'flex';
         }
     }
@@ -199,34 +116,23 @@
         currentEditingRoleId = id;
         document.getElementById('rModalTitle').innerText = '編輯角色';
         document.getElementById('r_name').value = r.name;
-        document.querySelectorAll('.partner-check').forEach(cb => { cb.checked = (r.partners || []).includes(cb.value); });
-        document.getElementById('p_ai_partner').checked = r.canAccessAI || false;
-        document.getElementById('p_manage_accounts').checked = r.canManageAccounts || false;
-        document.getElementById('p_manage_roles').checked = r.canManageRoles || false;
-        document.getElementById('p_edit_ai').checked = r.canEditAI || false;
         const currentMembers = allUsers.filter(u => (u.roles || []).includes(r.name)).map(u => u.id);
         renderRoleUserChecks(currentMembers);
-        renderRoleKbChecks(r.name);
         document.getElementById('roleModal').style.display = 'flex';
     }
 
     function saveRole() {
         const name = document.getElementById('r_name').value;
-        const partners = Array.from(document.querySelectorAll('.partner-check:checked')).map(cb => cb.value);
-        const canAccessAI = document.getElementById('p_ai_partner').checked;
-        const canManageAccounts = document.getElementById('p_manage_accounts').checked;
-        const canManageRoles = document.getElementById('p_manage_roles').checked;
-        const canEditAI = document.getElementById('p_edit_ai').checked;
         if (!name) { alert('請輸入角色名稱'); return; }
         const selectedUserIds = Array.from(document.querySelectorAll('.role-user-check:checked')).map(cb => parseInt(cb.value));
         let oldName = null;
         if (currentEditingRoleId) {
             const idx = allRoles.findIndex(r => r.id === currentEditingRoleId);
             oldName = allRoles[idx].name;
-            allRoles[idx] = { ...allRoles[idx], name, partners, canAccessAI, canManageAccounts, canManageRoles, canEditAI };
+            allRoles[idx] = { ...allRoles[idx], name };
             currentEditingRoleId = null;
         } else {
-            allRoles.push({ id: Date.now(), name, partners, canAccessAI, canManageAccounts, canManageRoles, canEditAI });
+            allRoles.push({ id: Date.now(), name });
         }
         allUsers.forEach(u => {
             let roles = (u.roles || []).filter(r => r !== (oldName || name));
@@ -234,7 +140,6 @@
             u.roles = roles;
         });
         closeModal('roleModal');
-        syncRoleKbAccess(name, oldName);
         renderRoleTable();
     }
 
