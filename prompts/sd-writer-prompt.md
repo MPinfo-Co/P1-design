@@ -25,6 +25,8 @@
 
 根據業務需求，判斷是否需要進一步讀取特定 Spec 或 Prototype 檔案（判斷涉及修改哪些現有功能時）。
 
+7. 若本次涉及修改既有 API 行為，按需讀取對應的 `Spec/{fn_xxx}/Api/_{fn_xxx}_test_api.md`，確認現有測試案例內容後再進行調整。
+
 ### Step 2：填寫 TDD
 
 1. 讀取 `SD/sd-{ISSUE_N}-TDD.md`（scaffold 已存在）
@@ -39,6 +41,11 @@
 - 新增 API → 新增測試案例，ID 接續上一筆
 - 修改 API 行為 → 更新對應測試案例
 - 刪除 API → 移除對應測試案例，ID 不補號
+- 若修改影響其他功能的 API（如跨功能改了權限機制），一併更新那些功能的 `_test_api.md`
+
+畫面規格中 `checkbox group` / `select` 類型欄位，須在欄位說明下方標明選項來源：
+- 格式：`> **{欄位}** 選項來源：\`Api/{xxx}_options_api.md\``
+- 若對應 options API 尚不存在，需在 TDD 中新增「建立 `{xxx}_options_api`」工作項目
 
 並在 TDD 工作項目表格新增一筆 `Test` 類型項目，`參照規格` 欄填入完整路徑，例如：
 `Spec/fn_user/Api/_fn_user_test_api.md`
