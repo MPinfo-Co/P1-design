@@ -1,5 +1,19 @@
 
 ---
+## fn_notice
+
+### tb_notices
+
+| 欄位         | 型別                                 | 說明          |
+| ---------- | ---------------------------------- | ----------- |
+| id         | INTEGER, PK                        | 主鍵          |
+| title      | VARCHAR(200), NOT NULL             | 公告標題        |
+| content    | TEXT, NOT NULL                     | 公告內容        |
+| expires_at | DATE, NOT NULL                     | 有效期限（含當日）   |
+| created_by | INTEGER, NULLABLE, FK → tb_users   | 建立者         |
+| created_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | 建立時間        |
+
+---
 ## fn_user / role
 
 ### tb_users
@@ -30,7 +44,7 @@
 | function_id     | INTEGER, PK                |      |
 | function_name   | VARCHAR(100), NOT NULL, UK | 功能代碼 |
 
-> 初始資料：`(1, fn_user)`、`(2, fn_role)`
+> 初始資料：`(1, fn_user)`、`(2, fn_role)`、`(3, fn_notice)`
 
 ### tb_role_function（多對多）
 
