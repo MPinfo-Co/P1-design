@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MP-Box — 帳號管理</title>
+    <title>MP-Box — 使用者管理</title>
     <link rel="stylesheet" href="_style.css">
 </head>
 <body data-page="fn_user">
@@ -12,10 +12,6 @@
         <div class="main-content">
             <!-- ===== SECTION: 查詢畫面 #userList ===== -->
             <div id="userList">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h2 style="color:#1e293b;">帳號管理</h2>
-                <button class="btn btn-primary" onclick="openUserModal('add')">新增帳號</button>
-            </div>
             <div class="card filter-bar">
                 <div class="filter-group">
                     <label>角色職位:</label>
@@ -25,14 +21,15 @@
                         <option value="一般使用者">一般使用者</option>
                     </select>
                     <label style="margin-left:10px;">關鍵字:</label>
-                    <input type="text" id="userSearchKeyword" placeholder="搜尋姓名或信箱...">
+                    <input type="text" id="userSearchKeyword" placeholder="搜尋名稱或信箱...">
                 </div>
                 <button class="btn-filter" onclick="renderUserTable()">套用</button>
+                <button class="btn btn-primary" style="margin-left:auto" onclick="openUserModal('add')">＋ 新增使用者</button>
             </div>
             <div class="card" style="padding:0;">
                 <table class="table">
                     <thead>
-                        <tr><th>姓名</th><th>電子信箱</th><th>角色</th><th>執行動作</th></tr>
+                        <tr><th>名稱</th><th>電子信箱</th><th>角色</th><th>執行動作</th></tr>
                     </thead>
                     <tbody id="userTableBody"></tbody>
                 </table>
@@ -44,7 +41,7 @@
     <!-- ===== SECTION: 帳號表單 Modal #userModal ===== -->
     <div id="userModal" class="modal">
         <div class="modal-content" style="max-width:460px; max-height:90vh; display:flex; flex-direction:column;">
-            <h3 id="uModalTitle" style="color:#1e293b; margin-bottom:20px; flex-shrink:0;">帳號設定</h3>
+            <h3 id="uModalTitle" style="color:#1e293b; margin-bottom:20px; flex-shrink:0;">使用者設定</h3>
             <div style="overflow-y:auto; flex:1;">
                 <div class="input-group"><label>名稱</label><input type="text" id="u_name"></div>
                 <div class="input-group"><label>Email</label><input type="text" id="u_email"></div>
@@ -109,8 +106,6 @@
                 '<td>' + rolesHtml + '</td>' +
                 '<td>' +
                     '<button class="btn btn-outline" style="padding:4px 8px;" onclick="prepareEditUser(' + u.id + ')">修改</button> ' +
-                    '<button class="btn btn-outline" style="padding:4px 8px;" onclick="toggleUserStatus(' + u.id + ')">' + (u.status === '停用' ? '啟用' : '停用') + '</button> ' +
-                    '<button class="btn btn-outline" style="padding:4px 8px;" onclick="resetUserPassword(' + u.id + ')">重設密碼</button> ' +
                     '<button class="btn btn-outline" style="padding:4px 8px; color:#ef4444; border-color:#fca5a5;" onclick="deleteItem(' + u.id + ')">刪除</button>' +
                 '</td></tr>';
         });
@@ -119,7 +114,7 @@
     function openUserModal(type) {
         if (type === 'add') {
             currentEditingUserId = null;
-            document.getElementById('uModalTitle').innerText = '新增帳號';
+            document.getElementById('uModalTitle').innerText = '新增使用者';
             document.getElementById('u_name').value = '';
             document.getElementById('u_email').value = '';
             document.querySelectorAll('.role-check').forEach(cb => cb.checked = false);
@@ -131,7 +126,7 @@
         const u = allUsers.find(user => user.id === id);
         if (!u) return;
         currentEditingUserId = id;
-        document.getElementById('uModalTitle').innerText = '編輯帳號';
+        document.getElementById('uModalTitle').innerText = '編輯使用者';
         document.getElementById('u_name').value = u.name;
         document.getElementById('u_email').value = u.email;
         document.querySelectorAll('.role-check').forEach(cb => { cb.checked = u.roles.includes(cb.value); });
@@ -155,24 +150,10 @@
     }
 
     function deleteItem(id) {
-        if (!confirm('確定要刪除此帳號嗎？無法復原。')) return;
+        const user = allUsers.find(u => u.id === id);
+        if (!confirm(`確定要刪除 ${user ? user.name : ''}？此操作無法還原`)) return;
         allUsers = allUsers.filter(u => u.id !== id);
         renderUserTable();
-    }
-
-    function toggleUserStatus(id) {
-        var u = allUsers.find(function(x){ return x.id === id; });
-        if (!u) return;
-        u.status = (u.status === '停用') ? '啟用' : '停用';
-        alert('已將「' + u.name + '」狀態切換為：' + u.status);
-        renderUserTable();
-    }
-
-    function resetUserPassword(id) {
-        var u = allUsers.find(function(x){ return x.id === id; });
-        if (!u) return;
-        var newPass = 'P' + Math.random().toString(36).substr(2, 7);
-        alert('「' + u.name + '」的新密碼為：\n\n' + newPass + '\n\n請通知使用者首次登入後修改。');
     }
 
     document.addEventListener('DOMContentLoaded', renderUserTable);

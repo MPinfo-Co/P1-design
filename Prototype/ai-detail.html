@@ -12,26 +12,25 @@
         <div class="main-content detail-mode">
             <!-- 安全事件詳情頁面 -->
             <div id="aiIssueDetail" style="display:flex; flex-direction:column; height:calc(100vh - 110px);">
-                <!-- 頂部 Header -->
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-shrink:0;">
-                    <h2 id="detailTitle" style="color:#1e293b; font-size:18px;">詳情分析</h2>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <label style="font-size:13px; color:#475569; font-weight:600; white-space:nowrap;">處理狀態:</label>
-                            <div style="display:flex; align-items:center; gap:6px; padding:6px 12px; border:1.5px solid #e2e8f0; border-radius:6px; background:#f8fafc; min-width:100px;">
-                                <span id="detailStatusIcon" style="display:flex; align-items:center;"></span>
-                                <span id="detailStatusText" style="font-size:13px; font-weight:600; color:#1e293b;">未處理</span>
-                            </div>
+                <!-- detailTitle 隱藏元素供 JS 使用（標題顯示已移至 header） -->
+                <span id="detailTitle" style="display:none;"></span>
+                <!-- 頂部控制列 -->
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-shrink:0;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <label style="font-size:13px; color:#475569; font-weight:600; white-space:nowrap;">處理狀態:</label>
+                        <div style="display:flex; align-items:center; gap:6px; padding:6px 12px; border:1.5px solid #e2e8f0; border-radius:6px; background:#f8fafc; min-width:100px;">
+                            <span id="detailStatusIcon" style="display:flex; align-items:center;"></span>
+                            <span id="detailStatusText" style="font-size:13px; font-weight:600; color:#1e293b;">未處理</span>
                         </div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <label style="font-size:13px; color:#475569; font-weight:600; white-space:nowrap;">負責人員:</label>
-                            <span id="detailAssigneeText" style="font-size:13px; font-weight:600; color:#1e293b; padding:6px 12px; border:1.5px solid #e2e8f0; border-radius:6px; background:#f8fafc; min-width:80px;">未指派</span>
-                        </div>
-                        <button class="btn btn-outline" onclick="goBack()">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                            回上一頁
-                        </button>
                     </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <label style="font-size:13px; color:#475569; font-weight:600; white-space:nowrap;">負責人員:</label>
+                        <span id="detailAssigneeText" style="font-size:13px; font-weight:600; color:#1e293b; padding:6px 12px; border:1.5px solid #e2e8f0; border-radius:6px; background:#f8fafc; min-width:80px;">未指派</span>
+                    </div>
+                    <button class="btn btn-outline" onclick="goBack()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        回上一頁
+                    </button>
                 </div>
 
                 <!-- 左右分欄主體 -->

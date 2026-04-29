@@ -27,12 +27,13 @@
     </div>`;
 
     const headerHTML = `
-    <div class="header">
-        <div style="font-weight:800;font-size:18px;color:#0f172a;" id="pageTitle">MP-Box</div>
-        <div class="header-actions">
-            <div class="logout-btn" onclick="logout()">登出</div>
-        </div>
-    </div>`;
+<div class="header">
+    <div style="font-weight:700;font-size:17px;color:#1e293b;" id="pageTitle">MP-Box</div>
+    <div class="header-actions">
+        <span id="headerEmail" style="font-size:12px;color:#64748b;"></span>
+        <div class="logout-btn" onclick="logout()">登出</div>
+    </div>
+</div>`;
 
     function init() {
         if (!requireAuth()) return;
@@ -69,6 +70,12 @@
         };
         const titleEl = document.getElementById('pageTitle');
         if (titleEl && titleMap[page]) titleEl.innerText = titleMap[page];
+
+        const emailEl = document.getElementById('headerEmail');
+        if (emailEl) {
+            const user = getUser();
+            emailEl.innerText = (user && user.email) ? user.email : '';
+        }
 
     }
 
