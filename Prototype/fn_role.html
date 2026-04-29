@@ -12,16 +12,13 @@
         <div class="main-content">
             <!-- ===== SECTION: 查詢畫面 #roleList ===== -->
             <div id="roleList">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h2 style="color:#1e293b;">角色設定</h2>
-                <button class="btn btn-primary" onclick="openRoleModal('add')">新增角色</button>
-            </div>
             <div class="card filter-bar">
                 <div class="filter-group">
                     <label>關鍵字搜尋:</label>
                     <input type="text" id="roleSearchKeyword" placeholder="搜尋角色名稱...">
                 </div>
                 <button class="btn-filter" onclick="renderRoleTable()">套用</button>
+                <button class="btn btn-primary" onclick="openRoleModal('add')">＋ 新增角色</button>
             </div>
             <div class="card" style="padding:0;">
                 <table class="table">

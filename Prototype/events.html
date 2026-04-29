@@ -12,20 +12,6 @@
         <div class="main-content">
             <div id="aiIssueList" style="display:flex;flex-direction:column;height:calc(100vh - 110px);">
                 <div id="aiIssueListOuter">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-shrink:0;">
-                        <h2 style="color:#1e293b;">安全事件清單</h2>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#2e3f6e;color:white;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                上傳分析
-                                <input type="file" accept=".csv,.xlsx,.xls" style="display:none;" onchange="mockUploadAnalysis(this)">
-                            </label>
-                            <button class="btn btn-outline" onclick="location.href='ai-partner.html'">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-                                回 AI 夥伴
-                            </button>
-                        </div>
-                    </div>
                     <div class="card filter-bar" style="flex-shrink:0;">
                         <div class="filter-group" style="flex-wrap:wrap;gap:10px;align-items:center;">
                             <label style="font-weight:600;white-space:nowrap;">處理狀態:</label>
@@ -45,6 +31,12 @@
                         </div>
                         <button class="btn-filter" onclick="applyFilters()">套用</button>
                         <button class="btn btn-outline" onclick="resetFilters()">重設</button>
+                        <label class="btn btn-primary" style="cursor:pointer;gap:5px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            上傳分析
+                            <input type="file" accept=".csv,.xlsx,.xls" style="display:none;" onchange="mockUploadAnalysis(this)">
+                        </label>
+                        <button class="btn btn-outline" onclick="location.href='ai-partner.html'">← 回 AI 夥伴</button>
                     </div>
                     <div style="flex:1;min-height:0;overflow:hidden;">
                         <div id="listTableArea" style="height:100%;overflow-y:auto;display:flex;flex-direction:column;">

@@ -12,18 +12,12 @@
         <div class="main-content">
             <!-- 知識庫列表 -->
             <div id="kbListView">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h2 style="color:#1e293b;">知識庫</h2>
-                    <button class="btn btn-primary" onclick="openKbCreate()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        新增知識庫
-                    </button>
-                </div>
                 <div class="card filter-bar" style="margin-bottom:15px;">
                     <div class="filter-group">
                         <label>關鍵字搜尋:</label>
                         <input type="text" id="kbSearchKeyword" placeholder="搜尋知識庫名稱或說明..." oninput="renderKbCards()">
                     </div>
+                    <button class="btn btn-primary" onclick="openKbCreate()">＋ 新增知識庫</button>
                 </div>
                 <div class="ai-grid" id="kbCardGrid"></div>
             </div>
