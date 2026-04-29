@@ -22,17 +22,19 @@
 | 檢核項目  | 失敗條件                | 回應訊息                  |
 | ----- | ------------------- | --------------------- |
 | JWT 驗證 | 未登入或 Token 過期       | 401 未登入或 Token 過期     |
-| 權限    | 無 `can_manage_roles` | 403 您沒有執行此操作的權限       |
+| 權限    | 使用者角色不具備 fn_role 功能權限 | 403 您沒有執行此操作的權限       |
 
 ### 執行
 
-- 查詢 tb_roles，LEFT JOIN tb_role_ai_partners + tb_ai_partners
+- 查詢 tb_roles
+- LEFT JOIN tb_user_roles + tb_users[]
+- LEFT JOIN tb_role_function + tb_functions 取得 functions[]
 - 若傳入 **關鍵字**，過濾 **角色名稱** ILIKE
 - 依 tb_roles 建立時間升冪排序
 
 ## 傳回結果
 
-| Response | Message  | data                                           |
-| -------- | -------- | ---------------------------------------------- |
-| 200      | 查詢成功     | 角色名稱, AI夥伴使用權, 使用者管理權, 角色管理權, AI夥伴管理權, 可用AI夥伴[] |
-| 4xx      | 依據檢核邏輯   | 無                                              |
+| Response | Message | data                        |
+| -------- | ------- | --------------------------- |
+| 200      | 查詢成功    | 角色名稱, 使用者[], functions[]     |
+| 4xx      | 依據檢核邏輯  | 無                           |

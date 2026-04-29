@@ -50,7 +50,18 @@
                     </div>
                     <div id="r_users_checks" style="border:1px solid #e2e8f0; border-radius:8px; padding:4px; background:#f8fafc; max-height:110px; overflow-y:auto;"></div>
                 </div>
-<<<<<<< HEAD
+                <!-- 功能權限 -->
+                <div style="padding:14px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
+                    <label style="font-weight:700; display:block; margin-bottom:12px; color:#1e293b; font-size:14px;">功能權限</label>
+                    <label class="permission-item" style="display:flex; align-items:center; gap:10px; padding:8px; border-radius:6px; background:white; border:1px solid #e2e8f0; margin-bottom:8px;">
+                        <input type="checkbox" id="p_manage_accounts" style="width:16px;height:16px;accent-color:#2e3f6e;cursor:pointer;">
+                        <span><strong style="display:block;font-size:13px;">使用者管理</strong><small style="color:#64748b;">可新增、修改、刪除使用者</small></span>
+                    </label>
+                    <label class="permission-item" style="display:flex; align-items:center; gap:10px; padding:8px; border-radius:6px; background:white; border:1px solid #e2e8f0;">
+                        <input type="checkbox" id="p_manage_roles" style="width:16px;height:16px;accent-color:#2e3f6e;cursor:pointer;">
+                        <span><strong style="display:block;font-size:13px;">角色管理</strong><small style="color:#64748b;">可新增、修改、刪除角色與權限</small></span>
+                    </label>
+                </div>
 
             </div>
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; flex-shrink:0; padding-top:15px; border-top:1px solid #e2e8f0;">
@@ -105,6 +116,8 @@
             currentEditingRoleId = null;
             document.getElementById('rModalTitle').innerText = '新增角色';
             document.getElementById('r_name').value = '';
+            document.getElementById('p_manage_accounts').checked = false;
+            document.getElementById('p_manage_roles').checked = false;
             renderRoleUserChecks([]);
             document.getElementById('roleModal').style.display = 'flex';
         }
@@ -116,6 +129,8 @@
         currentEditingRoleId = id;
         document.getElementById('rModalTitle').innerText = '編輯角色';
         document.getElementById('r_name').value = r.name;
+        document.getElementById('p_manage_accounts').checked = r.canManageAccounts || false;
+        document.getElementById('p_manage_roles').checked = r.canManageRoles || false;
         const currentMembers = allUsers.filter(u => (u.roles || []).includes(r.name)).map(u => u.id);
         renderRoleUserChecks(currentMembers);
         document.getElementById('roleModal').style.display = 'flex';
@@ -123,16 +138,18 @@
 
     function saveRole() {
         const name = document.getElementById('r_name').value;
+        const canManageAccounts = document.getElementById('p_manage_accounts').checked;
+        const canManageRoles = document.getElementById('p_manage_roles').checked;
         if (!name) { alert('請輸入角色名稱'); return; }
         const selectedUserIds = Array.from(document.querySelectorAll('.role-user-check:checked')).map(cb => parseInt(cb.value));
         let oldName = null;
         if (currentEditingRoleId) {
             const idx = allRoles.findIndex(r => r.id === currentEditingRoleId);
             oldName = allRoles[idx].name;
-            allRoles[idx] = { ...allRoles[idx], name };
+            allRoles[idx] = { ...allRoles[idx], name, canManageAccounts, canManageRoles };
             currentEditingRoleId = null;
         } else {
-            allRoles.push({ id: Date.now(), name });
+            allRoles.push({ id: Date.now(), name, canManageAccounts, canManageRoles });
         }
         allUsers.forEach(u => {
             let roles = (u.roles || []).filter(r => r !== (oldName || name));

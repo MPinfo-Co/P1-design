@@ -16,18 +16,28 @@
 
 ### tb_roles
 
-| 欄位 | 型別 | 說明 |
-|------|------|------|
-| id | INTEGER, PK | |
-| name | VARCHAR(100), NOT NULL, UK | 角色名稱 |
-| can_access_ai | BOOLEAN, NOT NULL, DEFAULT FALSE | 可使用 AI 夥伴功能 |
-| can_use_kb | BOOLEAN, NOT NULL, DEFAULT FALSE | 可查閱知識庫 |
-| can_manage_accounts | BOOLEAN, NOT NULL, DEFAULT FALSE | 可管理使用者帳號 |
-| can_manage_roles | BOOLEAN, NOT NULL, DEFAULT FALSE | 可管理角色與權限 |
-| can_edit_ai | BOOLEAN, NOT NULL, DEFAULT FALSE | 可編輯 AI 夥伴設定 |
-| can_manage_kb | BOOLEAN, NOT NULL, DEFAULT FALSE | 可管理知識庫 |
-| created_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | |
-| updated_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | |
+| 欄位         | 型別                                 | 說明    |
+| ---------- | ---------------------------------- | ----- |
+| id         | INTEGER, PK                        |       |
+| name       | VARCHAR(100), NOT NULL, UK         | 角色名稱  |
+| created_at | TIMESTAMP, NOT NULL, DEFAULT NOW() |       |
+| updated_at | TIMESTAMP, NOT NULL, DEFAULT NOW() |       |
+
+### tb_functions
+
+| 欄位              | 型別                         | 說明   |
+| --------------- | -------------------------- | ---- |
+| function_id     | INTEGER, PK                |      |
+| function_name   | VARCHAR(100), NOT NULL, UK | 功能代碼 |
+
+> 初始資料：`(1, fn_user)`、`(2, fn_role)`
+
+### tb_role_function（多對多）
+
+| 欄位          | 型別                            | 說明 |
+| ----------- | ----------------------------- | -- |
+| role_id     | INTEGER, PK, FK → tb_roles    |    |
+| function_id | INTEGER, PK, FK → tb_functions |    |
 
 ### tb_user_roles（多對多）
 
@@ -62,13 +72,6 @@
 | system_prompt | TEXT, NULLABLE | 自訂系統提示詞 |
 | created_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | |
 | updated_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | |
-
-### tb_role_ai_partners（多對多）
-
-| 欄位 | 型別 | 說明 |
-|------|------|------|
-| role_id | INTEGER, PK, FK → tb_roles | |
-| partner_id | INTEGER, PK, FK → tb_ai_partners | |
 
 ---
 ## fn_km
@@ -143,13 +146,6 @@
 | row_data | JSON, NOT NULL, DEFAULT '{}' | |
 | created_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | |
 | updated_at | TIMESTAMP, NOT NULL, DEFAULT NOW() | |
-
-### tb_role_kb_map（多對多）
-
-| 欄位 | 型別 | 說明 |
-|------|------|------|
-| role_id | INTEGER, PK, FK → tb_roles | |
-| kb_id | INTEGER, PK, FK → tb_knowledge_bases | |
 
 ### tb_partner_kb_map（多對多）
 
