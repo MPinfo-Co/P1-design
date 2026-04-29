@@ -22,6 +22,8 @@
 | 16 | 畫面   | 確認 fn_role_01_list：角色清單畫面（關鍵字篩選、角色名稱、使用者欄位、修改／刪除按鈕）                             | Spec/fn_role/fn_role_01_list.md           |
 | 17 | 畫面   | 確認 fn_role_02_form：角色表單畫面（角色名稱、成員、功能權限：使用者管理／角色管理）                               | Spec/fn_role/fn_role_02_form.md           |
 | 18 | Test | 確認 fn_role API 測試規格檔案完整                                                          | Spec/fn_role/Api/_fn_role_test_api.md     |
+| 19 | API  | 建立 fn_user_options_api：GET /api/users/options 輕量選項清單（供角色管理成員選擇使用）            | Spec/fn_user/Api/fn_user_options_api.md   |
+| 20 | API  | 建立 fn_function_options_api：GET /api/functions/options 輕量選項清單（供角色管理功能權限選擇使用） | Spec/fn_role/Api/fn_function_options_api.md |
 
 
 ## 測試案例
@@ -44,5 +46,9 @@
 | T13 | 畫面 | 已登入且使用者角色具備 fn_role 功能權限 | 點擊 [新增角色] → 填入角色名稱 → 勾選成員與功能權限 → 點擊 [儲存] | 表單關閉，清單刷新，新角色出現於清單末尾 |
 | T14 | 畫面 | 已登入且使用者角色具備 fn_role 功能權限，清單有角色資料 | 點擊某角色的 [修改] → 修改角色名稱 → 點擊 [儲存] | 表單帶入原有資料（含成員、功能權限勾選狀態）；儲存後表單關閉，清單刷新，角色名稱已更新 |
 | T15 | 畫面 | 已登入且使用者角色具備 fn_role 功能權限，清單有角色資料 | 點擊某角色的 [刪除] → 確認提示彈出 → 點擊 [確認刪除] | 清單中該角色移除；點擊 [取消] 則關閉提示，清單不變 |
+| T16 | API  | 已登入 | GET /api/users/options | 200，data 為 `[{ id, name }]` 陣列，只含 is_active = true 的使用者 |
+| T17 | API  | 未登入 | GET /api/users/options | 401 未登入或 Token 過期 |
+| T18 | API  | 已登入 | GET /api/functions/options | 200，data 為 `[{ function_id, function_name }]` 陣列 |
+| T19 | API  | 未登入 | GET /api/functions/options | 401 未登入或 Token 過期 |
 
 **── AI 填寫結束 ──**
