@@ -11,11 +11,8 @@
         <!-- sidebar + header 由 _nav.js 注入 -->
         <div class="main-content">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-                <h2 style="color:#1e293b;">公司資料</h2>
-                <button class="btn btn-primary" onclick="openCompanyDataModal('add')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    新增資料
-                </button>
+                <h2 style="color:#1e293b;">公司資料管理</h2>
+                <button class="btn btn-primary" onclick="openCompanyDataModal('add')">新增資料</button>
             </div>
             <div class="card filter-bar" style="margin-bottom:15px;">
                 <div class="filter-group">
@@ -45,13 +42,14 @@
             <h3 id="companyDataModalTitle" style="color:#1e293b; margin-bottom:14px;">新增資料</h3>
             <div class="input-group">
                 <label>類別</label>
-                <input type="text" id="cdType" list="cdTypeOptions" placeholder="例：公司架構">
+                <input type="text" id="cdType" list="cdTypeOptions" placeholder="例：環境" oninput="updateContentHint(); renderPartnerChecks(this.value.trim());">
                 <datalist id="cdTypeOptions"></datalist>
                 <small style="color:#94a3b8; font-size:11px; display:block; margin-top:4px;">建議用既有類別；如需新類別直接輸入即可。同類別的「適用夥伴」會自動共享。</small>
             </div>
             <div class="input-group">
                 <label>內容</label>
                 <textarea id="cdContent" rows="5" placeholder="用白話寫一條規則或背景知識..."></textarea>
+                <small id="cdContentHint" style="color:#94a3b8; font-size:11px; display:none; margin-top:4px;"></small>
             </div>
             <div class="input-group" style="margin-bottom:0;">
                 <label>適用夥伴<span style="font-weight:400; color:#94a3b8; font-size:11px;">（依類別共享）</span></label>
@@ -69,6 +67,26 @@
     <script src="_nav.js"></script>
     <script>
     let editingId = null;
+
+    // 預設 3 類的內容範本提示（自訂類別不顯示）
+    const cdContentTemplates = {
+        '環境': '例：DMZ 網段 10.0.1.0/24；用途：對外服務區',
+        '白名單': '例：svc_backup 每日 02:00 大量 IO 是正常備份',
+        '規則': '例：5 分鐘內登入失敗 ≥ 10 次，來源若為內網先忽略'
+    };
+
+    function updateContentHint() {
+        var type = (document.getElementById('cdType').value || '').trim();
+        var hintEl = document.getElementById('cdContentHint');
+        var tpl = cdContentTemplates[type];
+        if (tpl) {
+            hintEl.textContent = tpl;
+            hintEl.style.display = 'block';
+        } else {
+            hintEl.textContent = '';
+            hintEl.style.display = 'none';
+        }
+    }
 
     function distinctTypes() {
         var s = {};
@@ -138,6 +156,7 @@
         document.getElementById('cdContent').value = '';
         renderTypeDatalist();
         renderPartnerChecks('');
+        updateContentHint();
         document.getElementById('companyDataModal').style.display = 'flex';
     }
 
@@ -150,6 +169,7 @@
         document.getElementById('cdContent').value = d.content;
         renderTypeDatalist();
         renderPartnerChecks(d.type);
+        updateContentHint();
         document.getElementById('companyDataModal').style.display = 'flex';
     }
 
