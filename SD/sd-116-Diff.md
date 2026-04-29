@@ -561,5 +561,5 @@
 - Epic：MPinfo-Co/P1-project#135
 - SA Issue：MPinfo-Co/P1-design#110
 - SD Issue：P1-design #116
-- 上一個 commit：677c275
-- 本次 commit：cb679fc
+- 上一個 commit：c49620d
+- 本次 commit：e44c213
