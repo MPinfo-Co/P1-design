@@ -424,7 +424,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: MPinfo-Co/P1-design
-          ref: main
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
           path: P1-design
           token: ${{ steps.app-token.outputs.token }}
 
