@@ -26,7 +26,8 @@
 
 ### 執行
 
-- 查詢 tb_roles，LEFT JOIN tb_user_roles + tb_users
+- 查詢 tb_roles
+- LEFT JOIN tb_user_roles + tb_users[]
 - LEFT JOIN tb_role_function + tb_functions 取得 functions[]
 - 若傳入 **關鍵字**，過濾 **角色名稱** ILIKE
 - 依 tb_roles 建立時間升冪排序

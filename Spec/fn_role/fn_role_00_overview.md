@@ -6,9 +6,6 @@
 
 雛形畫面：[▶ 開啟雛形](../../Prototype/fn_role.html)
 
-## 主要使用角色
-
-具備 `can_manage_roles` 權限的角色
 
 ## 畫面清單
 
