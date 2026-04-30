@@ -27,7 +27,7 @@ git checkout {PG_BRANCH}
 3. 讀取[SA-logic文件](P1-design/SA/sa-{ISSUE_N}-logic.md) — 商業邏輯背景（若不存在則跳過）
 4. 讀取[SD-TDD文件](P1-design/SD/sd-{ISSUE_N}-TDD.md) — TDD 工作項目清單（必讀，只處理「畫面」類型，跳過 Schema / API / Test），並依據項目找出功能模組名稱（例如 `fn_user`）
 5. 若需要，在 [畫面規格目錄](P1-design/Spec/fn_xxx/) 下，依 `0X` 序號順序讀取所有畫面規格 .md 文件。（檔名格式：`fn_xxx_0X_*.md`）
-6. 若需要，讀取[畫面雛形](P1-design/Prototype/fn_xxx.html) — 視覺參考
+6. 若需要，讀取[畫面雛形](P1-design/SD/sdPrototype/fn_xxx.html) — 視覺參考
 7. **逐項目實作畫面工作**：嚴格依 [coding-rule-frontend文件](P1-project/docs/coding-rule-frontend.md) 規範執行。
 8. **更新路由與 Sidebar**：
    - 讀取 [App.jsx](P1-code/frontend/src/App.jsx) 與 [Sidebar.jsx](P1-code/frontend/src/components/Layout/Sidebar.jsx)
