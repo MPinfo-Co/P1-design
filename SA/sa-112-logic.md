@@ -21,13 +21,13 @@
 
 ### 1. 主要程式架構文件（structure.md）
 
-**業務目標：** 無關業務
+**業務目標：** 在P1-code repositroy增加架構文件，目前使用CLAUDE.md作為持久化文件，每次AI觸發coding皆能載入程式框架進行後續程式碼生成。
 
 **預期內容範疇：**
-- 生成程式內容可以符合SD文件
-- 提高生成內容可維護性
+- CLAUDE.md文件包含整體程式框架，含資料夾/檔案架構以及程式工作流程。
+- 提高後續生成內容可維護性。
 
-**效益：** 新進開發者可透過此文件在短時間內掌握整體架構，降低理解成本，並作為後續設計決策的基準依據。
+**效益：** 新進開發者可透過此文件在短時間內掌握整體架構，降低理解成本，並作為後續自動生成程式碼提供框架指引
 
 ### 2. 在 .claude/skills 中增設所需 skills
 
@@ -37,18 +37,18 @@
 - LLM具有整體程式架構概念，明確各新增需求要寫在何程式區塊
 - 確保各 skill 有明確的觸發條件（trigger）、輸入規格與輸出格式，減少人工介入
 - 提升開發流程的一致性與可維護性
+- 生成程式碼順序符合程式開發邏輯(Database -> CRUD -> Middleware邏輯 -> API邏輯)
 
-**判斷依據：** 根據現有 functionList.md 所列功能範疇，優先為尚未開始或規劃中的功能（partner、km、fn_user、fn_role、framework）補充對應的自動化 skill。
+**判斷依據：** 根據現有 functionList.md 所列功能範疇，規劃處理database creating, database migration, authentic coding, middleware coding等，依更細項目規劃 coding skills
 
 ### 3. 在 .claude/skills 中增設所需 subagent
 
 **業務目標：** 在 `.claude/skills/` 目錄下新增 subagent 定義，讓主 Agent 可將子任務委派給專門的 subagent 處理，實現多層次的 AI 協作分工。
 
 **預期效益：**
-- 主 Agent 聚焦於任務協調與決策，subagent 負責執行細節（如查詢資料庫、產生文件片段、驗證規格）
-- 各 subagent 具備明確的職責範圍與輸入/輸出規格，避免職責重疊
-- 降低單一 Agent 的上下文負擔，提高執行效率與準確性
+- 建立coding subagent 架構，方便後續擴充
+- 由open source github repository 找符合MP-Box需要agent(Python-Pro, fastapi-developer)，增加Generative code品質
 
-**效益：** 建立清晰的 Agent 分工架構，使 MP-Box 的 AI 輔助開發流程更加穩健且易於擴充。
+**效益：** 後續程式AI產出可以有更佳品質
 
 **── AI 填寫結束 ──**
