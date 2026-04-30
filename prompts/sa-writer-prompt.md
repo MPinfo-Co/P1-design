@@ -17,7 +17,7 @@
 
 1. 讀取 `./SD/functionList.md` — 掌握現有功能清單
 2. 讀取 `./SD/schema.md` — 僅用於確認實體名稱不重複，不參考欄位細節
-3. 瀏覽 `./Spec/` 目錄清單 — 了解現有 API 規格範疇
+3. 瀏覽 `./SD/sdSpec/` 目錄清單 — 了解現有 API 規格範疇
 4. 瀏覽 `./SD/sdPrototype/` 目錄清單 — 了解現有畫面設計範疇
 
 分析時需與現有設計保持一致：若涉及新資料實體，比對 SD/schema.md 確認無同名實體；若涉及新功能，比對 SD/functionList.md 確認無重複。
