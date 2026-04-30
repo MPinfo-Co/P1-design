@@ -11,7 +11,7 @@
 
 // ─── 基礎設定 ───
 let allPartners = [
-    { id: 1, name: '資安專家', desc: '提供專業的資安威脅分析與處置建議。', builtin: true }
+    { id: 1, name: '資安專家', desc: '排程、資料來源（syslog-ng Store Box）', builtin: true, enabled: true }
 ];
 
 let allUsers = [
@@ -28,201 +28,719 @@ let allRoles = [
 ];
 
 // ─── 安全事件清單 ───
-// 來源：2026-03-16 09:00~19:00，mpidcfw (MPIDCFW / FGT60FTK23016189)
+// 來源：DB security_events + flash_results.events[*].logs（match_key 對應），匯入時間 2026-04-30
+// 註：suggests urgency 依固定規則（5 條 → 最推薦x2 / 次推薦x2 / 可選）分配，DB 無 urgency 欄位
+// 註：id 70/71/74 在 flash_results 對應 chunk 的 logs 為空陣列（PG 端只存 log_ids），雛型暫顯示 0 筆
 const allIssues = [
     {
-        id: 1,
-        title: '稽核政策遭大規模竄改（4719，30,972筆）',
-        starRank: 5,
-        date: '2026-03-16', dateEnd: '2026-03-16', detectionCount: 30972,
-        affectedSummary: '全域 AD 稽核政策（mpdc19-01/02/hq）',
-        affected: 'mpdc19-01、mpdc19-02、mpdc19-hq（Domain Controllers）→ 系統稽核政策全日持續被修改，共 30,972 筆 EventID 4719',
-        currentStatus: '未處理',
-        assignee: null, history: [],
-        desc: `全日 EventID 4719（稽核政策竄改）共 30,972 筆，三台 Domain Controller 持續觸發，遠超正常基線每日 < 100 筆。攻擊者取得 DC 存取後關閉稽核為標準後滲透手法（MITRE T1562.002），與 2/23 192.168.10.20 C2 入侵事件高度吻合。`,
-        mitre: [
-            {id:'T1562.002', name:'Impair Defenses: Disable Windows Event Logging', url:'https://attack.mitre.org/techniques/T1562/002/'},
-            {id:'T1098',     name:'Account Manipulation',                           url:'https://attack.mitre.org/techniques/T1098/'},
-            {id:'T1078',     name:'Valid Accounts',                                 url:'https://attack.mitre.org/techniques/T1078/'}
-        ],
-        suggests: [
-            { urgency:'最推薦', text:'立即匯出並備份所有現有稽核日誌（避免進一步遺失）。PowerShell: wevtutil epl Security C:\\backup\\Security.evtx。【溯源】備份後可比對修改前後的稽核類別差異，確認哪些攻擊行為已被掩蓋。MITRE: T1562.002',
-              refs:[{type:'mitre',label:'T1562.002',name:'Impair Defenses: Disable Windows Event Logging',url:'https://attack.mitre.org/techniques/T1562/002/'}]},
-            { urgency:'最推薦', text:'使用 GPO 強制還原稽核政策：Computer Configuration → Advanced Audit Policy Configuration，確認所有項目為 Success and Failure。【溯源】還原後重新啟用的日誌將揭露先前被關閉期間遺漏的攻擊行為。MITRE: T1562.002',
-              refs:[{type:'mitre',label:'T1562.002',name:'Impair Defenses: Disable Windows Event Logging',url:'https://attack.mitre.org/techniques/T1562/002/'}]},
-            { urgency:'次推薦', text:'查詢 4719 事件的觸發帳號，追蹤修改者身份：Get-WinEvent -LogName Security | Where {$_.Id -eq 4719} | Select TimeCreated, Message | Format-List。【溯源】比對觸發帳號是否為合法管理員。MITRE: T1078',
-              refs:[{type:'mitre',label:'T1078',name:'Valid Accounts',url:'https://attack.mitre.org/techniques/T1078/'}]},
-            { urgency:'可選',   text:'若無法確認修改者，應立即啟動 IR 流程，假設 DC 已遭攻陷，同步進行記憶體鑑識（Volatility 3）。MITRE: T1562.002, T1078',
-              refs:[{type:'mitre',label:'T1562.002',name:'Impair Defenses: Disable Windows Event Logging',url:'https://attack.mitre.org/techniques/T1562/002/'},{type:'mitre',label:'T1098',name:'Account Manipulation',url:'https://attack.mitre.org/techniques/T1098/'}]}
-        ],
-        logs: [
-            'Timestamp=2026-03-16 09:00:30  Host=mpdc19-02  EventID=4719  [Success Audit] 系統稽核原則已變更  Subject_AcctName=MPDC19-02$  Subject_Domain=MPINFO  LogonID=0x3E7  Category=系統  Subcategory=安全性狀態變更  AuditPolicyChange=新增失敗  [★ KEY：DC機器帳號 MPDC19-02$ 以 SYSTEM 身份關閉多個稽核子類別，全日持續發生]'
-        ]
-    },
-    {
-        id: 2,
-        title: '可疑主機 192.168.10.20 持續活躍（5,572 事件）',
+        id: 67,
+        title: "大規模外部IP掃描內網211.21.43.0/24",
         starRank: 4,
-        date: '2026-03-16', dateEnd: '2026-03-16', detectionCount: 5572,
-        affectedSummary: '192.168.10.20（內部伺服器）',
-        affected: '192.168.10.20 作為來源 IP，在 Windows 稽核日誌中產生 5,572 筆活動記錄，為所有非 DC 主機中最高',
-        currentStatus: '未處理',
-        assignee: null, history: [],
-        desc: `2/23 確認遭 C2 感染（dnscat2 / 180.76.76.95）的 192.168.10.20，於 3/16 仍持續對兩台 Domain Controller 發出 Kerberos 認證（全日 5,572 筆），21 天後仍活躍。清除行動疑不完整，惡意程式持續運行。`,
+        date: "2026-04-28",
+        dateEnd: "2026-04-28",
+        detectionCount: 80230,
+        affectedSummary: "211.21.43.0/24子網",
+        affected: "【異常發現】來自11,705個唯一外部IP發動80,230次拒絕連線，目標為內網211.21.43.0/24子網，嘗試連接埠23、80、8080、3389、22，攻擊來源遍及德國、美國、荷蘭、英國等多國。\n【風險分析】大規模協調式掃描可能為APT前期偵查，若內網存在未修補漏洞，將面臨入侵風險。\n【攻擊來源】77.90.185.43、204.76.203.206、80.82.65.202、88.210.63.63、185.156.73.197等11,705個外部IP",
+        currentStatus: "未處理",
+        assignee: null,
+        history: [],
+        desc: "來自11,705個唯一外部IP對內網211.21.43.0/24子網發動80,230次連線嘗試，涉及多國攻擊來源，目標涵蓋多個常見服務埠，呈現協調式網路偵查特徵。",
         mitre: [
-            {id:'T1071.004', name:'Application Layer Protocol: DNS', url:'https://attack.mitre.org/techniques/T1071/004/'},
-            {id:'T1547',     name:'Boot or Logon Autostart Execution', url:'https://attack.mitre.org/techniques/T1547/'},
-            {id:'T1021',     name:'Remote Services',                   url:'https://attack.mitre.org/techniques/T1021/'}
+            {
+                id: "T1595",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1595/"
+            },
+            {
+                id: "T1046",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1046/"
+            }
         ],
         suggests: [
-            { urgency:'最推薦', text:'立即再次對 192.168.10.20 執行完整端點掃描（EDR），重點檢查隱匿服務或持久化機制（登錄機碼、排程工作）。【溯源】掃描報告可確認惡意程式家族，對應 2/23 C2 IOC（180.76.76.95）。MITRE: T1547',
-              refs:[{type:'mitre',label:'T1547',name:'Boot or Logon Autostart Execution',url:'https://attack.mitre.org/techniques/T1547/'}]},
-            { urgency:'可選',   text:'若掃描無法確認乾淨，應重建該伺服器（勿還原 2/23 後的備份，可能已遭感染）。MITRE: T1071.004',
-              refs:[{type:'mitre',label:'T1071.004',name:'Application Layer Protocol: DNS',url:'https://attack.mitre.org/techniques/T1071/004/'}]},
-            { urgency:'最推薦', text:'封鎖 192.168.10.20 對 Domain Controllers 的直接連線，確認存取範圍最小化。【溯源】封鎖前先完整記錄其對 DC 的認證行為（EventID 4624），可還原橫向移動路徑。MITRE: T1021',
-              refs:[{type:'mitre',label:'T1021',name:'Remote Services',url:'https://attack.mitre.org/techniques/T1021/'}]},
-            { urgency:'次推薦', text:'收集 192.168.10.20 上的記憶體映像進行鑑識分析（Volatility 3），尋找 dnscat2/Cobalt Strike 等惡意程式殘留。MITRE: T1071.004',
-              refs:[{type:'mitre',label:'T1071.004',name:'Application Layer Protocol: DNS',url:'https://attack.mitre.org/techniques/T1071/004/'},{type:'ref',label:'Volatility 3',url:'https://github.com/volatilityfoundation/volatility3'}]}
+            {
+                urgency: "最推薦",
+                text: "確認211.21.43.0/24子網對外暴露的服務清單",
+                refs: []
+            },
+            {
+                urgency: "最推薦",
+                text: "評估防火牆規則是否已封鎖已知惡意IP段",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "對頻繁出現的外部攻擊IP申請IP黑名單更新",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "檢查邊界設備是否有自動封鎖規則觸發",
+                refs: []
+            },
+            {
+                urgency: "可選",
+                text: "考慮部署蜜罐偵測持續掃描行為",
+                refs: []
+            }
         ],
         logs: [
-            'Timestamp=2026-03-16 08:59:47  Host=mpdc19-01  EventID=4624  [Success Audit] 帳戶已順利登入  SubjectAcctName=NULL SID  LogonType=3  NewLogon_AcctName=MPDC19-02$  NewLogon_Domain=MPINFO.COM.TW  LogonGUID={9585d9e9-8cdb-9a9f-dbfb-96b501ed6b7d}  WorkstationName=-  SrcNetworkAddress=192.168.10.20  SrcPort=51939  AuthProcess=Kerberos  [★ KEY：可疑主機 192.168.10.20 以 Kerberos 對 mpdc19-01 進行網路登入，Source: win_chunks/chunk_0000.csv]'
+            "[2026-04-01 17:25:20] host=mpidcfw id=813316447657130032\n<189>date=2026-04-01 time=17:25:19 devname=\"MPIDCFW\" devid=\"FGT60FTK23016189\" eventtime=1775035519618539459 tz=\"+0800\" logid=\"0001000014\" type=\"traffic\" subtype=\"local\" level=\"notice\" vd=\"root\" srcip=204.76.203.206 srcport=42685 srcintf=\"wan1\" srcintfrole=\"wan\" dstip=211.21.43.181 dstport=80 dstintf=\"root\" dstintfrole=\"undefined\" srccountry=\"Netherlands\" dstcountry=\"Taiwan\" sessionid=112671751 proto=6 action=\"deny\" policyid=0 policytype=\"local-in-policy\" service=\"HTTP\" trandisp=\"noop\" app=\"Web Management\" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0 appcat=\"unscanned\" crscore=5 cractio…(截斷)",
+            "[2026-04-01 17:25:20] host=mpidcfw id=813316447657130069\n<189>date=2026-04-01 time=17:25:19 devname=\"MPIDCFW\" devid=\"FGT60FTK23016189\" eventtime=1775035519798480259 tz=\"+0800\" logid=\"0001000014\" type=\"traffic\" subtype=\"local\" level=\"notice\" vd=\"root\" srcip=77.90.185.52 srcport=42892 srcintf=\"wan1\" srcintfrole=\"wan\" dstip=211.21.43.180 dstport=53850 dstintf=\"root\" dstintfrole=\"undefined\" srccountry=\"Germany\" dstcountry=\"Taiwan\" sessionid=112671765 proto=6 action=\"deny\" policyid=0 policytype=\"local-in-policy\" service=\"tcp/53850\" trandisp=\"noop\" app=\"tcp/53850\" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0 appcat=\"unscanned\" crscore=5 craction=2…(截斷)",
+            "[2026-04-01 17:25:22] host=mpidcfw id=813316447657130401\n<189>date=2026-04-01 time=17:25:22 devname=\"MPIDCFW\" devid=\"FGT60FTK23016189\" eventtime=1775035521098500500 tz=\"+0800\" logid=\"0001000014\" type=\"traffic\" subtype=\"local\" level=\"notice\" vd=\"root\" srcip=204.76.203.231 srcport=40895 srcintf=\"wan1\" srcintfrole=\"wan\" dstip=211.21.43.180 dstport=12449 dstintf=\"root\" dstintfrole=\"undefined\" srccountry=\"Netherlands\" dstcountry=\"Taiwan\" sessionid=112671867 proto=6 action=\"deny\" policyid=0 policytype=\"local-in-policy\" service=\"tcp/12449\" trandisp=\"noop\" app=\"tcp/12449\" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0 appcat=\"unscanned\" crscore=5 crac…(截斷)",
+            "[2026-04-01 17:25:22] host=mpidcfw id=813316447657130453\n<189>date=2026-04-01 time=17:25:22 devname=\"MPIDCFW\" devid=\"FGT60FTK23016189\" eventtime=1775035521644669119 tz=\"+0800\" logid=\"0001000014\" type=\"traffic\" subtype=\"local\" level=\"notice\" vd=\"root\" srcip=79.124.59.78 srcport=61000 srcintf=\"wan1\" srcintfrole=\"wan\" dstip=211.21.43.178 dstport=34471 dstintf=\"root\" dstintfrole=\"undefined\" srccountry=\"Bulgaria\" dstcountry=\"Taiwan\" sessionid=112671893 proto=6 action=\"deny\" policyid=0 policytype=\"local-in-policy\" service=\"tcp/34471\" trandisp=\"noop\" app=\"tcp/34471\" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0 appcat=\"unscanned\" crscore=5 craction=…(截斷)",
+            "[2026-04-01 17:25:23] host=mpidcfw id=813316447657130567\n<189>date=2026-04-01 time=17:25:23 devname=\"MPIDCFW\" devid=\"FGT60FTK23016189\" eventtime=1775035522586749160 tz=\"+0800\" logid=\"0001000014\" type=\"traffic\" subtype=\"local\" level=\"notice\" vd=\"root\" srcip=104.168.56.24 srcport=57639 srcintf=\"wan1\" srcintfrole=\"wan\" dstip=211.21.43.179 dstport=2375 dstintf=\"root\" dstintfrole=\"undefined\" srccountry=\"United States\" dstcountry=\"Taiwan\" sessionid=112671925 proto=6 action=\"deny\" policyid=0 policytype=\"local-in-policy\" service=\"tcp/2375\" trandisp=\"noop\" app=\"tcp/2375\" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0 appcat=\"unscanned\" crscore=5 cracti…(截斷)",
+            "[2026-04-02 10:58:05] host=mpidcfw id=813317547163016198\n<189>date=2026-04-02 time=10:58:05 devname=\"MPIDCFW\" devid=\"FGT60FTK23016189\" eventtime=1775098685110814719 tz=\"+0800\" logid=\"0001000014\" type=\"traffic\" subtype=\"local\" level=\"notice\" vd=\"root\" srcip=176.65.148.70 srcport=44909 srcintf=\"wan1\" srcintfrole=\"wan\" dstip=211.21.43.180 dstport=55535 dstintf=\"root\" dstintfrole=\"undefined\" srccountry=\"Netherlands\" dstcountry=\"Taiwan\" sessionid=114529462 proto=6 action=\"deny\" policyid=0 policytype=\"local-in-policy\" service=\"tcp/55535\" trandisp=\"noop\" app=\"tcp/55535\" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0 appcat=\"unscanned\" crscore=5 cract…(截斷)",
+            "[2026-04-02 10:58:05] host=mpidcfw id=813317547163016251\n<189>date=2026-04-02 time=10:58:05 devname=\"MPIDCFW\" devid=\"FGT60FTK23016189\" eventtime=1775098685344954759 tz=\"+0800\" logid=\"0001000014\" type=\"traffic\" subtype=\"local\" level=\"notice\" vd=\"root\" srcip=141.98.83.48 srcport=4874 srcintf=\"wan1\" srcintfrole=\"wan\" dstip=211.21.43.178 dstport=53 dstintf=\"root\" dstintfrole=\"undefined\" srccountry=\"Romania\" dstcountry=\"Taiwan\" sessionid=114529478 proto=17 action=\"deny\" policyid=0 policytype=\"local-in-policy\" service=\"DNS\" trandisp=\"noop\" app=\"Domain Name Server\" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0 appcat=\"unscanned\" crscore=5 craction=2…(截斷)",
+            "[2026-04-02 10:58:07] host=mpidcfw id=813317547163016585\n<189>date=2026-04-02 time=10:58:07 devname=\"MPIDCFW\" devid=\"FGT60FTK23016189\" eventtime=1775098686848256259 tz=\"+0800\" logid=\"0001000014\" type=\"traffic\" subtype=\"local\" level=\"notice\" vd=\"root\" srcip=150.107.38.251 srcport=43508 srcintf=\"wan1\" srcintfrole=\"wan\" dstip=211.21.43.178 dstport=2003 dstintf=\"root\" dstintfrole=\"undefined\" srccountry=\"United States\" dstcountry=\"Taiwan\" sessionid=114529567 proto=6 action=\"deny\" policyid=0 policytype=\"local-in-policy\" service=\"tcp/2003\" trandisp=\"noop\" app=\"tcp/2003\" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0 appcat=\"unscanned\" crscore=5 cract…(截斷)"
+        ],
+        iocList: [
+            "77.90.185.43",
+            "204.76.203.206",
+            "80.82.65.202",
+            "88.210.63.63",
+            "185.156.73.197",
+            "88.210.63.122",
+            "125.132.20.244",
+            "95.85.244.136",
+            "84.21.190.130",
+            "79.124.49.194"
         ]
     },
     {
-        id: 3,
-        title: '內部主機暴力破解 DC：172.16.1.112（421次失敗）',
+        id: 68,
+        title: "外部Microsoft帳號協調登入攻擊",
         starRank: 4,
-        date: '2026-03-16', dateEnd: '2026-03-16', detectionCount: 421,
-        affectedSummary: '來源 172.16.1.112 對 Domain Controllers',
-        affected: '172.16.1.112（內部 172.16.x 段主機）→ mpdc19-01、mpdc19-02（Domain Controllers），421 次登入失敗',
-        currentStatus: '未處理',
-        assignee: null, history: [],
-        desc: `內部主機 172.16.1.112 對 Domain Controllers 發出 421 次登入失敗（占全日 62%），全日無帳號鎖定記錄，顯示採用低速密碼噴灑策略以規避鎖定偵測。疑為受感染的內部主機進行橫向移動。`,
+        date: "2026-04-28",
+        dateEnd: "2026-04-28",
+        detectionCount: 4347,
+        affectedSummary: "MPDC19-01/HQ DC",
+        affected: "【異常發現】兩個外部hotmail帳號從不同工作站對DC持續發起登入失敗：edward_chen76@hotmail.com來自MP0147-1(172.16.1.117)共4,343次；rael829@hotmail.com來自MP-JAMIE-01(172.16.1.114)。\n【風險分析】不同工作站使用不同外部帳號協調攻擊，可能表示多個內網工作站已遭入侵或被用作跳板，極高失敗次數顯示自動化暴力破解工具正在運作。\n【攻擊來源】172.16.1.117（MP0147-1）、172.16.1.114（MP-JAMIE-01）",
+        currentStatus: "未處理",
+        assignee: null,
+        history: [],
+        desc: "多個外部Microsoft個人帳號（edward_chen76、rael829）分別從不同工作站對內部DC發動大量登入嘗試，edward_chen76達4,343次失敗，顯示自動化工具介入。",
         mitre: [
-            {id:'T1110.003', name:'Brute Force: Password Spraying',          url:'https://attack.mitre.org/techniques/T1110/003/'},
-            {id:'T1078',     name:'Valid Accounts',                           url:'https://attack.mitre.org/techniques/T1078/'},
-            {id:'T1021.002', name:'Remote Services: SMB/Windows Admin Shares',url:'https://attack.mitre.org/techniques/T1021/002/'}
+            {
+                id: "T1110.001",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1110/001/"
+            },
+            {
+                id: "T1110",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1110/"
+            },
+            {
+                id: "T1078",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1078/"
+            },
+            {
+                id: "T1078.003",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1078/003/"
+            }
         ],
         suggests: [
-            { urgency:'最推薦', text:'立即識別 172.16.1.112 的主機名稱與擁有者（查詢 AD 或 DHCP 記錄）。【溯源】確認主機身份後，調閱其 Security Event Log，追查是否有惡意程式觸發密碼噴灑。MITRE: T1110.003',
-              refs:[{type:'mitre',label:'T1110.003',name:'Brute Force: Password Spraying',url:'https://attack.mitre.org/techniques/T1110/003/'}]},
-            { urgency:'最推薦', text:'對該主機進行隔離並執行 EDR 掃描，確認是否遭惡意軟體控制。【溯源】保存記憶體映像與網路連線快照，可還原攻擊者如何植入噴灑工具。MITRE: T1078',
-              refs:[{type:'mitre',label:'T1078',name:'Valid Accounts',url:'https://attack.mitre.org/techniques/T1078/'}]},
-            { urgency:'次推薦', text:'查詢該 IP 對應的 Windows 登入成功記錄（EventID 4624），確認是否有成功入侵跡象：Get-WinEvent -LogName Security | Where {$_.Id -eq 4624}。MITRE: T1021.002',
-              refs:[{type:'mitre',label:'T1021.002',name:'Remote Services: SMB/Windows Admin Shares',url:'https://attack.mitre.org/techniques/T1021/002/'}]},
-            { urgency:'次推薦', text:'啟用帳號鎖定政策（Account Lockout Threshold = 5，Duration = 30 min），並部署 SIEM 告警：單一來源 IP 5 分鐘內失敗 > 10 次即觸發。MITRE: T1110.003',
-              refs:[{type:'mitre',label:'T1110.003',name:'Brute Force: Password Spraying',url:'https://attack.mitre.org/techniques/T1110/003/'}]}
+            {
+                urgency: "最推薦",
+                text: "立即隔離MP0147-1(172.16.1.117)及MP-JAMIE-01(172.16.1.114)進行鑑識",
+                refs: []
+            },
+            {
+                urgency: "最推薦",
+                text: "在DC上設定政策封鎖外部Microsoft帳號登入",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "審查AD帳號策略，確認是否有帳號被鎖定",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "啟用MFA以防止憑證填充攻擊成功",
+                refs: []
+            },
+            {
+                urgency: "可選",
+                text: "追蹤兩台工作站的登入記錄與安裝程式清單",
+                refs: []
+            }
         ],
         logs: [
-            'Timestamp=2026-03-16 09:23:11  Host=mpdc19-02  EventID=4625  [Failure Audit] 帳戶無法登入  LogonType=3  FailedAcct=Administrator  FailedDomain=AMANDATUNG_MP  FailReason=不明的使用者名稱或錯誤密碼  Status=0xC000006D  SubStatus=0xC0000064  SrcNetworkAddress=172.17.1.57  SrcPort=53635  AuthPkg=NTLM  [172.17.1.57 第二來源示例，全日 127 筆失敗，Source: win_chunks/chunk_0011.csv]'
+            "[2026-04-02 12:08:42] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813317547159022894\nMicrosoftAccount\\edward_chen76@hotmail.com: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  edward_chen76@hotmail.com\r\n 帳戶網域:  MicrosoftAccount\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: MP0147-1\r\n 來源網路位址: 10.10.10.52\r\n 來源連接埠:  63940\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位顯…(截斷)",
+            "[2026-04-28 09:05:45] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461305852\nMicrosoftAccount\\edward_chen76@hotmail.com: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  edward_chen76@hotmail.com\r\n 帳戶網域:  MicrosoftAccount\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: MP0147-1\r\n 來源網路位址: 172.16.1.117\r\n 來源連接埠:  50637\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位…(截斷)",
+            "[2026-04-28 09:32:33] host=mpdc19-hq program=Microsoft_Windows_security_auditing. id=813346134462330810\nMicrosoftAccount\\edward_chen76@hotmail.com: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  edward_chen76@hotmail.com\r\n 帳戶網域:  MicrosoftAccount\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: MP0147-1\r\n 來源網路位址: 172.16.1.117\r\n 來源連接埠:  51251\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位…(截斷)",
+            "[2026-04-28 09:32:33] host=mpdc19-hq program=Microsoft_Windows_security_auditing. id=813346134462330812\nMicrosoftAccount\\edward_chen76@hotmail.com: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  edward_chen76@hotmail.com\r\n 帳戶網域:  MicrosoftAccount\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: MP0147-1\r\n 來源網路位址: 172.16.1.117\r\n 來源連接埠:  51250\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位…(截斷)",
+            "[2026-04-28 09:32:33] host=mpdc19-hq program=Microsoft_Windows_security_auditing. id=813346134462330814\nMicrosoftAccount\\edward_chen76@hotmail.com: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  edward_chen76@hotmail.com\r\n 帳戶網域:  MicrosoftAccount\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: MP0147-1\r\n 來源網路位址: 172.16.1.117\r\n 來源連接埠:  51252\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位…(截斷)",
+            "[2026-04-28 09:32:33] host=mpdc19-hq program=Microsoft_Windows_security_auditing. id=813346134462330816\nMicrosoftAccount\\edward_chen76@hotmail.com: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  edward_chen76@hotmail.com\r\n 帳戶網域:  MicrosoftAccount\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: MP0147-1\r\n 來源網路位址: 172.16.1.117\r\n 來源連接埠:  51264\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位…(截斷)",
+            "[2026-04-28 09:32:33] host=mpdc19-hq program=Microsoft_Windows_security_auditing. id=813346134462330818\nMicrosoftAccount\\edward_chen76@hotmail.com: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  edward_chen76@hotmail.com\r\n 帳戶網域:  MicrosoftAccount\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: MP0147-1\r\n 來源網路位址: 172.16.1.117\r\n 來源連接埠:  51266\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位…(截斷)",
+            "[2026-04-28 09:43:33] host=mpdc19-hq program=Microsoft_Windows_security_auditing. id=813346134462418736\nMicrosoftAccount\\edward_chen76@hotmail.com: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  edward_chen76@hotmail.com\r\n 帳戶網域:  MicrosoftAccount\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: MP0147-1\r\n 來源網路位址: 172.16.1.117\r\n 來源連接埠:  62780\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位…(截斷)"
+        ],
+        iocList: [
+            "172.16.1.117",
+            "172.16.1.114"
         ]
     },
     {
-        id: 4,
-        title: 'AD Sync 帳號大量明文登入嘗試（4648，4,837筆）',
+        id: 69,
+        title: "AMANDATUNG_MP域Administrator暴力破解",
+        starRank: 4,
+        date: "2026-04-28",
+        dateEnd: "2026-04-28",
+        detectionCount: 93,
+        affectedSummary: "MPDC19-02 Administrator",
+        affected: "【異常發現】AMANDATUNG_MP域Administrator帳號從172.17.1.57對MPDC19-02發動91次登入失敗（Event 4625），同時導致Guest帳號被AMANDATUNG_MP觸發鎖定（Event 4740），使用NTLM跨域驗證。\n【風險分析】跨域Administrator暴力破解具高風險，若成功可獲取高權限。Guest帳號連帶鎖定表明攻擊密度已觸發鎖定策略，需立即阻斷。\n【攻擊來源】172.17.1.57（AMANDATUNG_MP）",
+        currentStatus: "未處理",
+        assignee: null,
+        history: [],
+        desc: "AMANDATUNG_MP工作站從172.17.1.57對MPDC19-02發動91次Administrator帳號暴力破解，並連帶觸發Guest帳號鎖定，跨域高權限帳號遭攻擊風險極高。",
+        mitre: [
+            {
+                id: "T1110.001",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1110/001/"
+            },
+            {
+                id: "T1110",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1110/"
+            },
+            {
+                id: "T1078",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1078/"
+            },
+            {
+                id: "T1078.001",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1078/001/"
+            },
+            {
+                id: "T1078.002",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1078/002/"
+            }
+        ],
+        suggests: [
+            {
+                urgency: "最推薦",
+                text: "立即封鎖172.17.1.57的跨域登入嘗試",
+                refs: []
+            },
+            {
+                urgency: "最推薦",
+                text: "審查AMANDATUNG_MP域與主域間的信任關係",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "確認AMANDATUNG_MP\\Administrator帳號的合法性",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "強制啟用帳號鎖定政策並縮短閾值",
+                refs: []
+            },
+            {
+                urgency: "可選",
+                text: "調查AMANDATUNG_MP工作站是否已遭入侵",
+                refs: []
+            }
+        ],
+        logs: [
+            "[2026-04-02 11:01:28] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813317547159012802\nAMANDATUNG_MP\\Administrator: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  Administrator\r\n 帳戶網域:  AMANDATUNG_MP\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: AMANDATUNG_MP\r\n 來源網路位址: 172.17.1.57\r\n 來源連接埠:  60351\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位顯示要求登入的本機系統上的帳戶。這通常是發生在服務 …(截斷)",
+            "[2026-04-02 11:06:56] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813317547159013743\nAMANDATUNG_MP\\Administrator: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  Administrator\r\n 帳戶網域:  AMANDATUNG_MP\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: AMANDATUNG_MP\r\n 來源網路位址: 172.17.1.57\r\n 來源連接埠:  60491\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位顯示要求登入的本機系統上的帳戶。這通常是發生在服務 …(截斷)",
+            "[2026-04-02 11:11:11] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813317547159014383\nAMANDATUNG_MP\\Administrator: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  Administrator\r\n 帳戶網域:  AMANDATUNG_MP\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: AMANDATUNG_MP\r\n 來源網路位址: 172.17.1.57\r\n 來源連接埠:  60577\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位顯示要求登入的本機系統上的帳戶。這通常是發生在服務 …(截斷)",
+            "[2026-04-02 11:12:32] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813317547159014614\nAMANDATUNG_MP\\Administrator: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  Administrator\r\n 帳戶網域:  AMANDATUNG_MP\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: AMANDATUNG_MP\r\n 來源網路位址: 172.17.1.57\r\n 來源連接埠:  60615\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位顯示要求登入的本機系統上的帳戶。這通常是發生在服務 …(截斷)",
+            "[2026-04-02 11:17:50] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813317547159015351\nAMANDATUNG_MP\\Administrator: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  Administrator\r\n 帳戶網域:  AMANDATUNG_MP\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: AMANDATUNG_MP\r\n 來源網路位址: 172.17.1.57\r\n 來源連接埠:  60702\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位顯示要求登入的本機系統上的帳戶。這通常是發生在服務 …(截斷)",
+            "[2026-04-02 11:23:26] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813317547159016169\nAMANDATUNG_MP\\Administrator: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  Administrator\r\n 帳戶網域:  AMANDATUNG_MP\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: AMANDATUNG_MP\r\n 來源網路位址: 172.17.1.57\r\n 來源連接埠:  60784\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位顯示要求登入的本機系統上的帳戶。這通常是發生在服務 …(截斷)",
+            "[2026-04-02 11:28:44] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813317547159016985\nAMANDATUNG_MP\\Administrator: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  Administrator\r\n 帳戶網域:  AMANDATUNG_MP\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC0000064\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: AMANDATUNG_MP\r\n 來源網路位址: 172.17.1.57\r\n 來源連接埠:  60883\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位顯示要求登入的本機系統上的帳戶。這通常是發生在服務 …(截斷)",
+            "[2026-04-02 11:33:54] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813317547159017862\nMPINFO.COM.TW\\MSOL_2cd93d9077be: Security Microsoft Windows security auditing.: [Success Audit] 使用明確宣告的認證嘗試登入。\r\n\r\n主旨:\r\n 安全性識別碼:  MPINFO\\ADSyncMSA2cd93$\r\n 帳戶名稱:  ADSyncMSA2cd93$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x1FCCA\r\n 登入 GUID:  {6917bd66-fe87-60cd-8f59-df6509ed83f7}\r\n\r\n使用其認證的帳戶:\r\n 帳戶名稱:  MSOL_2cd93d9077be\r\n 帳戶網域:  MPINFO.COM.TW\r\n 登入 GUID:  {00000000-0000-0000-0000-000000000000}\r\n\r\n目標伺服器:\r\n 目標伺服器名稱: MPDC19-02.mpinfo.com.tw\r\n 其他資訊: ldap/MPDC19-02.mpinfo.com.tw/mpinfo.com.tw\r\n\r\n處理程序資訊:\r\n 處理程序識別碼:  0x12ec\r\n 處理程序名稱:  C:\\Program Files\\Microsoft Azure AD Sync\\Bin\\miiserver.exe\r\n\r\n網路資訊:\r\n 網路位址: -\r\n 連接埠:   …(截斷)"
+        ],
+        iocList: [
+            "172.17.1.57"
+        ]
+    },
+    {
+        id: 70,
+        title: "內網多協議廣播異常（mDNS/NetBIOS/LLMNR）",
         starRank: 3,
-        date: '2026-03-16', dateEnd: '2026-03-16', detectionCount: 4837,
-        affectedSummary: 'ADSyncMSA2cd93$（Azure AD Sync）/ MPDC19-01$、02$、HQ$',
-        affected: 'mpdc19-01、mpdc19-02、mpdc19-hq 上的 ADSyncMSA2cd93$（Azure AD Sync 服務帳號）及 DC 機器帳號，持續觸發 EventID 4648',
-        currentStatus: '未處理',
-        assignee: null, history: [],
-        desc: `Azure AD Sync 服務帳號 ADSyncMSA2cd93$ 全日觸發 4,837 筆 EventID 4648（明文登入嘗試），頻率約每 7 秒一次，遠超正常同步週期（30 分鐘/次）。可能代表憑證遭盜用、服務陷入重試迴圈或 AAD Connect 遭篡改。`,
+        date: "2026-04-28",
+        dateEnd: "2026-04-28",
+        detectionCount: 33251,
+        affectedSummary: "192.168.10/50網段",
+        affected: "【異常發現】多個內網主機向廣播地址發送大量協議廣播：mDNS(5353) 11,717次、NetBIOS(137) 10,792次、NetBIOS(138) 2,390次、LLMNR(5355) 2,828次、DHCPv6(547) 5,524次，來源涵蓋192.168.10.x、192.168.50.x及fe80::前綴IPv6地址。\n【風險分析】NetBIOS、mDNS、LLMNR廣播常被Responder等工具利用進行名稱解析欺騙以截取NTLM憑證，是橫向移動的常見前置步驟。",
+        currentStatus: "未處理",
+        assignee: null,
+        history: [],
+        desc: "多個內網主機持續發送mDNS、NetBIOS、LLMNR、DHCPv6廣播共33,251次，涉及192.168.10/50網段，可能為設備配置問題或中間人攻擊的前置條件。",
         mitre: [
-            {id:'T1557',     name:'Adversary-in-the-Middle',           url:'https://attack.mitre.org/techniques/T1557/'},
-            {id:'T1078.002', name:'Valid Accounts: Domain Accounts',   url:'https://attack.mitre.org/techniques/T1078/002/'},
-            {id:'T1530',     name:'Data from Cloud Storage',           url:'https://attack.mitre.org/techniques/T1530/'}
+            {
+                id: "T1040",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1040/"
+            },
+            {
+                id: "T1557",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1557/"
+            }
         ],
         suggests: [
-            { urgency:'最推薦', text:'確認 Azure AD Connect 服務狀態：Get-ADSyncScheduler（查看同步頻率是否異常）。【溯源】若 Scheduler 正常但 4648 異常頻繁，代表有外部程序在模擬 AAD Sync 憑證，需追查 Process ID。MITRE: T1078.002',
-              refs:[{type:'mitre',label:'T1078.002',name:'Valid Accounts: Domain Accounts',url:'https://attack.mitre.org/techniques/T1078/002/'}]},
-            { urgency:'最推薦', text:'檢查 ADSyncMSA2cd93$ 帳號的最後密碼變更時間，若近期未變更請立即重設。【溯源】密碼變更紀錄（EventID 4723/4724）可確認是否有未授權的密碼操作。MITRE: T1557',
-              refs:[{type:'mitre',label:'T1557',name:'Adversary-in-the-Middle',url:'https://attack.mitre.org/techniques/T1557/'}]},
-            { urgency:'次推薦', text:'查看 Azure AD Connect Audit Log，確認是否有異常同步或帳號匯出。【溯源】AAD 稽核日誌可揭示是否有帳號/密碼 Hash 被同步至外部租戶。MITRE: T1530',
-              refs:[{type:'mitre',label:'T1530',name:'Data from Cloud Storage',url:'https://attack.mitre.org/techniques/T1530/'}]},
-            { urgency:'可選',   text:'考慮暫停 Azure AD Sync（Set-ADSyncScheduler -SyncCycleEnabled $false）直到確認安全。MITRE: T1078.002',
-              refs:[{type:'mitre',label:'T1078.002',name:'Valid Accounts: Domain Accounts',url:'https://attack.mitre.org/techniques/T1078/002/'}]}
+            {
+                urgency: "最推薦",
+                text: "評估在不影響業務前提下禁用LLMNR與NetBIOS over TCP/IP",
+                refs: []
+            },
+            {
+                urgency: "最推薦",
+                text: "部署Responder偵測規則以識別中間人攻擊",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "確認廣播流量是否為設備正常需求或設定錯誤",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "審查IPv6配置，確認是否需要啟用DHCPv6",
+                refs: []
+            },
+            {
+                urgency: "可選",
+                text: "設定防火牆規則限制廣播流量範圍",
+                refs: []
+            }
         ],
-        logs: [
-            'Timestamp=2026-03-16 08:59:49  Host=mpdc19-02  EventID=4648  [Success Audit] 使用明確宣告的認證嘗試登入  Subject_SID=NT AUTHORITY\\SYSTEM  Subject_AcctName=MPDC19-02$  CredentialAcct=ADSyncMSA2cd93$  TargetServer=localhost  ProcessName=C:\\Windows\\System32\\lsass.exe  NetworkAddress=192.168.10.22  Port=44384  [★ KEY：lsass.exe 代替 AAD Sync 服務使用明文憑證，Source: win_chunks/chunk_0000.csv]'
+        logs: [],
+        iocList: [
+            "192.168.10.0/24",
+            "192.168.50.0/24"
         ]
     },
     {
-        id: 5,
-        title: '防火牆 deny 異常升高（13:30~16:30，持續 3 小時）',
+        id: 71,
+        title: "192.168.10.4對內網主機SMB/RPC橫向偵查",
         starRank: 3,
-        date: '2026-03-16', dateEnd: '2026-03-16', detectionCount: 181001,
-        affectedSummary: '防火牆邊界（13:30~16:30 共 6 個時間窗）',
-        affected: 'Check Point 防火牆 WAN 介面 ← 外部攻擊來源（含 160.119.76.28/39、204.76.203.231 等）及內部 172.18.1.89（8,314 deny）',
-        currentStatus: '未處理',
-        assignee: null, history: [],
-        desc: `防火牆 deny 於 13:30 急升至 39,703 筆（+61% vs 基線 24,697），並在 3 小時內持續高位，最大 deny 目的地 211.72.78.169 全日累計 336,516 筆。同期 allow 流量同步下降，需確認 IP 歸屬與內部主機 172.18.1.89 端點狀態。`,
+        date: "2026-04-28",
+        dateEnd: "2026-04-28",
+        detectionCount: 24,
+        affectedSummary: "192.168.10.253",
+        affected: "【異常發現】192.168.10.4在19:49對192.168.10.253同時嘗試連接多個Windows高風險埠（135 RPC、445 SMB、139、137 NetBIOS），全部被防火牆拒絕，共24次連接嘗試。\n【風險分析】典型內網橫向移動偵查手法，攻擊者在取得初始立足點後掃描同網段主機的SMB/RPC服務，以尋找橫向擴散或憑證竊取機會。\n【攻擊來源】192.168.10.4",
+        currentStatus: "未處理",
+        assignee: null,
+        history: [],
+        desc: "192.168.10.4在短時間內嘗試連接192.168.10.253的多個高風險埠（135/RPC、445/SMB、139/137/NetBIOS），共24次，符合內網橫向移動前偵查特徵。",
         mitre: [
-            {id:'T1595', name:'Active Scanning',               url:'https://attack.mitre.org/techniques/T1595/'},
-            {id:'T1499', name:'Endpoint Denial of Service',    url:'https://attack.mitre.org/techniques/T1499/'},
-            {id:'T1041', name:'Exfiltration Over C2 Channel',  url:'https://attack.mitre.org/techniques/T1041/'}
+            {
+                id: "T1046",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1046/"
+            },
+            {
+                id: "T1570",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1570/"
+            },
+            {
+                id: "T1021.002",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1021/002/"
+            }
         ],
         suggests: [
-            { urgency:'最推薦', text:'查詢 211.72.78.169 的 IP 歸屬（whois）——若為公司公用 IP，此模式可能代表反射/放大攻擊；若為外部 IP 則代表大量封鎖外連。【溯源】IP 歸屬確認後可對應是否為已知 C2 或 DDoS 反射節點。MITRE: T1595, T1499',
-              refs:[{type:'mitre',label:'T1595',name:'Active Scanning',url:'https://attack.mitre.org/techniques/T1595/'}]},
-            { urgency:'最推薦', text:'對 172.18.1.89 進行端點調查，確認是否為感染主機或配置錯誤設備。【溯源】若為感染主機，其嘗試外連的目的地 IP 即為 C2 伺服器，可提交 VirusTotal 核查。MITRE: T1041',
-              refs:[{type:'mitre',label:'T1041',name:'Exfiltration Over C2 Channel',url:'https://attack.mitre.org/techniques/T1041/'}]},
-            { urgency:'次推薦', text:'在防火牆上設定 deny 量告警閾值（超過基線 150% 時通知），並對 160.119.76.28/39 進行 GeoIP 封鎖評估。MITRE: T1499',
-              refs:[{type:'mitre',label:'T1499',name:'Endpoint Denial of Service',url:'https://attack.mitre.org/techniques/T1499/'}]},
-            { urgency:'可選',   text:'審查 13:30 前後的防火牆規則變更記錄，確認是否有人為修改導致流量異常。【溯源】規則變更配合 Windows EventID 4719（稽核政策竄改）比對，可判斷是否為協調式攻擊。MITRE: T1595',
-              refs:[{type:'mitre',label:'T1595',name:'Active Scanning',url:'https://attack.mitre.org/techniques/T1595/'}]}
+            {
+                urgency: "最推薦",
+                text: "立即對192.168.10.4進行端點安全掃描",
+                refs: []
+            },
+            {
+                urgency: "最推薦",
+                text: "檢查192.168.10.4的程序清單與網路連線記錄",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "確認192.168.10.253的重要性並加強存取控制",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "收集192.168.10.4的完整事件日誌進行鑑識分析",
+                refs: []
+            },
+            {
+                urgency: "可選",
+                text: "評估是否需要隔離192.168.10.4直至調查完成",
+                refs: []
+            }
         ],
-        logs: [
-            'Source=fw_summaries/window_1330.json  時段=2026-03-16 13:30~14:00  allow=165,023  deny=39,703（+61% vs 基線 24,697）  top10_deny_src: 160.119.76.39=3,998 / 172.18.1.75=790 / 172.18.1.89=364  top10_deny_dst: 211.72.78.169=20,095（全窗最高）  [★ KEY：全日 deny 最高峰，需確認 211.72.78.169 歸屬]'
+        logs: [],
+        iocList: [
+            "192.168.10.4"
         ]
     },
     {
-        id: 6,
-        title: '外部 IP 嘗試 RADIUS 802.1X 認證（meraki_8021x_test）',
+        id: 72,
+        title: "MP0443帳號多次失敗後遭鎖定",
         starRank: 3,
-        date: '2026-03-16', dateEnd: '2026-03-16', detectionCount: 1,
-        affectedSummary: '外部 IP 6.239.234.0 使用測試帳號',
-        affected: 'mpdc19-02（RADIUS 伺服器）← 6.239.234.0（外部 IP）使用帳號 meraki_8021x_test 嘗試 802.1X 認證，遭拒',
-        currentStatus: '未處理',
-        assignee: null, history: [],
-        desc: `外部 IP 6.239.234.0 使用帳號 meraki_8021x_test 嘗試 RADIUS 802.1X 認證，伺服器已拒絕（ReasonCode=8：帳號不存在）。此為全日 163 筆 RADIUS deny 中唯一來自外部 IP 的嘗試，顯示 RADIUS 服務可能對外部網路暴露。`,
+        date: "2026-04-28",
+        dateEnd: "2026-04-28",
+        detectionCount: 29,
+        affectedSummary: "MP0443帳號",
+        affected: "【異常發現】MPINFO\\MP0443帳號在MPDC19-01出現29次登入失敗（Event 4625），均來自svchost.exe程序，狀態碼0xC000006D/0xC000006A，最終觸發帳號鎖定（Event 4740）。\n【風險分析】若MP0443為服務帳號，密碼更改未同步將導致持續鎖定並影響服務運作；若為一般帳號，則可能遭到暴力破解嘗試。",
+        currentStatus: "未處理",
+        assignee: null,
+        history: [],
+        desc: "MPINFO\\MP0443在MPDC19-01上因svchost.exe發起的29次NTLM登入失敗觸發帳號鎖定，可能為密碼未同步的服務帳號或針對性暴力破解。",
         mitre: [
-            {id:'T1078', name:'Valid Accounts',          url:'https://attack.mitre.org/techniques/T1078/'},
-            {id:'T1110', name:'Brute Force',              url:'https://attack.mitre.org/techniques/T1110/'},
-            {id:'T1133', name:'External Remote Services', url:'https://attack.mitre.org/techniques/T1133/'}
+            {
+                id: "T1110.001",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1110/001/"
+            },
+            {
+                id: "T1110",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1110/"
+            },
+            {
+                id: "T1078",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1078/"
+            }
         ],
         suggests: [
-            { urgency:'最推薦', text:'立即確認 meraki_8021x_test 帳號是否存在於 AD，若存在請停用並重設。【溯源】查詢帳號建立時間、建立者、最後使用紀錄（EventID 4720/4726/4648），確認是否為後門帳號。MITRE: T1078',
-              refs:[{type:'mitre',label:'T1078',name:'Valid Accounts',url:'https://attack.mitre.org/techniques/T1078/'}]},
-            { urgency:'最推薦', text:'查詢 RADIUS 服務是否暴露於外部網路，確認防火牆規則是否允許外部對 UDP 1812/1813 的存取，如有請立即封鎖。MITRE: T1133',
-              refs:[{type:'mitre',label:'T1133',name:'External Remote Services',url:'https://attack.mitre.org/techniques/T1133/'}]},
-            { urgency:'次推薦', text:'對 6.239.234.0 進行 whois 查詢，確認 IP 歸屬（是否為已知惡意 IP 或 VPN 出口）。【溯源】若為雲端 VPS，代表攻擊者使用匿名基礎設施。MITRE: T1110',
-              refs:[{type:'mitre',label:'T1110',name:'Brute Force',url:'https://attack.mitre.org/techniques/T1110/'}]},
-            { urgency:'次推薦', text:'確認防火牆規則並封鎖 UDP 1812/1813 對外，同時檢視 RADIUS ACL 僅允許已知 NAS IP（如 172.18.1.241~252）。MITRE: T1133',
-              refs:[{type:'mitre',label:'T1133',name:'External Remote Services',url:'https://attack.mitre.org/techniques/T1133/'}]}
+            {
+                urgency: "最推薦",
+                text: "確認MP0443是服務帳號還是使用者帳號",
+                refs: []
+            },
+            {
+                urgency: "最推薦",
+                text: "若為服務帳號，檢查所有使用該帳號的服務並更新密碼",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "解除帳號鎖定並監控是否再次觸發",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "審查帳號鎖定政策設定是否適當",
+                refs: []
+            },
+            {
+                urgency: "可選",
+                text: "若確認為攻擊，追蹤svchost.exe的父程序與來源",
+                refs: []
+            }
         ],
         logs: [
-            'Timestamp=2026-03-16 09:16:51  Host=mpdc19-02  EventID=6273  [Failure Audit] 網路原則伺服器已拒絕使用者存取  UserAcct=meraki_8021x_test  UserDomain=MPINFO  NAS_IPv4=6.239.234.0  NAS_PortType=無線-IEEE802.11  RADIUS_Client=MP_172_18  ClientIP=172.18.1.241  AuthType=EAP  ReasonCode=8  Reason=所指定的使用者帳戶並不存在  [★ KEY：外部 IP 直接觸達 RADIUS，帳號格式非 host/機器名 而為 meraki 測試帳號，Source: win_chunks/chunk_0008.csv]'
+            "[2026-04-28 09:15:19] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461307598\nMPINFO\\mp0443: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  mp0443\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 09:15:39] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461307635\nMPINFO\\mp0443: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  mp0443\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 09:15:40] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461307637\nMPINFO\\mp0443: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  mp0443\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 09:17:21] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461308021\nMPINFO\\mp0443: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  mp0443\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 09:17:24] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461308037\nMPINFO\\mp0443: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  mp0443\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 10:26:31] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461321540\nMPINFO\\mp0443: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  mp0443\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 10:26:51] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461321657\nMPINFO\\mp0443: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  mp0443\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 10:27:10] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461321790\nMPINFO\\mp0443: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  mp0443\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)"
+        ],
+        iocList: []
+    },
+    {
+        id: 73,
+        title: "多服務帳號CHAP驗證持續失敗",
+        starRank: 3,
+        date: "2026-04-28",
+        dateEnd: "2026-04-28",
+        detectionCount: 18,
+        affectedSummary: "MP0259/MP0147/MP0004",
+        affected: "【異常發現】三個域帳號（MP0259、MP0147、MP0004）在MPDC19-01/02由svchost.exe發起CHAP驗證失敗，共18次（MP0259: 8次、MP0147: 4次、MP0004: 6次），狀態碼均為0xC000006D/0xC000006A。\n【風險分析】多個服務帳號同時出現相同類型驗證失敗，強烈暗示系統配置問題而非攻擊，可能影響RAS、VPN或其他依賴這些帳號的服務正常運作。",
+        currentStatus: "未處理",
+        assignee: null,
+        history: [],
+        desc: "MP0259、MP0147、MP0004三個帳號均由svchost.exe透過CHAP協議驗證失敗，共18次，強烈暗示RAS/VPN服務帳號密碼未同步或配置錯誤。",
+        mitre: [
+            {
+                id: "T1078",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1078/"
+            },
+            {
+                id: "T1021",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1021/"
+            }
+        ],
+        suggests: [
+            {
+                urgency: "最推薦",
+                text: "識別使用MP0259、MP0147、MP0004的服務並確認其運作狀態",
+                refs: []
+            },
+            {
+                urgency: "最推薦",
+                text: "檢查三個帳號的密碼是否一致且未過期",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "審查RAS/VPN服務配置，確認認證方式設定正確",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "考慮將CHAP認證改為更安全的認證方式",
+                refs: []
+            },
+            {
+                urgency: "可選",
+                text: "監控這些帳號是否觸發帳號鎖定",
+                refs: []
+            }
+        ],
+        logs: [
+            "[2026-04-28 09:36:26] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461312165\nMPINFO\\MP0259: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  MP0259\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 09:53:43] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461315610\nMPINFO\\MP0259: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  MP0259\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 09:53:45] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461315618\nMPINFO\\MP0259: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  MP0259\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 10:02:36] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461317405\nMPINFO\\MP0259: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  MP0259\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 10:19:24] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461320191\nMPINFO\\MP0259: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  MP0259\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 12:16:57] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461341707\nMPINFO\\MP0259: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  MP0259\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 12:24:08] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461342726\nMPINFO\\mp0443: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  mp0443\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)",
+            "[2026-04-28 12:58:17] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461348271\nMPINFO\\MP0259: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  MP0259\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x8d0\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\svchost.exe\r\n\r\n網路資訊:\r\n 工作站名稱: -\r\n 來源網路位址: -\r\n 來源連接埠:  -\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  CHAP\r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r…(截斷)"
+        ],
+        iocList: []
+    },
+    {
+        id: 74,
+        title: "172.18.1.82持續嘗試連接非標準埠64943",
+        starRank: 2,
+        date: "2026-04-28",
+        dateEnd: "2026-04-28",
+        detectionCount: 15,
+        affectedSummary: "172.18.1.82",
+        affected: "【異常發現】172.18.1.82在超過6小時時間窗口內持續嘗試連接192.168.50.254的非標準高埠64943，共15次，全部被防火牆拒絕。該埠不屬於任何已知標準服務。\n【風險分析】持續嘗試連接非標準埠可能為惡意軟體的C2通訊測試、反向Shell或隧道建立嘗試，若連接成功建立可能導致資料外洩或持久化後門。",
+        currentStatus: "未處理",
+        assignee: null,
+        history: [],
+        desc: "172.18.1.82在超過6小時內（01:42~07:59）對192.168.50.254的非標準高埠64943發起15次連接嘗試，全部遭拒，可能為隧道測試或惡意C2通訊機制。",
+        mitre: [
+            {
+                id: "T1571",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1571/"
+            }
+        ],
+        suggests: [
+            {
+                urgency: "最推薦",
+                text: "對172.18.1.82進行端點安全掃描與流量分析",
+                refs: []
+            },
+            {
+                urgency: "最推薦",
+                text: "確認192.168.50.254上是否有服務監聽64943埠",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "收集172.18.1.82的完整網路連線與程序記錄",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "在防火牆新增告警規則監控對非標準高埠的連線嘗試",
+                refs: []
+            },
+            {
+                urgency: "可選",
+                text: "評估是否為合法應用程式的配置問題",
+                refs: []
+            }
+        ],
+        logs: [],
+        iocList: [
+            "172.18.1.82"
         ]
     },
     {
-        id: 7,
-        title: '正常雜訊：SVR_to_WAN 策略允許大量外部連線',
-        starRank: 1,
-        date: '2026-03-16', dateEnd: '2026-03-16', detectionCount: 3665670,
-        affectedSummary: '全域防火牆 allow 流量（正常業務）',
-        affected: '防火牆 allow 流量 3,665,670 筆，主要為 HTTPS（1,351,497）、UDP（358,189）、QUIC（250,233）、DNS（146,895）',
-        currentStatus: '擱置',
-        assignee: null, history: [],
-        desc: `全日防火牆 allow 流量 366 萬筆，服務組合正常（HTTPS 37%、DNS 4%），為環境基線參考，無明顯異常。2/23 Issue#2 建議的 SVR_to_WAN GeoIP 封鎖（CN/RU/KP/IR）尚未確認落實，仍需後續追蹤。`,
-        mitre: [],
+        id: 75,
+        title: "多域帳號零散登入失敗（MP0332/MP0026）",
+        starRank: 2,
+        date: "2026-04-28",
+        dateEnd: "2026-04-28",
+        detectionCount: 7,
+        affectedSummary: "MP0332/MP0026",
+        affected: "【異常發現】兩個域帳號出現零散登入失敗：MPINFO\\MP0332在MPDC19-01和MPDC19-02各有失敗記錄（共4次）；MPINFO\\MP0026在MPDC19-01有3次失敗，失敗原因均為密碼錯誤（0xC000006D/0xC000006A）。\n【風險分析】低頻失敗可能為帳號密碼過期、使用者輸入錯誤或服務帳號配置問題，亦不排除試探性憑證填充攻擊。",
+        currentStatus: "未處理",
+        assignee: null,
+        history: [],
+        desc: "MP0332在MPDC19-01/02出現4次登入失敗，MP0026在MPDC19-01出現3次登入失敗，均為密碼錯誤，低頻但需確認帳號狀態是否正常。",
+        mitre: [
+            {
+                id: "T1078",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1078/"
+            },
+            {
+                id: "T1110",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1110/"
+            }
+        ],
         suggests: [
-            { urgency:'最推薦', text:'確認 2/23 Issue#2 的 SVR_to_WAN 策略收緊是否已落實（GeoIP 封鎖 CN/RU/KP/IR）。【溯源】若仍未落實，攻擊者可繼續透過相同路徑進行 DNS C2 外連。MITRE: T1071.004',
-              refs:[]},
-            { urgency:'次推薦', text:'若未落實，依 2/23 的建議新增 GeoIP 封鎖（CN/RU/KP/IR）。MITRE: T1190',
-              refs:[]}
+            {
+                urgency: "最推薦",
+                text: "確認MP0332與MP0026的帳號狀態及密碼是否過期",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "詢問帳號持有者確認是否為本人操作",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "監控是否有後續登入失敗或鎖定事件",
+                refs: []
+            },
+            {
+                urgency: "可選",
+                text: "確認帳號鎖定閾值設定是否合理",
+                refs: []
+            }
         ],
         logs: [
-            'Source=fw_summaries 全日聚合統計（2026-03-16 09:00~19:00）  allow=3,665,670筆 / deny=512,325筆 / allow率=87.7%  Top服務：HTTPS=1,351,497(37%) / UDP_All=358,189(10%) / QUIC=250,233(7%) / DNS_UDP=146,895(4%)'
+            "[2026-04-28 14:08:43] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461360773\nMPINFO\\MP0332: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  MP0332\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x304\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\lsass.exe\r\n\r\n網路資訊:\r\n 工作站名稱: MPDC19-01\r\n 來源網路位址: 192.168.10.22\r\n 來源連接埠:  58660\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  Advapi  \r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，…(截斷)",
+            "[2026-04-28 14:08:43] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461360778\nMPINFO\\MP0332: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-01$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  MP0332\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x304\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\lsass.exe\r\n\r\n網路資訊:\r\n 工作站名稱: MPDC19-01\r\n 來源網路位址: 192.168.10.22\r\n 來源連接埠:  58670\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  Advapi  \r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，…(截斷)",
+            "[2026-04-28 14:08:43] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813346134461360785\nMPINFO\\MP0332: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-02$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  MP0332\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x2fc\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\lsass.exe\r\n\r\n網路資訊:\r\n 工作站名稱: MPDC19-02\r\n 來源網路位址: 192.168.10.22\r\n 來源連接埠:  58994\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  Advapi  \r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，…(截斷)",
+            "[2026-04-28 14:08:43] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813346134461360787\nMPINFO\\MP0332: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  NT AUTHORITY\\SYSTEM\r\n 帳戶名稱:  MPDC19-02$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x3E7\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  MP0332\r\n 帳戶網域:  MPINFO\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x2fc\r\n 呼叫者處理程序名稱: C:\\Windows\\System32\\lsass.exe\r\n\r\n網路資訊:\r\n 工作站名稱: MPDC19-02\r\n 來源網路位址: 192.168.10.22\r\n 來源連接埠:  59008\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  Advapi  \r\n 驗證封裝: MICROSOFT_AUTHENTICATION_PACKAGE_V1_0\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，…(截斷)"
+        ],
+        iocList: []
+    },
+    {
+        id: 76,
+        title: "MP0424登入失敗後成功（DSServADE.exe）",
+        starRank: 2,
+        date: "2026-04-28",
+        dateEnd: "2026-04-28",
+        detectionCount: 4,
+        affectedSummary: "MP0424帳號",
+        affected: "【異常發現】192.168.10.8（MP2FA-01）以MPINFO.COM.TW\\MP0424帳號先後在MPDC19-01出現登入失敗（0xC000006D）後成功登入，成功登入由DSServADE.exe程序發起，使用埠54771/54772。\n【風險分析】失敗後成功的登入模式可能表示密碼猜測成功，或是合法服務重試機制。DSServADE.exe需確認是否為已知合法應用程式，若非授權程式則需立即調查。",
+        currentStatus: "未處理",
+        assignee: null,
+        history: [],
+        desc: "MP2FA-01(192.168.10.8)以MP0424帳號登入MPDC19-01先失敗後由DSServADE.exe成功登入，需確認DSServADE.exe的合法性及此認證行為是否為授權操作。",
+        mitre: [
+            {
+                id: "T1110.001",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1110/001/"
+            },
+            {
+                id: "T1078",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1078/"
+            }
+        ],
+        suggests: [
+            {
+                urgency: "最推薦",
+                text: "確認DSServADE.exe的廠商與用途，確認其合法性",
+                refs: []
+            },
+            {
+                urgency: "最推薦",
+                text: "審查MP0424帳號近期的所有登入記錄",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "確認192.168.10.8（MP2FA-01）上安裝的軟體清單",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "若DSServADE.exe非合法程式，立即進行端點鑑識",
+                refs: []
+            },
+            {
+                urgency: "可選",
+                text: "強制要求MP0424帳號啟用MFA",
+                refs: []
+            }
+        ],
+        logs: [
+            "[2026-04-28 11:19:16] host=mp2fa-01 program=Microsoft_Windows_security_auditing. id=813346134463100092\nMPINFO.COM.TW\\MP0424: Security Microsoft Windows security auditing.: [Success Audit] 使用明確宣告的認證嘗試登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x9769\r\n 登入 GUID:  {00000000-0000-0000-0000-000000000000}\r\n\r\n使用其認證的帳戶:\r\n 帳戶名稱:  MP0424\r\n 帳戶網域:  MPINFO.COM.TW\r\n 登入 GUID:  {00000000-0000-0000-0000-000000000000}\r\n\r\n目標伺服器:\r\n 目標伺服器名稱: MPDC19-01.mpinfo.com.tw\r\n 其他資訊: MPDC19-01.mpinfo.com.tw\r\n\r\n處理程序資訊:\r\n 處理程序識別碼:  0xbfc\r\n 處理程序名稱:  C:\\Program Files\\One Identity\\Defender\\Security Server\\DSServADE.exe\r\n\r\n網路資訊:\r\n 網路位址: -\r\n 連接埠:   -\r\n\r\n當處理程序嘗試以帳戶的明確宣告認證登入那個帳戶時，就會產生這個事件。這通常發生在批次類型的設定，例如排程工作，或是當使用…(截斷)",
+            "[2026-04-28 11:19:17] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461331386\nMPINFO.COM.TW\\MP0424: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  MP0424\r\n 帳戶網域:  MPINFO.COM.TW\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: MP2FA-01\r\n 來源網路位址: 192.168.10.8\r\n 來源連接埠:  54771\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位顯示要求登入的本機系統上的帳戶。這通常是發生在服務 (例如伺服器服務) 或是本機處理程序…(截斷)",
+            "[2026-04-28 11:19:21] host=mpdc19-01 program=Microsoft_Windows_security_auditing. id=813346134461331397\nMPINFO.COM.TW\\MP0424: Security Microsoft Windows security auditing.: [Failure Audit] 帳戶無法登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x0\r\n\r\n登入類型:   3\r\n\r\n登入失敗的帳戶:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  MP0424\r\n 帳戶網域:  MPINFO.COM.TW\r\n\r\n失敗資訊:\r\n 失敗原因:  不明的使用者名稱或錯誤密碼。\r\n 狀態:   0xC000006D\r\n 子狀態:  0xC000006A\r\n\r\n處理程序資訊:\r\n 呼叫者處理程序識別碼: 0x0\r\n 呼叫者處理程序名稱: -\r\n\r\n網路資訊:\r\n 工作站名稱: MP2FA-01\r\n 來源網路位址: 192.168.10.8\r\n 來源連接埠:  54772\r\n\r\n詳細驗證資訊:\r\n 登入處理程序:  NtLmSsp \r\n 驗證封裝: NTLM\r\n 轉送的服務: -\r\n 封裝名稱 (僅限 NTLM): -\r\n 金鑰長度:  0\r\n\r\n當登入要求失敗的時候，就會產生這個事件。這個事件在嘗試存取的電腦上產生。\r\n\r\n主旨欄位顯示要求登入的本機系統上的帳戶。這通常是發生在服務 (例如伺服器服務) 或是本機處理程序…(截斷)",
+            "[2026-04-28 11:19:21] host=mp2fa-01 program=Microsoft_Windows_security_auditing. id=813346134463100525\nMPINFO.COM.TW\\MP0424: Security Microsoft Windows security auditing.: [Success Audit] 使用明確宣告的認證嘗試登入。\r\n\r\n主旨:\r\n 安全性識別碼:  \\NULL SID\r\n 帳戶名稱:  -\r\n 帳戶網域:  -\r\n 登入識別碼:  0x9769\r\n 登入 GUID:  {00000000-0000-0000-0000-000000000000}\r\n\r\n使用其認證的帳戶:\r\n 帳戶名稱:  MP0424\r\n 帳戶網域:  MPINFO.COM.TW\r\n 登入 GUID:  {00000000-0000-0000-0000-000000000000}\r\n\r\n目標伺服器:\r\n 目標伺服器名稱: MPDC19-01.mpinfo.com.tw\r\n 其他資訊: MPDC19-01.mpinfo.com.tw\r\n\r\n處理程序資訊:\r\n 處理程序識別碼:  0xbfc\r\n 處理程序名稱:  C:\\Program Files\\One Identity\\Defender\\Security Server\\DSServADE.exe\r\n\r\n網路資訊:\r\n 網路位址: -\r\n 連接埠:   -\r\n\r\n當處理程序嘗試以帳戶的明確宣告認證登入那個帳戶時，就會產生這個事件。這通常發生在批次類型的設定，例如排程工作，或是當使用…(截斷)"
+        ],
+        iocList: [
+            "192.168.10.8"
+        ]
+    },
+    {
+        id: 77,
+        title: "Azure AD Sync帳號頻繁驗證（需確認正常性）",
+        starRank: 2,
+        date: "2026-04-28",
+        dateEnd: "2026-04-28",
+        detectionCount: 22,
+        affectedSummary: "MSOL_2cd93d9077be",
+        affected: "【異常發現】MPINFO.COM.TW\\MSOL_2cd93d9077be帳號在4/28頻繁對MPDC19-02進行LDAP驗證（Event 4648），共22次，來源為192.168.10.20。\n【風險分析】MSOL_前綴帳號為Azure AD Connect服務帳號，日常同步屬正常行為。但若認證資訊遭洩露，攻擊者可利用其AD同步權限進行大規模帳號操控（DCSync攻擊）。",
+        currentStatus: "未處理",
+        assignee: null,
+        history: [],
+        desc: "MSOL_2cd93d9077be帳號頻繁對MPDC19-02發起LDAP驗證共22次，屬Azure AD與本地AD同步的正常行為，但若帳號認證資訊洩露，攻擊者可利用其AD同步權限發動DCSync攻擊。",
+        mitre: [
+            {
+                id: "T1098",
+                name: "",
+                url: "https://attack.mitre.org/techniques/T1098/"
+            }
+        ],
+        suggests: [
+            {
+                urgency: "最推薦",
+                text: "確認Azure AD Connect同步頻率設定是否正常",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "定期稽核MSOL帳號的權限範圍",
+                refs: []
+            },
+            {
+                urgency: "次推薦",
+                text: "監控MSOL帳號是否有異常的AD查詢或修改操作",
+                refs: []
+            },
+            {
+                urgency: "可選",
+                text: "確保Azure AD Connect服務帳號密碼定期輪換",
+                refs: []
+            }
+        ],
+        logs: [
+            "[2026-04-02 11:20:18] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813317547159015688\nMPINFO.COM.TW\\MSOL_2cd93d9077be: Security Microsoft Windows security auditing.: [Success Audit] 使用明確宣告的認證嘗試登入。\r\n\r\n主旨:\r\n 安全性識別碼:  MPINFO\\ADSyncMSA2cd93$\r\n 帳戶名稱:  ADSyncMSA2cd93$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x1FCCA\r\n 登入 GUID:  {6917bd66-fe87-60cd-8f59-df6509ed83f7}\r\n\r\n使用其認證的帳戶:\r\n 帳戶名稱:  MSOL_2cd93d9077be\r\n 帳戶網域:  MPINFO.COM.TW\r\n 登入 GUID:  {eb19f24f-34af-67f8-bee5-0dced5e37ae1}\r\n\r\n目標伺服器:\r\n 目標伺服器名稱: MPDC19-02.mpinfo.com.tw\r\n 其他資訊: ldap/MPDC19-02.mpinfo.com.tw/mpinfo.com.tw\r\n\r\n處理程序資訊:\r\n 處理程序識別碼:  0x12ec\r\n 處理程序名稱:  C:\\Program Files\\Microsoft Azure AD Sync\\Bin\\miiserver.exe\r\n\r\n網路資訊:\r\n 網路位址: -\r\n 連接埠:   …(截斷)",
+            "[2026-04-02 11:20:18] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813317547159015691\nMPINFO.COM.TW\\MSOL_2cd93d9077be: Security Microsoft Windows security auditing.: [Success Audit] 使用明確宣告的認證嘗試登入。\r\n\r\n主旨:\r\n 安全性識別碼:  MPINFO\\ADSyncMSA2cd93$\r\n 帳戶名稱:  ADSyncMSA2cd93$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x1FCCA\r\n 登入 GUID:  {6917bd66-fe87-60cd-8f59-df6509ed83f7}\r\n\r\n使用其認證的帳戶:\r\n 帳戶名稱:  MSOL_2cd93d9077be\r\n 帳戶網域:  MPINFO.COM.TW\r\n 登入 GUID:  {eb19f24f-34af-67f8-bee5-0dced5e37ae1}\r\n\r\n目標伺服器:\r\n 目標伺服器名稱: MPDC19-02.mpinfo.com.tw\r\n 其他資訊: ldap/MPDC19-02.mpinfo.com.tw/mpinfo.com.tw\r\n\r\n處理程序資訊:\r\n 處理程序識別碼:  0x12ec\r\n 處理程序名稱:  C:\\Program Files\\Microsoft Azure AD Sync\\Bin\\miiserver.exe\r\n\r\n網路資訊:\r\n 網路位址: -\r\n 連接埠:   …(截斷)",
+            "[2026-04-02 11:20:18] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813317547159015694\nMPINFO.COM.TW\\MSOL_2cd93d9077be: Security Microsoft Windows security auditing.: [Success Audit] 使用明確宣告的認證嘗試登入。\r\n\r\n主旨:\r\n 安全性識別碼:  MPINFO\\ADSyncMSA2cd93$\r\n 帳戶名稱:  ADSyncMSA2cd93$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x1FCCA\r\n 登入 GUID:  {6917bd66-fe87-60cd-8f59-df6509ed83f7}\r\n\r\n使用其認證的帳戶:\r\n 帳戶名稱:  MSOL_2cd93d9077be\r\n 帳戶網域:  MPINFO.COM.TW\r\n 登入 GUID:  {eb19f24f-34af-67f8-bee5-0dced5e37ae1}\r\n\r\n目標伺服器:\r\n 目標伺服器名稱: MPDC19-02.mpinfo.com.tw\r\n 其他資訊: ldap/MPDC19-02.mpinfo.com.tw/mpinfo.com.tw\r\n\r\n處理程序資訊:\r\n 處理程序識別碼:  0x12ec\r\n 處理程序名稱:  C:\\Program Files\\Microsoft Azure AD Sync\\Bin\\miiserver.exe\r\n\r\n網路資訊:\r\n 網路位址: -\r\n 連接埠:   …(截斷)",
+            "[2026-04-02 11:20:18] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813317547159015697\nMPINFO.COM.TW\\MSOL_2cd93d9077be: Security Microsoft Windows security auditing.: [Success Audit] 使用明確宣告的認證嘗試登入。\r\n\r\n主旨:\r\n 安全性識別碼:  MPINFO\\ADSyncMSA2cd93$\r\n 帳戶名稱:  ADSyncMSA2cd93$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x1FCCA\r\n 登入 GUID:  {6917bd66-fe87-60cd-8f59-df6509ed83f7}\r\n\r\n使用其認證的帳戶:\r\n 帳戶名稱:  MSOL_2cd93d9077be\r\n 帳戶網域:  MPINFO.COM.TW\r\n 登入 GUID:  {eb19f24f-34af-67f8-bee5-0dced5e37ae1}\r\n\r\n目標伺服器:\r\n 目標伺服器名稱: 4cdc8566-5cf8-45bc-b608-bb07d53ca20c\r\n 其他資訊: E3514235-4B06-11D1-AB04-00C04FC2DCD2/4cdc8566-5cf8-45bc-b608-bb07d53ca20c/mpinfo.com.tw\r\n\r\n處理程序資訊:\r\n 處理程序識別碼:  0x12ec\r\n 處理程序名稱:  C:\\Program Files\\Microsoft Az…(截斷)",
+            "[2026-04-28 13:28:59] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813346134461353449\nMPINFO.COM.TW\\MSOL_2cd93d9077be: Security Microsoft Windows security auditing.: [Success Audit] 使用明確宣告的認證嘗試登入。\r\n\r\n主旨:\r\n 安全性識別碼:  MPINFO\\ADSyncMSA2cd93$\r\n 帳戶名稱:  ADSyncMSA2cd93$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x20EEB\r\n 登入 GUID:  {1301a2c3-b78f-4359-a59e-877d390be112}\r\n\r\n使用其認證的帳戶:\r\n 帳戶名稱:  MSOL_2cd93d9077be\r\n 帳戶網域:  MPINFO.COM.TW\r\n 登入 GUID:  {00000000-0000-0000-0000-000000000000}\r\n\r\n目標伺服器:\r\n 目標伺服器名稱: MPDC19-02.mpinfo.com.tw\r\n 其他資訊: ldap/MPDC19-02.mpinfo.com.tw/mpinfo.com.tw\r\n\r\n處理程序資訊:\r\n 處理程序識別碼:  0x12c4\r\n 處理程序名稱:  C:\\Program Files\\Microsoft Azure AD Sync\\Bin\\miiserver.exe\r\n\r\n網路資訊:\r\n 網路位址: -\r\n 連接埠:   …(截斷)",
+            "[2026-04-28 13:28:59] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813346134461353451\nMPINFO.COM.TW\\MSOL_2cd93d9077be: Security Microsoft Windows security auditing.: [Success Audit] 使用明確宣告的認證嘗試登入。\r\n\r\n主旨:\r\n 安全性識別碼:  MPINFO\\ADSyncMSA2cd93$\r\n 帳戶名稱:  ADSyncMSA2cd93$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x20EEB\r\n 登入 GUID:  {1301a2c3-b78f-4359-a59e-877d390be112}\r\n\r\n使用其認證的帳戶:\r\n 帳戶名稱:  MSOL_2cd93d9077be\r\n 帳戶網域:  MPINFO.COM.TW\r\n 登入 GUID:  {00000000-0000-0000-0000-000000000000}\r\n\r\n目標伺服器:\r\n 目標伺服器名稱: MPDC19-02.mpinfo.com.tw\r\n 其他資訊: ldap/MPDC19-02.mpinfo.com.tw/mpinfo.com.tw\r\n\r\n處理程序資訊:\r\n 處理程序識別碼:  0x12c4\r\n 處理程序名稱:  C:\\Program Files\\Microsoft Azure AD Sync\\Bin\\miiserver.exe\r\n\r\n網路資訊:\r\n 網路位址: -\r\n 連接埠:   …(截斷)",
+            "[2026-04-28 13:28:59] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813346134461353453\nMPINFO.COM.TW\\MSOL_2cd93d9077be: Security Microsoft Windows security auditing.: [Success Audit] 使用明確宣告的認證嘗試登入。\r\n\r\n主旨:\r\n 安全性識別碼:  MPINFO\\ADSyncMSA2cd93$\r\n 帳戶名稱:  ADSyncMSA2cd93$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x20EEB\r\n 登入 GUID:  {1301a2c3-b78f-4359-a59e-877d390be112}\r\n\r\n使用其認證的帳戶:\r\n 帳戶名稱:  MSOL_2cd93d9077be\r\n 帳戶網域:  MPINFO.COM.TW\r\n 登入 GUID:  {00000000-0000-0000-0000-000000000000}\r\n\r\n目標伺服器:\r\n 目標伺服器名稱: MPDC19-02.mpinfo.com.tw\r\n 其他資訊: ldap/MPDC19-02.mpinfo.com.tw/mpinfo.com.tw\r\n\r\n處理程序資訊:\r\n 處理程序識別碼:  0x12c4\r\n 處理程序名稱:  C:\\Program Files\\Microsoft Azure AD Sync\\Bin\\miiserver.exe\r\n\r\n網路資訊:\r\n 網路位址: -\r\n 連接埠:   …(截斷)",
+            "[2026-04-28 13:28:59] host=mpdc19-02 program=Microsoft_Windows_security_auditing. id=813346134461353455\nMPINFO.COM.TW\\MSOL_2cd93d9077be: Security Microsoft Windows security auditing.: [Success Audit] 使用明確宣告的認證嘗試登入。\r\n\r\n主旨:\r\n 安全性識別碼:  MPINFO\\ADSyncMSA2cd93$\r\n 帳戶名稱:  ADSyncMSA2cd93$\r\n 帳戶網域:  MPINFO\r\n 登入識別碼:  0x20EEB\r\n 登入 GUID:  {1301a2c3-b78f-4359-a59e-877d390be112}\r\n\r\n使用其認證的帳戶:\r\n 帳戶名稱:  MSOL_2cd93d9077be\r\n 帳戶網域:  MPINFO.COM.TW\r\n 登入 GUID:  {00000000-0000-0000-0000-000000000000}\r\n\r\n目標伺服器:\r\n 目標伺服器名稱: MPDC19-02.mpinfo.com.tw\r\n 其他資訊: ldap/MPDC19-02.mpinfo.com.tw/mpinfo.com.tw\r\n\r\n處理程序資訊:\r\n 處理程序識別碼:  0x12c4\r\n 處理程序名稱:  C:\\Program Files\\Microsoft Azure AD Sync\\Bin\\miiserver.exe\r\n\r\n網路資訊:\r\n 網路位址: -\r\n 連接埠:   …(截斷)"
+        ],
+        iocList: [
+            "192.168.10.20"
         ]
     }
 ];

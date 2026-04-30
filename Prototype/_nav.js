@@ -20,7 +20,7 @@
             <ul id="settingSubmenu" class="nav-submenu">
                 <li class="submenu-item" onclick="location.href='fn_user.html'">帳號</li>
                 <li class="submenu-item" onclick="location.href='fn_role.html'">角色</li>
-                <li class="submenu-item" onclick="location.href='settings-ai.html'">AI夥伴管理</li>
+                <li class="submenu-item" onclick="location.href='fn_ai_partner_setting.html'">AI夥伴管理</li>
             </ul>
         </ul>
         <div style="padding:12px 25px;font-size:11px;color:#475569;border-top:1px solid #1e293b;">prototype</div>
@@ -50,7 +50,8 @@
             'fn_company_data': 'nav-companyData',
             'fn_user': 'nav-settings',
             'fn_role': 'nav-settings',
-            'settings-ai':      'nav-settings'
+            'fn_ai_partner_setting': 'nav-settings',
+            'fn_expert_setting':    'nav-settings'
         };
         const activeId = navMap[page];
         if (activeId) {
@@ -66,7 +67,8 @@
             'fn_company_data': '公司資料',
             'fn_user': '帳號',
             'fn_role': '角色',
-            'settings-ai':     '資安專家設定'
+            'fn_ai_partner_setting':'AI夥伴管理',
+            'fn_expert_setting':   '資安專家設定'
         };
         const titleEl = document.getElementById('pageTitle');
         if (titleEl && titleMap[page]) titleEl.innerText = titleMap[page];
