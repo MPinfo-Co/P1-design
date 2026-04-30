@@ -23,7 +23,6 @@
                         <tr>
                             <th>夥伴名稱</th>
                             <th>描述</th>
-                            <th>啟用狀態</th>
                             <th>執行動作</th>
                         </tr>
                     </thead>
@@ -53,13 +52,9 @@
         allPartners
             .filter(p => !keyword || p.name.toLowerCase().includes(keyword) || (p.desc || '').toLowerCase().includes(keyword))
             .forEach(p => {
-                const enabledHtml = p.enabled
-                    ? '<span style="display:inline-flex;align-items:center;gap:5px;color:#10b981;font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg> 啟用</span>'
-                    : '<span style="display:inline-flex;align-items:center;gap:5px;color:#94a3b8;font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg> 停用</span>';
                 tbody.innerHTML += '<tr>' +
                     '<td style="font-weight:600;">' + p.name + '</td>' +
                     '<td style="color:#475569;">' + (p.desc || '') + '</td>' +
-                    '<td>' + enabledHtml + '</td>' +
                     '<td>' +
                         '<button class="btn btn-outline" style="padding:4px 10px;" onclick="location.href=\'' + partnerSettingHref(p) + '\'">設定</button>' +
                     '</td>' +
