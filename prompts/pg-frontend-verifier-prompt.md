@@ -37,7 +37,7 @@ git checkout {PG_BRANCH}
 3. 對每個畫面工作項目：
    1. 讀取對應的規格 .md 文件
    2. 讀取對應的 TSX 檔案，逐欄位 / 逐功能確認規格要求是否出現
-   3. 讀取對應的 [queries目錄](P1-code/frontend/src/queries/) hook 檔案，確認 API 路徑（相對路徑）與 method 與 [Api目錄](P1-design/Spec/fn_xxx/Api/) 規格一致
+   3. 讀取對應的 [queries目錄](P1-code/frontend/src/queries/) hook 檔案，確認 API 路徑（相對路徑）與 method 與 [Api目錄](P1-design/SD/sdSpec/fn_xxx/Api/) 規格一致
    4. 若規格有「路由路徑」欄位：讀取 [App.jsx](P1-code/frontend/src/App.jsx)，確認對應路由存在且指向正確元件
    5. 若規格有「Sidebar」欄位：讀取 [Sidebar.jsx](P1-code/frontend/src/components/Layout/Sidebar.jsx)，確認對應入口存在且 path 與路由一致
 
