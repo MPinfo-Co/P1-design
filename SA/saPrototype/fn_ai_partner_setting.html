@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP-Box — AI夥伴管理</title>
+    <link rel="stylesheet" href="_style.css">
+</head>
+<body data-page="fn_ai_partner_setting">
+    <div id="appContainer" class="app-container" style="display:grid;">
+        <!-- sidebar + header 由 _nav.js 注入 -->
+        <div class="main-content">
+            <div class="card filter-bar">
+                <div class="filter-group">
+                    <label>關鍵字:</label>
+                    <input type="text" id="partnerSearchKeyword" placeholder="搜尋夥伴名稱或描述...">
+                </div>
+                <button class="btn-filter" onclick="renderPartnerTable()">套用</button>
+            </div>
+            <div class="card" style="padding:0;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>夥伴名稱</th>
+                            <th>描述</th>
+                            <th>執行動作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="partnerTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="_mockdata.js"></script>
+    <script src="_state.js"></script>
+    <script src="_nav.js"></script>
+    <script>
+    function partnerSettingHref(p) {
+        // 目前唯一夥伴=資安專家 → fn_expert_setting.html
+        // 未來其他夥伴可由 id 判斷分流
+        return p.builtin && p.name === '資安專家'
+            ? 'fn_expert_setting.html'
+            : '#';
+    }
+
+    function renderPartnerTable() {
+        const keyword = (document.getElementById('partnerSearchKeyword').value || '').toLowerCase();
+        const tbody = document.getElementById('partnerTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        allPartners
+            .filter(p => !keyword || p.name.toLowerCase().includes(keyword) || (p.desc || '').toLowerCase().includes(keyword))
+            .forEach(p => {
+                tbody.innerHTML += '<tr>' +
+                    '<td style="font-weight:600;">' + p.name + '</td>' +
+                    '<td style="color:#475569;">' + (p.desc || '') + '</td>' +
+                    '<td>' +
+                        '<button class="btn btn-outline" style="padding:4px 10px;" onclick="location.href=\'' + partnerSettingHref(p) + '\'">設定</button>' +
+                    '</td>' +
+                    '</tr>';
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', renderPartnerTable);
+    </script>
+</body>
+</html>

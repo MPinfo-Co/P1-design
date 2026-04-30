@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP-Box — 事件詳情</title>
+    <link rel="stylesheet" href="_style.css">
+</head>
+<body data-page="ai-detail">
+    <div id="appContainer" class="app-container" style="display:grid;">
+        <!-- sidebar + header 由 _nav.js 注入 -->
+        <div class="main-content detail-mode">
+            <!-- 安全事件詳情頁面 -->
+            <div id="aiIssueDetail" style="display:flex; flex-direction:column; height:calc(100vh - 110px);">
+                <!-- detailTitle 隱藏元素供 JS 使用（標題顯示已移至 header） -->
+                <span id="detailTitle" style="display:none;"></span>
+                <!-- 頂部控制列 -->
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-shrink:0;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <label style="font-size:13px; color:#475569; font-weight:600; white-space:nowrap;">處理狀態:</label>
+                        <div style="display:flex; align-items:center; gap:6px; padding:6px 12px; border:1.5px solid #e2e8f0; border-radius:6px; background:#f8fafc; min-width:100px;">
+                            <span id="detailStatusIcon" style="display:flex; align-items:center;"></span>
+                            <span id="detailStatusText" style="font-size:13px; font-weight:600; color:#1e293b;">未處理</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <label style="font-size:13px; color:#475569; font-weight:600; white-space:nowrap;">負責人員:</label>
+                        <span id="detailAssigneeText" style="font-size:13px; font-weight:600; color:#1e293b; padding:6px 12px; border:1.5px solid #e2e8f0; border-radius:6px; background:#f8fafc; min-width:80px;">未指派</span>
+                    </div>
+                    <button class="btn btn-outline" onclick="goBack()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        回上一頁
+                    </button>
+                </div>
+
+                <!-- 左右分欄主體 -->
+                <div style="display:flex; gap:20px; flex:1; overflow:hidden; min-height:0;">
+
+                    <!-- 左側：Tab 分頁 -->
+                    <div style="flex:1; display:flex; flex-direction:column; min-height:0; overflow:hidden; padding-right:4px;">
+
+                        <!-- Tab 導航 -->
+                        <div class="detail-tab-nav">
+                            <button class="detail-tab-btn active" id="tab-btn-detail" onclick="switchDetailTab('detail')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                事件詳情
+                            </button>
+                            <button class="detail-tab-btn" id="tab-btn-similar" onclick="switchDetailTab('similar')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                歷史事件
+                            </button>
+                            <button class="detail-tab-btn" id="tab-btn-diary" onclick="switchDetailTab('diary')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                                處置紀錄
+                            </button>
+                        </div>
+
+                        <!-- Tab 1：事件詳情 -->
+                        <div class="detail-tab-panel active" id="tab-panel-detail">
+                            <div class="detail-block" style="margin-bottom:16px;">
+                                <div class="detail-block-header">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2e3f6e" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                    事件摘要
+                                </div>
+                                <div class="detail-block-content" id="detailDesc"></div>
+                            </div>
+                            <div class="detail-block" style="margin-bottom:16px;">
+                                <div class="detail-block-header">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                                    建議處置方法
+                                </div>
+                                <div class="detail-block-content">
+                                    <div id="detailSuggest"></div>
+                                </div>
+                            </div>
+                            <div class="detail-block" style="margin-bottom:0;">
+                                <div class="detail-block-header">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                    關聯日誌摘要
+                                </div>
+                                <div class="detail-block-content" style="background: #f8fafc;">
+                                    <div id="detailLogsVisible"></div>
+                                    <div id="detailLogsHidden" style="display:none; margin-top:5px;"></div>
+                                    <button id="moreLogsBtn" class="btn btn-outline" style="margin-top:10px; font-size:12px; padding:4px 10px;" onclick="toggleLogs()">顯示完整關聯日誌 (More...)</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 2：處置紀錄 -->
+                        <div class="detail-tab-panel" id="tab-panel-diary">
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                <span style="font-size:14px; font-weight:700; color:#1e293b;">處置紀錄</span>
+                                <span style="font-size:11px; color:#94a3b8;">— 記錄每次處理動作與備註</span>
+                            </div>
+                            <div id="detailHistoryList" style="margin-bottom:14px;"></div>
+                            <!-- 結案說明區塊：狀態改為「已完成」時顯示 -->
+                            <div class="resolution-block" id="resolutionBlock">
+                                <div style="font-size:12px; font-weight:700; color:#166534; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    結案說明（必填）
+                                </div>
+                                <div style="font-size:11px; color:#4d7c60; margin-bottom:8px;">狀態已設為「已完成」，請填寫最終處置方式，這將作為日後相似案例的參考依據。</div>
+                                <div style="display:flex; gap:10px; margin-bottom:8px;">
+                                    <div style="flex:1;">
+                                        <label style="font-size:11px; color:#166534; font-weight:700; display:block; margin-bottom:3px;">處理人</label>
+                                        <input type="text" id="resolutionHandler" placeholder="處理人姓名" style="width:100%; box-sizing:border-box; height:32px; padding:0 8px; border:1.5px solid #86efac; border-radius:6px; font-size:13px; outline:none; background:white; color:#1e293b;">
+                                    </div>
+                                    <div style="flex:1;">
+                                        <label style="font-size:11px; color:#166534; font-weight:700; display:block; margin-bottom:3px;">處置時間</label>
+                                        <input type="datetime-local" id="resolutionTime" style="width:100%; box-sizing:border-box; height:32px; padding:0 8px; border:1.5px solid #86efac; border-radius:6px; font-size:13px; outline:none; background:white; color:#1e293b;">
+                                    </div>
+                                </div>
+                                <textarea id="resolutionText" rows="3" placeholder="例如：已隔離主機並重新安裝 OS，更新防火牆 GeoIP 規則封鎖惡意 IP，部署 NDR 監控..." style="width:100%; box-sizing:border-box; padding:8px 10px; border:1.5px solid #86efac; border-radius:6px; font-family:inherit; font-size:13px; outline:none; resize:vertical; background:white; color:#1e293b;"></textarea>
+                                <button class="btn btn-primary" style="margin-top:8px; background:#166534; font-size:12px; padding:6px 14px;" onclick="saveResolution()">儲存結案說明</button>
+                            </div>
+                            <!-- 新增記錄區 -->
+                            <div style="display:flex; gap:8px; flex-wrap:nowrap; align-items:flex-end; padding:12px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
+                                <div>
+                                    <label style="font-size:11px; color:#64748b; display:block; margin-bottom:3px;">日期</label>
+                                    <input type="datetime-local" id="historyDate" style="height:36px; padding:0 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; outline:none; box-sizing:border-box;">
+                                </div>
+                                <div style="flex:1;">
+                                    <label style="font-size:11px; color:#64748b; display:block; margin-bottom:3px;">備註</label>
+                                    <input type="text" id="historyNote" placeholder="輸入處理動作備註..." style="height:36px; width:100%; padding:0 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; outline:none; box-sizing:border-box;">
+                                </div>
+                                <div>
+                                    <label style="font-size:11px; color:#64748b; display:block; margin-bottom:3px;">變更狀態</label>
+                                    <select id="historyStatusChange" style="height:36px; padding:0 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; outline:none; box-sizing:border-box; min-width:100px;">
+                                        <option value="未處理">未處理</option>
+                                        <option value="處理中">處理中</option>
+                                        <option value="已完成">已完成</option>
+                                        <option value="擱置">擱置</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary" style="height:36px; padding:0 14px; font-size:13px;" onclick="addHistoryEntry()">新增</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 3：歷史事件 -->
+                        <div class="detail-tab-panel" id="tab-panel-similar">
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <span style="font-size:14px; font-weight:700; color:#1e293b;">歷史事件</span>
+                            </div>
+                            <div style="font-size:11px; color:#94a3b8; margin-bottom:14px; padding-left:24px;">相似度由 PRO 模型依據事件描述語意、MITRE 技術重疊度、影響設備類型自動計算，於每日分析時寫入。目前顯示為 mock 示意資料。</div>
+                            <div id="similarCasesList"></div>
+                        </div>
+
+                    </div>
+
+                    <!-- 右側：諮詢資安專家 -->
+                    <div id="detailChatPanel" style="width:360px; flex-shrink:0; display:flex; flex-direction:column; min-height:0; overflow:hidden; position:relative; transition:width 0.2s;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-shrink:0;">
+                            <div class="detail-chat-header-inner" style="font-size:13px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:6px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2e3f6e" stroke-width="2"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 13h0M15 13h0" stroke-width="3" stroke-linecap="round"/><path d="M12 2v4M2 12h2M20 12h2"/></svg>
+                                諮詢資安專家
+                            </div>
+                            <span id="detailChatToggle" onclick="toggleDetailChat()" title="收合" style="cursor:pointer; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; border:1.5px solid #cbd5e1; background:white; transition:all 0.15s; flex-shrink:0;" onmouseover="this.style.background='#eef1f8';this.style.borderColor='#2e3f6e'" onmouseout="this.style.background='white';this.style.borderColor='#cbd5e1'">
+                                <svg id="detailChatToggleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2e3f6e" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                            </span>
+                        </div>
+                        <div class="chat-container">
+                            <div class="chat-messages" id="chatMsgs"></div>
+                            <div class="chat-input-area">
+                                <input type="text" id="chatInput" placeholder="請針對此事件提出疑問..." onkeypress="if(event.key==='Enter') sendChat()">
+                                <button class="send-icon-btn" onclick="sendChat()">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="_mockdata.js"></script>
+    <script src="_state.js"></script>
+    <script src="_nav.js"></script>
+    <script>
+    // ─── 導航 ───
+    function goBack() { location.href = 'events.html'; }
+
+    // ─── 初始化：從 URL 讀取 id ───
+    const urlId = parseInt(new URLSearchParams(location.search).get('id'));
+    let currentDetailId = urlId || null;
+    let detailChatVisible = true;
+    let chatHistory = [];
+
+    // ─── Helpers ───
+    const starColorMap = { 5:{color:'#b91c1c'}, 4:{color:'#c2410c'}, 3:{color:'#b45309'}, 2:{color:'#1e40af'}, 1:{color:'#475569'} };
+
+    function starHtml(starRank) {
+        const c = starColorMap[starRank] || starColorMap[1];
+        return '<span style="white-space:nowrap;"><span style="color:' + c.color + ';font-size:15px;letter-spacing:1px;">' + '★'.repeat(starRank) + '</span><span style="color:#e2e8f0;font-size:15px;letter-spacing:1px;">' + '★'.repeat(5-starRank) + '</span></span>';
+    }
+
+    function statusIconHtml(status) {
+        const icons = {
+            '未處理': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+            '處理中': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
+            '已完成': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+            '擱置':   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+        };
+        return icons[status] || icons['擱置'];
+    }
+
+    function formatDesc(text) {
+        if (!text) return '';
+        const segments = text.split(/(?=【)/);
+        return segments.map(function(seg) {
+            if (!seg) return '';
+            const m = seg.match(/^【([^】]+)】([\s\S]*)$/);
+            if (m) {
+                const title = m[1];
+                const body = m[2].trim();
+                return '<div style="margin-bottom:12px;">' +
+                    '<div style="font-weight:800;font-size:13px;color:#1e293b;margin-bottom:4px;letter-spacing:0.3px;">【' + title + '】</div>' +
+                    '<div style="padding-left:14px;border-left:2px solid #e2e8f0;color:#334155;font-size:13px;line-height:1.75;white-space:pre-wrap;">' + body + '</div>' +
+                    '</div>';
+            }
+            return '<div style="font-size:13px;color:#334155;line-height:1.75;margin-bottom:8px;white-space:pre-wrap;">' + seg.trim() + '</div>';
+        }).join('');
+    }
+
+    // ─── showDetail ───
+    function showDetail(id) {
+        const item = allIssues.find(x => x.id === id);
+        if (!item) { goBack(); return; }
+        currentDetailId = id;
+        document.getElementById('detailTitle').innerText = item.title;
+        const summaryText = [item.desc, item.affected].filter(Boolean).join('\n\n');
+        document.getElementById('detailDesc').innerHTML = formatDesc(summaryText);
+        updateDetailHeader(item);
+
+        // Suggests
+        const suggestDiv = document.getElementById('detailSuggest');
+        suggestDiv.innerHTML = '';
+        item.suggests.forEach(function(s, idx) {
+            const refs = s.refs || [];
+            const urg = s.urgency || '';
+            const urgCell = urg
+                ? '<div style="flex-shrink:0;width:58px;padding-top:2px;"><span class="urgency-tag urgency-' + urg + '">' + urg + '</span></div>'
+                : '<div style="flex-shrink:0;width:58px;"></div>';
+            let tagsHtml = '';
+            if (refs.length > 0) {
+                tagsHtml = '<span style="display:inline-flex;flex-wrap:wrap;gap:4px;margin-left:6px;vertical-align:middle;">' +
+                    refs.map(function(r) {
+                        const tagStyle = 'background:#f8f8f8;border:1px solid #d1d5db;color:#374151;';
+                        const nameHtml = (r.type === 'mitre' && r.name)
+                            ? '<span style="font-size:10px;color:#9ca3af;margin-left:2px;">'+r.name+'</span>' : '';
+                        return '<a href="' + r.url + '" target="_blank" style="display:inline-flex;align-items:center;gap:2px;padding:2px 7px;border-radius:4px;text-decoration:none;font-size:11px;font-weight:700;' + tagStyle + '">' +
+                            r.label + nameHtml +
+                            '<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:2px;opacity:0.5;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>';
+                    }).join('') + '</span>';
+            }
+            suggestDiv.innerHTML +=
+                '<div style="display:flex;gap:0;align-items:flex-start;padding:9px 0;border-bottom:1px solid #f1f5f9;">' +
+                    urgCell +
+                    '<div style="flex:1;min-width:0;display:flex;align-items:flex-start;gap:10px;">' +
+                        '<div style="flex:1;font-size:13px;color:#334155;line-height:1.65;padding-top:1px;">' + s.text + ' ' + tagsHtml + '</div>' +
+                        '<div style="flex-shrink:0;padding-top:1px;">' +
+                        '<button class="suggest-step-btn" onclick="askSuggestStep(' + item.id + ',' + idx + ')">' +
+                        '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px;"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 13h0M15 13h0" stroke-width="3" stroke-linecap="round"/><path d="M12 2v4M2 12h2M20 12h2"/></svg>' +
+                        '參考步驟</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+        });
+
+        // Logs
+        const visDiv = document.getElementById('detailLogsVisible');
+        const hidDiv = document.getElementById('detailLogsHidden');
+        visDiv.innerHTML = ''; hidDiv.innerHTML = ''; hidDiv.style.display = 'none';
+        document.getElementById('moreLogsBtn').innerText = '顯示完整關聯日誌 (More...)';
+        document.getElementById('moreLogsBtn').style.display = item.logs.length > 3 ? 'inline-block' : 'none';
+        item.logs.forEach(function(log, idx) {
+            const logEl = '<div class="log-box">' + log + '</div>';
+            if (idx < 3) visDiv.innerHTML += logEl;
+            else hidDiv.innerHTML += logEl;
+        });
+
+        // History
+        renderHistoryList(item);
+        var _statusSel = document.getElementById('historyStatusChange');
+        if (_statusSel) _statusSel.value = item.currentStatus;
+
+        // Chat
+        document.getElementById('chatMsgs').innerHTML = '';
+        chatHistory = [];
+        addMsg('assistant', '您好，有任何關於此安全事件的疑問，例如詳細處理步驟、技術背景或風險評估，都可以直接詢問。');
+        switchDetailTab('detail');
+
+        // 重置右側面板顯示
+        detailChatVisible = true;
+        const _dcp = document.getElementById('detailChatPanel');
+        _dcp.style.width = '360px';
+        _dcp.style.overflow = '';
+        _dcp.querySelectorAll('.chat-container, .detail-chat-header-inner').forEach(function(el){ el.style.display=''; });
+        var _toggleIcon = document.getElementById('detailChatToggleIcon');
+        if (_toggleIcon) _toggleIcon.innerHTML = '<polyline points="15 18 9 12 15 6"/>';
+        var _toggleBtn = document.getElementById('detailChatToggle');
+        if (_toggleBtn) _toggleBtn.title = '收合';
+
+        // 重置結案說明
+        const resBlock = document.getElementById('resolutionBlock');
+        if (resBlock) resBlock.classList.remove('show');
+        const resText = document.getElementById('resolutionText');
+        if (resText) resText.value = item.resolution || '';
+    }
+
+    function updateDetailHeader(item) {
+        var statusEl = document.getElementById('detailStatusText');
+        var iconEl = document.getElementById('detailStatusIcon');
+        var assigneeEl = document.getElementById('detailAssigneeText');
+        if (statusEl) statusEl.textContent = item.currentStatus;
+        if (iconEl) iconEl.innerHTML = statusIconHtml(item.currentStatus);
+        var assigneeName = '未指派';
+        if (item.history && item.history.length > 0) {
+            assigneeName = item.history[item.history.length - 1].user;
+        }
+        if (assigneeEl) assigneeEl.textContent = assigneeName;
+    }
+
+    function toggleDetailChat() {
+        var panel = document.getElementById('detailChatPanel');
+        var toggleIcon = document.getElementById('detailChatToggleIcon');
+        var toggleBtn = document.getElementById('detailChatToggle');
+        detailChatVisible = !detailChatVisible;
+        if (detailChatVisible) {
+            panel.style.width = '360px';
+            panel.style.overflow = '';
+            panel.querySelectorAll('.chat-container, .detail-chat-header-inner').forEach(function(el){ el.style.display=''; });
+            if (toggleIcon) toggleIcon.innerHTML = '<polyline points="15 18 9 12 15 6"/>';
+            if (toggleBtn) toggleBtn.title = '收合';
+        } else {
+            panel.style.width = '40px';
+            panel.style.overflow = 'hidden';
+            panel.querySelectorAll('.chat-container, .detail-chat-header-inner').forEach(function(el){ el.style.display='none'; });
+            if (toggleIcon) toggleIcon.innerHTML = '<polyline points="9 18 15 12 9 6"/>';
+            if (toggleBtn) toggleBtn.title = '展開諮詢資安專家';
+        }
+    }
+
+    function addHistoryEntry() {
+        var d = document.getElementById('historyDate').value;
+        var n = document.getElementById('historyNote').value.trim();
+        var statusChange = document.getElementById('historyStatusChange').value;
+        if (!n) { alert('請輸入備註內容'); return; }
+        if (currentDetailId) {
+            var item = allIssues.find(function(x) { return x.id === currentDetailId; });
+            if (item) {
+                if (!item.history) item.history = [];
+                var now = new Date();
+                var defaultDT = now.toISOString().slice(0,16).replace('T',' ');
+                var displayDT = d ? d.replace('T',' ') : defaultDT;
+                var user = getUser();
+                var who = user ? user.name : '系統';
+                var noteText = n;
+                var actualStatusChange = (statusChange && statusChange !== item.currentStatus) ? statusChange : null;
+                if (actualStatusChange) {
+                    noteText = noteText + '　【狀態變更為：' + actualStatusChange + '】';
+                    item.currentStatus = actualStatusChange;
+                    // 若狀態變為已完成，顯示結案說明欄
+                    if (actualStatusChange === '已完成') {
+                        var resBlock = document.getElementById('resolutionBlock');
+                        if (resBlock) resBlock.classList.add('show');
+                    }
+                }
+                item.history.push({ date: displayDT, user: who, note: noteText, statusChange: actualStatusChange });
+                renderHistoryList(item);
+                updateDetailHeader(item);
+                document.getElementById('historyNote').value = '';
+                document.getElementById('historyStatusChange').value = item.currentStatus;
+            }
+        }
+    }
+
+    function deleteHistoryEntry(idx) {
+        if (!confirm('確定要刪除此筆紀錄？')) return;
+        var item = allIssues.find(function(x) { return x.id === currentDetailId; });
+        if (!item || !item.history) return;
+        item.history.splice(idx, 1);
+        var lastStatusChange = null;
+        for (var i = item.history.length - 1; i >= 0; i--) {
+            if (item.history[i].statusChange) { lastStatusChange = item.history[i].statusChange; break; }
+        }
+        if (lastStatusChange) {
+            item.currentStatus = lastStatusChange;
+        } else if (item.history.length > 0) {
+            item.currentStatus = '處理中';
+        } else {
+            item.currentStatus = '未處理';
+        }
+        renderHistoryList(item);
+        updateDetailHeader(item);
+        var _sel = document.getElementById('historyStatusChange');
+        if (_sel) _sel.value = item.currentStatus;
+    }
+
+    function renderHistoryList(item) {
+        var el = document.getElementById('detailHistoryList');
+        if (!el) return;
+        if (!item.history || item.history.length === 0) {
+            el.innerHTML = '<div style="font-size:13px;color:#94a3b8;padding:4px 0;">（尚無處置紀錄）</div>';
+            return;
+        }
+        el.innerHTML = item.history.map(function(h, idx) {
+            var statusBadge = '';
+            if (h.statusChange) {
+                var badgeColor = h.statusChange === '已完成' ? 'color:#166534;background:#f0fdf4;border:1px solid #bbf7d0;' :
+                                 h.statusChange === '處理中' ? 'color:#b45309;background:#fffbeb;border:1px solid #fde68a;' :
+                                 h.statusChange === '擱置' ? 'color:#475569;background:#f8fafc;border:1px solid #cbd5e1;' : '';
+                statusBadge = '<span style="font-size:11px;font-weight:600;padding:1px 6px;border-radius:3px;margin-left:6px;' + badgeColor + '">' + h.statusChange + '</span>';
+            }
+            return '<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid #f1f5f9;">' +
+                '<span style="font-size:11px;color:#94a3b8;white-space:nowrap;min-width:110px;padding-top:1px;">' + h.date + '</span>' +
+                '<span style="font-size:12px;font-weight:600;color:#2e3f6e;white-space:nowrap;">' + h.user + '</span>' +
+                '<span style="font-size:13px;color:#334155;flex:1;">' + h.note + statusBadge + '</span>' +
+                '<span onclick="deleteHistoryEntry(' + idx + ')" style="cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:4px;color:#94a3b8;transition:all 0.15s;" onmouseover="this.style.color=\'#ef4444\';this.style.background=\'#fef2f2\'" onmouseout="this.style.color=\'#94a3b8\';this.style.background=\'transparent\'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>' +
+            '</div>';
+        }).join('');
+    }
+
+    function saveResolution() {
+        var text = document.getElementById('resolutionText').value.trim();
+        if (!text) { alert('請填寫結案說明'); return; }
+        var item = allIssues.find(function(x) { return x.id === currentDetailId; });
+        if (!item) return;
+        item.resolution = text;
+        var handler = document.getElementById('resolutionHandler').value.trim();
+        var time = document.getElementById('resolutionTime').value;
+        if (handler) item.resolvedBy = handler;
+        if (time) item.resolvedAt = time.replace('T', ' ');
+        alert('結案說明已儲存。');
+        document.getElementById('resolutionBlock').classList.remove('show');
+    }
+
+    function toggleLogs() {
+        const hid = document.getElementById('detailLogsHidden');
+        const btn = document.getElementById('moreLogsBtn');
+        if (hid.style.display === 'none') { hid.style.display = 'block'; btn.innerText = 'Less...'; }
+        else { hid.style.display = 'none'; btn.innerText = 'More...'; }
+    }
+
+    function addMsg(role, content) {
+        const div = document.createElement('div');
+        div.className = 'message ' + role;
+        div.innerText = content;
+        document.getElementById('chatMsgs').appendChild(div);
+        document.getElementById('chatMsgs').scrollTop = document.getElementById('chatMsgs').scrollHeight;
+    }
+
+    function getMockReply(userMsg, item) {
+        if (!item) {
+            const highP = allIssues.filter(x => x.starRank >= 4 && x.currentStatus === '未處理');
+            const criticals = allIssues.filter(x => x.starRank === 5);
+            const sorted = [...allIssues].filter(x => x.currentStatus === '未處理').sort((a,b) => b.starRank - a.starRank);
+            const topItems = sorted.slice(0, 4).map((x, idx) => (idx+1) + '. Issue #' + x.id + '（' + '★'.repeat(x.starRank) + '）' + x.title).join('\n');
+            return '【全局資安態勢摘要】\n\n目前清單共 ' + allIssues.length + ' 筆異常事件：\n‣ 最高危（5星）：' + criticals.length + ' 筆\n‣ 高優先未處理（4星以上）：' + highP.length + ' 筆\n\n【建議優先處置順序】\n' + topItems;
+        }
+        const kb = mockKnowledge[item.id];
+        if (!kb) return '關於「' + item.title + '」，目前無詳細分析資料，請查看事件詳情頁的建議處置方法。';
+        const msg = userMsg.toLowerCase();
+        if (msg.includes('摘要') || msg.includes('整體') || msg.includes('summary') || msg.includes('overview')) return kb.摘要;
+        if (msg.includes('ioc') || msg.includes('發現') || msg.includes('指標') || msg.includes('indicator') || msg.includes('來源')) return kb.發現;
+        if (msg.includes('說明') || msg.includes('原理') || msg.includes('技術') || msg.includes('背景') || msg.includes('什麼是') || msg.includes('補充')) return kb.說明;
+        if (msg.includes('修復') || msg.includes('處置') || msg.includes('修補') || msg.includes('fix') || msg.includes('remediat') || msg.includes('建議')) return kb.修復;
+        if (msg.includes('步驟') || msg.includes('指令') || msg.includes('command') || msg.includes('cli') || msg.includes('執行') || msg.includes('操作')) {
+            const stepKeys = Object.keys(kb.步驟前綴);
+            for (const k of stepKeys) { if (kb.步驟前綴[k]) return kb.步驟前綴[k]; }
+        }
+        return kb.摘要 + '\n\n💡 您可以繼續詢問：整體摘要、相關 IOC 發現、技術背景說明、修復建議、或具體操作步驟。';
+    }
+
+    function getQuickReply(type, item) {
+        if (!item) return getMockReply(type, null);
+        const kb = mockKnowledge[item.id];
+        if (!kb) return '關於此事件的' + type + '，請參考事件詳情頁的說明。';
+        const map = { '整體摘要': kb.摘要, '相關發現': kb.發現, '補充說明': kb.說明, '修復建議': kb.修復 };
+        return map[type] || kb.摘要;
+    }
+
+    function getStepReply(item, stepIdx) {
+        const kb = mockKnowledge[item.id];
+        if (kb && kb.步驟前綴[stepIdx]) return kb.步驟前綴[stepIdx];
+        const step = (item.suggests[stepIdx] || {}).text || '';
+        return '【參考步驟 ' + (stepIdx + 1) + ' — 詳細說明】\n\n' + step + '\n\n【通用執行程序】\n\n1. 在進行任何操作前，先記錄目前系統狀態（截圖/日誌備份）\n2. 在測試環境驗證指令後，再套用至生產環境\n3. 每個步驟完成後，記錄於處置紀錄（時間、操作人員、結果）\n4. 若操作影響業務服務，需先取得主管授權並通知相關部門\n\n如需更具體的操作指令，請告訴我您使用的設備型號與版本。';
+    }
+
+    function sendChat() {
+        const input = document.getElementById('chatInput');
+        if (!input.value.trim()) return;
+        const userMsg = input.value.trim();
+        addMsg('user', userMsg);
+        input.value = '';
+        chatHistory.push({ role: 'user', content: userMsg });
+        const item = currentDetailId ? allIssues.find(function(x) { return x.id === currentDetailId; }) : null;
+        const typingId = 'typing-' + Date.now();
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message assistant';
+        typingDiv.id = typingId;
+        typingDiv.innerHTML = '<span style="opacity:0.5;font-style:italic;">資安專家分析中…</span>';
+        const chatMsgsEl = document.getElementById('chatMsgs');
+        chatMsgsEl.appendChild(typingDiv);
+        chatMsgsEl.scrollTop = chatMsgsEl.scrollHeight;
+        setTimeout(function() {
+            const reply = getMockReply(userMsg, item);
+            document.getElementById(typingId).innerText = reply;
+            chatHistory.push({ role: 'assistant', content: reply });
+            chatMsgsEl.scrollTop = chatMsgsEl.scrollHeight;
+        }, 400);
+    }
+
+    function switchDetailTab(tab) {
+        ['detail', 'diary', 'similar'].forEach(function(t) {
+            document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
+            document.getElementById('tab-panel-' + t).classList.toggle('active', t === tab);
+        });
+        if (tab === 'similar') renderSimilarCases(currentDetailId);
+    }
+
+    function renderSimilarCases(id) {
+        const container = document.getElementById('similarCasesList');
+        if (!container) return;
+        const cases = similarCasesData[id] || [];
+        if (cases.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:30px 0; color:#94a3b8; font-size:13px;">' +
+                '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:10px; display:block; margin-left:auto; margin-right:auto;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+                '尚無相似歷史案例記錄</div>';
+            return;
+        }
+        container.innerHTML = cases.map(function(c) {
+            const pct = c.similarity;
+            const pctClass = pct >= 85 ? 'similar-pct-high' : pct >= 70 ? 'similar-pct-med' : 'similar-pct-low';
+            const outcomeClass = c.outcome === '已完成' ? 'outcome-resolved' : c.outcome === '擱置' ? 'outcome-shelved' : 'outcome-mitigated';
+            return '<div class="similar-case-card">' +
+                '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:8px;">' +
+                    '<div><div style="font-size:13px; font-weight:700; color:#1e293b; margin-bottom:3px;">' + c.title + '</div>' +
+                    '<div style="font-size:11px; color:#94a3b8;">' + c.date + '</div></div>' +
+                    '<span class="similar-pct ' + pctClass + '">相似度 ' + pct + '%</span>' +
+                '</div>' +
+                '<div style="font-size:13px; color:#475569; line-height:1.6; margin-bottom:8px;">' + c.summary + '</div>' +
+                '<div style="background:#f8fafc; border-radius:6px; padding:8px 10px; border:1px solid #f1f5f9;">' +
+                    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">' +
+                        '<span style="font-size:11px; font-weight:700; color:#64748b;">最終處置方式</span>' +
+                        (c.resolvedAt ? '<span style="font-size:10px;color:#94a3b8;">🕐 ' + c.resolvedAt + '</span>' : '') +
+                    '</div>' +
+                    '<div style="font-size:12px; color:#334155; line-height:1.5;">' + c.resolution + '</div>' +
+                    (c.resolvedBy ? '<div style="font-size:11px;color:#64748b;margin-top:4px;">處理人：' + c.resolvedBy + '</div>' : '') +
+                '</div>' +
+                '<div style="margin-top:8px;"><span class="outcome-tag ' + outcomeClass + '">' + c.outcome + '</span></div>' +
+            '</div>';
+        }).join('');
+    }
+
+    function askSuggestStep(issueId, stepIdx) {
+        const item = allIssues.find(function(x) { return x.id === issueId; });
+        if (!item) return;
+        const userMsg = '請說明「' + (item.suggests[stepIdx] || {}).text + '」的詳細操作步驟';
+        addMsg('user', userMsg);
+        chatHistory.push({ role: 'user', content: userMsg });
+        const typingId = 'typing-' + Date.now();
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message assistant';
+        typingDiv.id = typingId;
+        typingDiv.innerHTML = '<span style="opacity:0.5;font-style:italic;">資安專家分析中…</span>';
+        const chatMsgsEl = document.getElementById('chatMsgs');
+        chatMsgsEl.appendChild(typingDiv);
+        chatMsgsEl.scrollTop = chatMsgsEl.scrollHeight;
+        setTimeout(function() {
+            const reply = getStepReply(item, stepIdx);
+            document.getElementById(typingId).innerText = reply;
+            chatHistory.push({ role: 'assistant', content: reply });
+            chatMsgsEl.scrollTop = chatMsgsEl.scrollHeight;
+        }, 400);
+    }
+
+    function sendQuickChat(type) {
+        const item = currentDetailId ? allIssues.find(function(x) { return x.id === currentDetailId; }) : null;
+        const labelMap = {'整體摘要':'整體事件摘要','相關發現':'IOC 與相關發現','補充說明':'技術背景補充','修復建議':'完整修復建議'};
+        const userMsg = '【' + (labelMap[type]||type) + '】';
+        addMsg('user', userMsg);
+        chatHistory.push({ role: 'user', content: userMsg });
+        const typingId = 'typing-' + Date.now();
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message assistant';
+        typingDiv.id = typingId;
+        typingDiv.innerHTML = '<span style="opacity:0.5;font-style:italic;">資安專家分析中…</span>';
+        const chatMsgsEl = document.getElementById('chatMsgs');
+        chatMsgsEl.appendChild(typingDiv);
+        chatMsgsEl.scrollTop = chatMsgsEl.scrollHeight;
+        setTimeout(function() {
+            const reply = getQuickReply(type, item);
+            document.getElementById(typingId).innerText = reply;
+            chatHistory.push({ role: 'assistant', content: reply });
+            chatMsgsEl.scrollTop = chatMsgsEl.scrollHeight;
+        }, 400);
+    }
+
+    // ─── 頁面啟動 ───
+    if (currentDetailId) {
+        showDetail(currentDetailId);
+    } else {
+        goBack();
+    }
+    </script>
+</body>
+</html>

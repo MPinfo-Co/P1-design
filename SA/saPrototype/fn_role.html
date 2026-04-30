@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP-Box — 角色管理</title>
+    <link rel="stylesheet" href="_style.css">
+</head>
+<body data-page="fn_role">
+    <div id="appContainer" class="app-container" style="display:grid;">
+        <!-- sidebar + header 由 _nav.js 注入 -->
+        <div class="main-content">
+            <!-- ===== SECTION: 查詢畫面 #roleList ===== -->
+            <div id="roleList">
+            <div class="card filter-bar">
+                <div class="filter-group">
+                    <label>關鍵字搜尋:</label>
+                    <input type="text" id="roleSearchKeyword" placeholder="搜尋角色名稱...">
+                </div>
+                <button class="btn-filter" onclick="renderRoleTable()">套用</button>
+                <button class="btn btn-primary" style="margin-left:auto" onclick="openRoleModal('add')">＋ 新增角色</button>
+            </div>
+            <div class="card" style="padding:0;">
+                <table class="table">
+                    <thead>
+                        <tr><th>角色名稱</th><th>使用者</th><th>執行動作</th></tr>
+                    </thead>
+                    <tbody id="roleTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+            </div><!-- end #roleList -->
+    </div>
+
+    <!-- ===== SECTION: 角色表單 Modal #roleModal ===== -->
+    <div id="roleModal" class="modal">
+        <div class="modal-content" style="max-width:500px; max-height:90vh; display:flex; flex-direction:column;">
+            <h3 id="rModalTitle" style="margin-bottom:16px; flex-shrink:0; color:#1e293b;">角色設定</h3>
+            <div style="overflow-y:auto; flex:1; padding-right:4px; display:flex; flex-direction:column; gap:16px;">
+                <!-- 角色名稱 -->
+                <div class="input-group" style="margin-bottom:0;">
+                    <label style="font-weight:600; font-size:14px; color:#1e293b;">角色名稱</label>
+                    <input type="text" id="r_name" style="margin-top:6px;">
+                </div>
+                <!-- 成員 -->
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <label style="font-weight:600; font-size:14px; color:#1e293b;">成員</label>
+                        <button type="button" class="btn btn-outline" style="padding:3px 10px; font-size:12px;" onclick="toggleAllRoleUsers()">全選</button>
+                    </div>
+                    <div id="r_users_checks" style="border:1px solid #e2e8f0; border-radius:8px; padding:4px; background:#f8fafc; max-height:110px; overflow-y:auto;"></div>
+                </div>
+                <!-- 功能權限 -->
+                <div style="padding:14px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
+                    <label style="font-weight:700; display:block; margin-bottom:12px; color:#1e293b; font-size:14px;">功能權限</label>
+                    <label class="permission-item" style="display:flex; align-items:center; gap:10px; padding:8px; border-radius:6px; background:white; border:1px solid #e2e8f0; margin-bottom:8px;">
+                        <input type="checkbox" id="p_manage_accounts" style="width:16px;height:16px;accent-color:#2e3f6e;cursor:pointer;">
+                        <span><strong style="display:block;font-size:13px;">使用者管理</strong><small style="color:#64748b;">可新增、修改、刪除使用者</small></span>
+                    </label>
+                    <label class="permission-item" style="display:flex; align-items:center; gap:10px; padding:8px; border-radius:6px; background:white; border:1px solid #e2e8f0;">
+                        <input type="checkbox" id="p_manage_roles" style="width:16px;height:16px;accent-color:#2e3f6e;cursor:pointer;">
+                        <span><strong style="display:block;font-size:13px;">角色管理</strong><small style="color:#64748b;">可新增、修改、刪除角色與權限</small></span>
+                    </label>
+                </div>
+
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; flex-shrink:0; padding-top:15px; border-top:1px solid #e2e8f0;">
+                <button class="btn btn-outline" onclick="closeModal('roleModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveRole()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="_mockdata.js"></script>
+    <script src="_state.js"></script>
+    <script src="_nav.js"></script>
+    <script>
+    let currentEditingRoleId = null;
+
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function toggleAllRoles() { const checks=document.querySelectorAll('.role-check'); const all=Array.from(checks).every(cb=>cb.checked); checks.forEach(cb=>cb.checked=!all); }
+    function toggleAllRoleUsers() { const checks=document.querySelectorAll('.role-user-check'); const all=Array.from(checks).every(cb=>cb.checked); checks.forEach(cb=>cb.checked=!all); }
+    function renderRoleTable() {
+        const keyword = document.getElementById('roleSearchKeyword').value.toLowerCase();
+        const tbody = document.getElementById('roleTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        allRoles.filter(r => r.name.toLowerCase().includes(keyword)).forEach(r => {
+            const usersText = allUsers.filter(u => (u.roles || []).includes(r.name)).map(u => u.name).join(', ') || '無';
+            tbody.innerHTML += '<tr>' +
+                '<td style="font-weight:600;">' + r.name + '</td>' +
+                '<td>' + usersText + '</td>' +
+                '<td>' +
+                    '<button class="btn btn-outline" style="padding:4px 8px;" onclick="prepareEditRole(' + r.id + ')">修改</button> ' +
+                    '<button class="btn btn-outline" style="padding:4px 8px; color:#ef4444; border-color:#fca5a5;" onclick="deleteRole(' + r.id + ')">刪除</button>' +
+                '</td></tr>';
+        });
+    }
+
+    function renderRoleUserChecks(selectedUsers) {
+        const container = document.getElementById('r_users_checks');
+        if (!container) return;
+        container.innerHTML = '';
+        allUsers.forEach(u => {
+            const checked = selectedUsers && selectedUsers.includes(u.id);
+            container.innerHTML += '<label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; cursor:pointer; background:white; margin-bottom:4px; border:1px solid #e2e8f0;">' +
+                '<input type="checkbox" class="role-user-check" value="' + u.id + '"' + (checked ? ' checked' : '') + ' style="width:15px;height:15px;accent-color:#2e3f6e;">' +
+                '<span style="font-size:13px;">' + u.name + '</span>' +
+                '<span style="font-size:11px; color:#94a3b8;">' + u.email + '</span>' +
+                '</label>';
+        });
+    }
+
+    function openRoleModal(type) {
+        if (type === 'add') {
+            currentEditingRoleId = null;
+            document.getElementById('rModalTitle').innerText = '新增角色';
+            document.getElementById('r_name').value = '';
+            document.getElementById('p_manage_accounts').checked = false;
+            document.getElementById('p_manage_roles').checked = false;
+            renderRoleUserChecks([]);
+            document.getElementById('roleModal').style.display = 'flex';
+        }
+    }
+
+    function prepareEditRole(id) {
+        const r = allRoles.find(role => role.id === id);
+        if (!r) return;
+        currentEditingRoleId = id;
+        document.getElementById('rModalTitle').innerText = '編輯角色';
+        document.getElementById('r_name').value = r.name;
+        document.getElementById('p_manage_accounts').checked = r.canManageAccounts || false;
+        document.getElementById('p_manage_roles').checked = r.canManageRoles || false;
+        const currentMembers = allUsers.filter(u => (u.roles || []).includes(r.name)).map(u => u.id);
+        renderRoleUserChecks(currentMembers);
+        document.getElementById('roleModal').style.display = 'flex';
+    }
+
+    function saveRole() {
+        const name = document.getElementById('r_name').value;
+        const canManageAccounts = document.getElementById('p_manage_accounts').checked;
+        const canManageRoles = document.getElementById('p_manage_roles').checked;
+        if (!name) { alert('請輸入角色名稱'); return; }
+        const selectedUserIds = Array.from(document.querySelectorAll('.role-user-check:checked')).map(cb => parseInt(cb.value));
+        let oldName = null;
+        if (currentEditingRoleId) {
+            const idx = allRoles.findIndex(r => r.id === currentEditingRoleId);
+            oldName = allRoles[idx].name;
+            allRoles[idx] = { ...allRoles[idx], name, canManageAccounts, canManageRoles };
+            currentEditingRoleId = null;
+        } else {
+            allRoles.push({ id: Date.now(), name, canManageAccounts, canManageRoles });
+        }
+        allUsers.forEach(u => {
+            let roles = (u.roles || []).filter(r => r !== (oldName || name));
+            if (selectedUserIds.includes(u.id)) roles.push(name);
+            u.roles = roles;
+        });
+        closeModal('roleModal');
+        renderRoleTable();
+    }
+
+    let pendingDeleteRoleId = null;
+
+    function deleteRole(id) {
+        var r = allRoles.find(function(x){ return x.id === id; });
+        if (!r) return;
+        pendingDeleteRoleId = id;
+        document.getElementById('deleteRoleName').textContent = r.name;
+        document.getElementById('deleteRoleModal').style.display = 'flex';
+    }
+
+    function closeDeleteRoleModal() {
+        pendingDeleteRoleId = null;
+        document.getElementById('deleteRoleModal').style.display = 'none';
+    }
+
+    function confirmDeleteRole() {
+        if (pendingDeleteRoleId == null) return;
+        var id = pendingDeleteRoleId;
+        allRoles = allRoles.filter(function(r) { return r.id !== id; });
+        renderRoleTable();
+        closeDeleteRoleModal();
+    }
+
+    document.addEventListener('DOMContentLoaded', renderRoleTable);
+    </script>
+
+    <!-- 自訂刪除確認 modal -->
+    <div id="deleteRoleModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:420px;">
+            <h3 style="color:#b91c1c; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                確認刪除角色
+            </h3>
+            <p style="font-size:13px; color:#475569; line-height:1.6; margin-bottom:18px;">
+                確定要刪除角色「<strong id="deleteRoleName" style="color:#1e293b;"></strong>」嗎？此動作無法復原，且會解除該角色與使用者、夥伴、KB 的所有綁定。
+            </p>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeDeleteRoleModal()">取消</button>
+                <button class="btn btn-primary" style="background:#b91c1c;" onclick="confirmDeleteRole()">確認刪除</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP-Box — AI夥伴</title>
+    <link rel="stylesheet" href="_style.css">
+</head>
+<body data-page="ai-partner">
+    <div id="appContainer" class="app-container" style="display:grid;">
+        <!-- sidebar + header 由 _nav.js 注入 -->
+        <div class="main-content">
+            <div id="aiSelector">
+                <div class="card filter-bar" style="margin-bottom:15px;">
+                    <div class="filter-group">
+                        <label>關鍵字搜尋:</label>
+                        <input type="text" id="aiPartnerSearchKeyword" placeholder="搜尋 AI 夥伴名稱或說明..." oninput="filterAiPartnerCards()">
+                    </div>
+                </div>
+                <div class="ai-grid" id="aiPartnerCardGrid">
+                    <div class="ai-card" onclick="location.href='events.html'">
+                        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                        <h3 style="color:#1e293b;">資安專家<span class="badge-builtin">預設</span></h3>
+                        <p style="color:#64748b;font-size:13px;margin-top:10px;">解析防火牆與系統日誌，自動偵測安全事件並提供優先級評估、處置建議與歷程追蹤。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="_mockdata.js"></script>
+    <script src="_state.js"></script>
+    <script src="_nav.js"></script>
+    <script>
+    function filterAiPartnerCards() {
+        var kw = (document.getElementById('aiPartnerSearchKeyword').value || '').toLowerCase().trim();
+        document.querySelectorAll('#aiPartnerCardGrid .ai-card').forEach(function(card) {
+            card.style.display = (!kw || card.textContent.toLowerCase().includes(kw)) ? '' : 'none';
+        });
+    }
+    </script>
+</body>
+</html>

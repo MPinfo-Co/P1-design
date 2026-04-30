@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP-Box — 資安專家設定</title>
+    <link rel="stylesheet" href="_style.css">
+</head>
+<body data-page="fn_expert_setting">
+    <div id="appContainer" class="app-container" style="display:grid;">
+        <!-- sidebar + header 由 _nav.js 注入 -->
+        <div class="main-content">
+
+            <!-- 排程 -->
+            <div class="card" style="margin-bottom:18px;">
+                <h3 style="font-size:15px; color:#1e293b; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #e2e8f0;">排程</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                    <div class="input-group" style="margin-bottom:0;">
+                        <label style="font-weight:700;">觸發時間</label>
+                        <input type="time" id="settingScheduleTime" value="02:00">
+                    </div>
+                    <div class="input-group" style="margin-bottom:0;">
+                        <label style="font-weight:700;">觸發頻率</label>
+                        <div style="display:flex; gap:18px; margin-top:6px;">
+                            <label style="display:flex; align-items:center; gap:6px; font-weight:400; cursor:pointer;">
+                                <input type="radio" name="scheduleFreq" value="daily" checked onchange="onFreqChange()"> 每日
+                            </label>
+                            <label style="display:flex; align-items:center; gap:6px; font-weight:400; cursor:pointer;">
+                                <input type="radio" name="scheduleFreq" value="weekly" onchange="onFreqChange()"> 每週
+                            </label>
+                            <label style="display:flex; align-items:center; gap:6px; font-weight:400; cursor:pointer;">
+                                <input type="radio" name="scheduleFreq" value="manual" onchange="onFreqChange()"> 手動
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="weekdayPicker" class="input-group" style="display:none; margin-top:14px; margin-bottom:0;">
+                    <label style="font-weight:700;">星期幾</label>
+                    <select id="settingScheduleWeekday" style="margin-top:6px;">
+                        <option value="1">週一</option>
+                        <option value="2">週二</option>
+                        <option value="3">週三</option>
+                        <option value="4">週四</option>
+                        <option value="5">週五</option>
+                        <option value="6">週六</option>
+                        <option value="0">週日</option>
+                    </select>
+                </div>
+                <p id="manualHint" style="display:none; font-size:12px; color:#64748b; margin-top:10px; margin-bottom:0;">
+                    手動模式不會自動執行；請至「資安專家」頁手動觸發分析。
+                </p>
+            </div>
+
+            <!-- 資料來源（SSB） -->
+            <div class="card" style="margin-bottom:18px;">
+                <h3 style="font-size:15px; color:#1e293b; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #e2e8f0;">資料來源（syslog-ng Store Box）</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                    <div class="input-group" style="margin-bottom:0;">
+                        <label>Host</label>
+                        <input type="text" id="ssbHost" value="192.168.10.48">
+                    </div>
+                    <div class="input-group" style="margin-bottom:0;">
+                        <label>Port</label>
+                        <input type="number" id="ssbPort" value="443" min="1" max="65535">
+                    </div>
+                    <div class="input-group" style="margin-bottom:0; grid-column: 1 / span 2;">
+                        <label>Logspace</label>
+                        <input type="text" id="ssbLogspace" value="center">
+                    </div>
+                    <div class="input-group" style="margin-bottom:0;">
+                        <label>Username</label>
+                        <input type="text" id="ssbUser" value="mpinfo">
+                    </div>
+                    <div class="input-group" style="margin-bottom:0;">
+                        <label>Password</label>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <input type="password" id="ssbPass" value="mock_password" style="flex:1;">
+                            <button id="ssbPassToggle" class="btn btn-outline" type="button" style="font-size:12px; padding:6px 10px;" onclick="togglePass()">顯示</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:14px; text-align:right;">
+                    <button class="btn btn-outline" onclick="alert('✅ 連線成功')">測試連線</button>
+                </div>
+            </div>
+
+            <!-- 儲存 -->
+            <div style="text-align:right;">
+                <button class="btn btn-primary" style="padding:10px 28px; font-size:14px;" onclick="saveSettings()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="_mockdata.js"></script>
+    <script src="_state.js"></script>
+    <script src="_nav.js"></script>
+    <script>
+    function togglePass() {
+        var el = document.getElementById('ssbPass');
+        var btn = document.getElementById('ssbPassToggle');
+        el.type = el.type === 'password' ? 'text' : 'password';
+        if (btn) btn.textContent = el.type === 'password' ? '顯示' : '隱藏';
+    }
+
+    function onFreqChange() {
+        var freq = document.querySelector('input[name="scheduleFreq"]:checked').value;
+        var timeEl = document.getElementById('settingScheduleTime');
+        var weekdayPicker = document.getElementById('weekdayPicker');
+        var manualHint = document.getElementById('manualHint');
+        weekdayPicker.style.display = (freq === 'weekly') ? '' : 'none';
+        manualHint.style.display = (freq === 'manual') ? '' : 'none';
+        timeEl.disabled = (freq === 'manual');
+    }
+
+    function saveSettings() {
+        alert('✅ 設定已儲存（雛型 UI 佔位，未持久化）');
+    }
+    document.addEventListener('DOMContentLoaded', onFreqChange);
+    </script>
+</body>
+</html>
