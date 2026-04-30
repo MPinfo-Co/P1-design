@@ -3,7 +3,7 @@
 路由路徑：`/settings/account`
 Sidebar：設定群組，標籤「帳號管理」，icon: PeopleAlt
 
-雛形畫面：[▶ 開啟雛形](../../SD/sdPrototype/fn_user.html#userList)
+雛形畫面：[▶ 開啟雛形](../../../SD/sdPrototype/fn_user.html#userList)
 
 ## 欄位說明
 

@@ -1,6 +1,6 @@
 # 新增畫面/修改畫面
 
-雛形畫面：[▶ 開啟雛形](../../SD/sdPrototype/fn_role.html#roleModal)
+雛形畫面：[▶ 開啟雛形](../../../SD/sdPrototype/fn_role.html#roleModal)
 
 ## 欄位說明
 
