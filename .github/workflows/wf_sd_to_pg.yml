@@ -106,9 +106,9 @@ jobs:
                 '## 關聯項目',
                 '',
                 '### PG 工作文件',
-                saNumber ? `- sa-${saNumber}-logic.md：[SA/sa-${saNumber}-logic.md](https://github.com/${org}/${analysisRepo}/blob/main/SA/sa-${saNumber}-logic.md)` : `- sa-logic.md：（請查 Epic）`,
-                `- SpecDiff：[SD/sd-${sdNumber}-Diff.md](https://github.com/${org}/${designRepo}/blob/main/SD/sd-${sdNumber}-Diff.md)`,
-                `- TDD：[SD/sd-${sdNumber}-TDD.md](https://github.com/${org}/${designRepo}/blob/main/SD/sd-${sdNumber}-TDD.md)`,
+                saNumber ? `- sa-${saNumber}-logic.md：[SA/saLogic/sa-${saNumber}-logic.md](https://github.com/${org}/${analysisRepo}/blob/main/SA/saLogic/sa-${saNumber}-logic.md)` : `- sa-logic.md：（請查 Epic）`,
+                `- SpecDiff：[SD/sdDiff/sd-${sdNumber}-Diff.md](https://github.com/${org}/${designRepo}/blob/main/SD/sdDiff/sd-${sdNumber}-Diff.md)`,
+                `- TDD：[SD/TDD/sd-${sdNumber}-TDD.md](https://github.com/${org}/${designRepo}/blob/main/SD/TDD/sd-${sdNumber}-TDD.md)`,
                 `- TestReport：（待填入）`,
                 '',
                 '### 關聯 Issue',
@@ -167,12 +167,12 @@ jobs:
               const tddFile = await github.rest.repos.getContent({
                 owner: org,
                 repo: designRepo,
-                path: `SD/sd-${sdNumber}-TDD.md`,
+                path: `SD/TDD/sd-${sdNumber}-TDD.md`,
                 ref: 'main',
               });
               tddRaw = Buffer.from(tddFile.data.content, 'base64').toString('utf8');
             } catch (e) {
-              console.log(`找不到 SD/sd-${sdNumber}-TDD.md，使用空表格`);
+              console.log(`找不到 SD/TDD/sd-${sdNumber}-TDD.md，使用空表格`);
             }
 
             const lines = tddRaw ? tddRaw.split('\n') : [];
@@ -382,7 +382,7 @@ jobs:
               `- 本次 commit：${headSha.slice(0, 7)}`,
             ].join('\n');
 
-            const filePath = `SD/sd-${sdNumber}-Diff.md`;
+            const filePath = `SD/sdDiff/sd-${sdNumber}-Diff.md`;
             const encodedContent = Buffer.from(content, 'utf8').toString('base64');
 
             let fileSha = undefined;
