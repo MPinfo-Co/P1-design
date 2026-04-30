@@ -24,8 +24,9 @@
             <div class="card filter-bar">
                 <div class="filter-group">
                     <label>關鍵字:</label>
-                    <input type="text" id="filterKeyword" oninput="renderCompanyDataTable()" placeholder="搜尋資料名稱或內容...">
+                    <input type="text" id="filterKeyword" placeholder="搜尋資料名稱、內容、適用夥伴...">
                 </div>
+                <button class="btn-filter" onclick="renderCompanyDataTable()">套用</button>
                 <button class="btn btn-primary" style="margin-left:auto" onclick="openCompanyDataModal()">新增資料</button>
             </div>
             <div class="card" style="padding:0;">
@@ -87,9 +88,10 @@
     function renderCompanyDataTable() {
         var kw = (document.getElementById('filterKeyword').value || '').toLowerCase().trim();
         var rows = allCompanyData.filter(function(d){
-            return !kw
-                || (d.name || '').toLowerCase().indexOf(kw) !== -1
-                || (d.content || '').toLowerCase().indexOf(kw) !== -1;
+            if (!kw) return true;
+            var partners = Array.isArray(d.partners) ? d.partners.join('、') : '';
+            var haystack = [(d.name || ''), (d.content || ''), partners].join('\n').toLowerCase();
+            return haystack.indexOf(kw) !== -1;
         });
         var tbody = document.getElementById('companyDataTableBody');
         if (rows.length === 0) {
@@ -127,8 +129,7 @@
             var checked = bound.indexOf(p.name) !== -1 ? 'checked' : '';
             return '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-weight:400;">' +
                 '<input type="checkbox" data-partner="' + escapeHtml(p.name) + '" ' + checked + '>' +
-                '<span><strong style="color:#1e293b;">' + escapeHtml(p.name) + '</strong>' +
-                '<small style="display:block;color:#64748b;font-size:11px;">' + escapeHtml(p.desc || '') + '</small></span>' +
+                '<span><strong style="color:#1e293b;">' + escapeHtml(p.name) + '</strong></span>' +
                 '</label>';
         }).join('');
     }
