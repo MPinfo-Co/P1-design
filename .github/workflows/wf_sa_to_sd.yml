@@ -86,7 +86,7 @@ jobs:
                 '## 關聯項目',
                 '',
                 '### SD 工作文件',
-                `- sa-${saNumber}-logic.md：[SA/sa-${saNumber}-logic.md](https://github.com/${org}/${designRepo}/blob/main/SA/sa-${saNumber}-logic.md)`,
+                `- sa-${saNumber}-logic.md：[SA/saLogic/sa-${saNumber}-logic.md](https://github.com/${org}/${designRepo}/blob/main/SA/saLogic/sa-${saNumber}-logic.md)`,
                 `- TDD：（待填入）`,
                 '',
                 '### 關聯 Issue',
@@ -157,7 +157,7 @@ jobs:
               base_tree: mainRef.data.object.sha,
               tree: [
                 {
-                  path: `SD/sd-${sdNumber}-TDD.md`,
+                  path: `SD/TDD/sd-${sdNumber}-TDD.md`,
                   mode: '100644',
                   type: 'blob',
                   content: tddContent,
@@ -208,7 +208,7 @@ jobs:
                 .replace('SD Issue：#（本 Issue）', `SD Issue：#${sdNumber}`)
                 .replace('分支：（待填入）', `分支：[${dBranchName}](https://github.com/${org}/${designRepo}/tree/${dBranchName})`)
                 .replace('Draft PR：（待建立）', sdPrUrl ? `Draft PR：[#${sdPrNumber}](${sdPrUrl})` : 'Draft PR：（未建立）')
-                .replace('TDD：（待填入）', `TDD：[SD/sd-${sdNumber}-TDD.md](https://github.com/${org}/${designRepo}/blob/${dBranchName}/SD/sd-${sdNumber}-TDD.md)`),
+                .replace('TDD：（待填入）', `TDD：[SD/TDD/sd-${sdNumber}-TDD.md](https://github.com/${org}/${designRepo}/blob/${dBranchName}/SD/TDD/sd-${sdNumber}-TDD.md)`),
             });
 
             // 回填 SA Issue body：SD Issue 編號 + branch ref → main
@@ -299,7 +299,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add "SD/sd-${SD_NUMBER}-TDD.md"
+          git add "SD/TDD/sd-${SD_NUMBER}-TDD.md"
 
           if git diff --cached --quiet; then
             echo "No changes to commit"
@@ -323,7 +323,7 @@ jobs:
               issue_number: issueNumber,
               body: [
                 '🤖 TDD 已自動產出，請至 branch 確認：',
-                `- 檔案：\`SD/sd-${issueNumber}-TDD.md\``,
+                `- 檔案：\`SD/TDD/sd-${issueNumber}-TDD.md\``,
                 `- Branch：\`${branch}\``,
                 '',
                 '確認無誤後請 merge。',
