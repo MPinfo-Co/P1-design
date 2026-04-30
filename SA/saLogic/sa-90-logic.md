@@ -57,7 +57,7 @@
 
 ## 畫面/操作邏輯示意
 
-雛型參考：`P1-design/Prototype/fn_company_data.html`（UI 細節以雛型為準）
+雛型參考：`P1-design/SD/sdPrototype/fn_company_data.html`（UI 細節以雛型為準）
 
 ### 畫面一：公司資料列表
 
