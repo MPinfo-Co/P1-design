@@ -182,7 +182,7 @@
     <script src="_nav.js"></script>
     <script>
     // ─── 導航 ───
-    function goBack() { location.href = 'ai-partner.html'; }
+    function goBack() { location.href = 'events.html'; }
 
     // ─── 初始化：從 URL 讀取 id ───
     const urlId = parseInt(new URLSearchParams(location.search).get('id'));
@@ -232,7 +232,8 @@
         if (!item) { goBack(); return; }
         currentDetailId = id;
         document.getElementById('detailTitle').innerText = item.title;
-        document.getElementById('detailDesc').innerHTML = formatDesc(item.desc);
+        const summaryText = [item.desc, item.affected].filter(Boolean).join('\n\n');
+        document.getElementById('detailDesc').innerHTML = formatDesc(summaryText);
         updateDetailHeader(item);
 
         // Suggests

@@ -102,11 +102,13 @@
                 ? partners.map(escapeHtml).join('、')
                 : '<span style="color:#94a3b8;">未綁定</span>';
             var bullets = contentToBullets(d.content);
-            var contentHtml = bullets.length > 0
-                ? '<ul class="cd-content-list">' + bullets.map(function(l){
-                    return '<li>' + escapeHtml(l) + '</li>';
-                  }).join('') + '</ul>'
-                : '<span style="color:#94a3b8;">（無內容）</span>';
+            var contentHtml;
+            if (bullets.length === 0) {
+                contentHtml = '<span style="color:#94a3b8;">（無內容）</span>';
+            } else {
+                var firstLine = '<div style="line-height:1.6;">' + escapeHtml(bullets[0]) + (bullets.length > 1 ? '<span style="color:#94a3b8;"> ...</span>' : '') + '</div>';
+                contentHtml = firstLine;
+            }
             return '<tr>' +
                 '<td><span style="font-weight:600;color:#1e293b;">' + escapeHtml(d.name || '') + '</span></td>' +
                 '<td>' + contentHtml + '</td>' +
