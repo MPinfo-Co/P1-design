@@ -24,7 +24,7 @@ git checkout {PG_BRANCH}
 
 1. [SD-TDD文件](P1-design/SD/sd-{ISSUE_N}-TDD.md) — TDD 工作項目清單（必讀），並依 API / Schema 工作項目找出功能模組名稱（例如 `fn_user`），記為 `{fn_xxx}`
 2. [SA-logic文件](P1-design/SA/sa-{ISSUE_N}-logic.md) — 商業邏輯背景（若不存在則跳過）
-3. [schema文件](P1-design/schema/schema.md) — DB schema
+3. [schema文件](P1-design/SD/schema.md) — DB schema
 4. 每支 API 工作項目對應 [Api目錄](P1-design/Spec/fn_xxx/Api/) 下的 .md 文件
 5. [test-api文件](P1-design/Spec/fn_xxx/Api/_fn_xxx_test_api.md) — 測試案例（若存在則讀取；不存在則跳過）
 6. [techStack文件](P1-project/docs/techStack.md) — 技術選型
@@ -37,7 +37,7 @@ git checkout {PG_BRANCH}
 #### Schema 類型工作項目
 
 1. **確認對應的 model 檔案**：位於 [models目錄](P1-code/backend/app/db/models/)，依工作內容判斷命名。
-2. **讀取 model 檔案**（若存在）：對照 [schema文件](P1-design/schema/schema.md) 確認欄位。
+2. **讀取 model 檔案**（若存在）：對照 [schema文件](P1-design/SD/schema.md) 確認欄位。
 3. **新增或調整 model 檔案**：依工作內容判斷。**不刪除現有欄位。**
 
 #### API 類型工作項目

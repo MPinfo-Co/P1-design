@@ -18,8 +18,8 @@
 
 1. 讀取 `./SA/sa-{SA_N}-logic.md` — 業務需求（SA 分析結果）
 2. 讀取 `./P1-project/docs/spec-guide.md` — TDD 格式規範與撰寫標準
-3. 讀取 `./functionList.md` — 現有功能清單
-4. 讀取 `./schema/schema.md` — 現有資料表，確認 Schema 工作項目範疇
+3. 讀取 `./SD/functionList.md` — 現有功能清單
+4. 讀取 `./SD/schema.md` — 現有資料表，確認 Schema 工作項目範疇
 5. 瀏覽 `./Spec/` 目錄清單 — 了解現有 API 規格範疇
 6. 瀏覽 `./Prototype/` 目錄清單 — 了解現有畫面設計範疇
 
@@ -35,7 +35,7 @@
 
 ### Step 3：調整相關文件
 
-依 TDD 工作項目內容，判斷是否需調整 `Prototype/`、`Spec/`、`schema/`（如有異動則直接修改，反映最新狀態）。
+依 TDD 工作項目內容，判斷是否需調整 `Prototype/`、`Spec/`、`SD/schema.md`（如有異動則直接修改，反映最新狀態）。
 
 若有 API 新增或修改（非刪除），同步更新對應的 `Spec/{fn_xxx}/Api/_{fn_xxx}_test_api.md`：
 - 新增 API → 新增測試案例，ID 接續上一筆
@@ -59,7 +59,7 @@
 類型限定：`Schema`、`API`、`畫面`、`Test`、`其他`
 
 判斷原則：
-- 比對 schema.md，列出需新增或修改的 table
+- 比對 SD/schema.md，列出需新增或修改的 table
 - 比對 Spec/ 目錄，列出需新增或修改的 API
 - 比對 Prototype/ 目錄，列出需新增或修改的畫面
 
@@ -89,4 +89,4 @@ AI填寫內容...
 - 使用繁體中文（zh-TW）
 - 直接更新檔案，不輸出額外解釋
 - 保留原有 Markdown 結構，只填入空段落
-- **只修改 `SD/sd-{ISSUE_N}-TDD.md` 及 `Spec/`、`schema/`、`Prototype/` 下的相關檔案，不修改任何其他檔案**
+- **只修改 `SD/sd-{ISSUE_N}-TDD.md`、`SD/schema.md` 及 `Spec/`、`Prototype/` 下的相關檔案，不修改任何其他檔案**

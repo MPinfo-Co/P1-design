@@ -32,7 +32,7 @@ ISSUE: TDD file not found (SD/sd-{ISSUE_N}-TDD.md)
 ```
 並停止執行。
 
-2. [schema文件](P1-design/schema/schema.md) — DB schema
+2. [schema文件](P1-design/SD/schema.md) — DB schema
 3. 各 API 工作項目在 [Api目錄](P1-design/Spec/fn_xxx/Api/) 下所對應的 .md 文件
 4. [test-api文件](P1-design/Spec/fn_xxx/Api/_fn_xxx_test_api.md) — 測試案例（若存在）
 
@@ -42,7 +42,7 @@ ISSUE: TDD file not found (SD/sd-{ISSUE_N}-TDD.md)
 
 #### Schema 類型
 1. **讀取** [models目錄](P1-code/backend/app/db/models/) 對應模型檔案
-2. **比對** [schema文件](P1-design/schema/schema.md) 欄位（型別、nullable、FK、unique、default）
+2. **比對** [schema文件](P1-design/SD/schema.md) 欄位（型別、nullable、FK、unique、default）
 3. **記錄**不符的欄位
 
 #### API 類型
