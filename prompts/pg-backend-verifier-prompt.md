@@ -33,8 +33,8 @@ ISSUE: TDD file not found (SD/sd-{ISSUE_N}-TDD.md)
 並停止執行。
 
 2. [schema文件](P1-design/SD/schema.md) — DB schema
-3. 各 API 工作項目在 [Api目錄](P1-design/Spec/fn_xxx/Api/) 下所對應的 .md 文件
-4. [test-api文件](P1-design/Spec/fn_xxx/Api/_fn_xxx_test_api.md) — 測試案例（若存在）
+3. 各 API 工作項目在 [Api目錄](P1-design/SD/sdSpec/fn_xxx/Api/) 下所對應的 .md 文件
+4. [test-api文件](P1-design/SD/sdSpec/fn_xxx/Api/_fn_xxx_test_api.md) — 測試案例（若存在）
 
 ### Step 3：逐項驗證 TDD 工作項目
 
@@ -58,7 +58,7 @@ ISSUE: TDD file not found (SD/sd-{ISSUE_N}-TDD.md)
 #### Test 類型
 1. **讀取** [tests目錄](P1-code/backend/tests/) 對應測試檔案（`test_*.py`）
 2. **確認**每個 test function 有 TestSpec ID 標注
-3. **確認** pytest 數量 ≥ 測試案例數（若 [test-api文件](P1-design/Spec/fn_xxx/Api/_fn_xxx_test_api.md) 存在）
+3. **確認** pytest 數量 ≥ 測試案例數（若 [test-api文件](P1-design/SD/sdSpec/fn_xxx/Api/_fn_xxx_test_api.md) 存在）
 4. 若 pytest 數量 < test_api.md 測試案例數，**記錄**：
    ```
    ISSUE: [TDD#N] Test：pytest 數量（X）< 測試案例數（Y）

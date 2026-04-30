@@ -25,8 +25,8 @@ git checkout {PG_BRANCH}
 1. [SD-TDD文件](P1-design/SD/sd-{ISSUE_N}-TDD.md) — TDD 工作項目清單（必讀），並依 API / Schema 工作項目找出功能模組名稱（例如 `fn_user`），記為 `{fn_xxx}`
 2. [SA-logic文件](P1-design/SA/sa-{ISSUE_N}-logic.md) — 商業邏輯背景（若不存在則跳過）
 3. [schema文件](P1-design/SD/schema.md) — DB schema
-4. 每支 API 工作項目對應 [Api目錄](P1-design/Spec/fn_xxx/Api/) 下的 .md 文件
-5. [test-api文件](P1-design/Spec/fn_xxx/Api/_fn_xxx_test_api.md) — 測試案例（若存在則讀取；不存在則跳過）
+4. 每支 API 工作項目對應 [Api目錄](P1-design/SD/sdSpec/fn_xxx/Api/) 下的 .md 文件
+5. [test-api文件](P1-design/SD/sdSpec/fn_xxx/Api/_fn_xxx_test_api.md) — 測試案例（若存在則讀取；不存在則跳過）
 6. [techStack文件](P1-project/docs/techStack.md) — 技術選型
 7. [coding-rule-backend文件](P1-project/docs/coding-rule-backend.md) — 命名規則與架構規範（必讀）
 
@@ -51,7 +51,7 @@ git checkout {PG_BRANCH}
 #### Test 類型工作項目
 
 1. **確認對應測試檔案**：位於 [tests目錄](P1-code/backend/tests/)，依工作內容命名。
-2. **實作 pytest**：依 [test-api文件](P1-design/Spec/fn_xxx/Api/_fn_xxx_test_api.md) 測試案例；若不存在，自行標注 T1、T2...，每支 API 至少 2 個案例（正常 + 401）。使用 conftest.py 已定義的 `client` fixture，勿自行建立。
+2. **實作 pytest**：依 [test-api文件](P1-design/SD/sdSpec/fn_xxx/Api/_fn_xxx_test_api.md) 測試案例；若不存在，自行標注 T1、T2...，每支 API 至少 2 個案例（正常 + 401）。使用 conftest.py 已定義的 `client` fixture，勿自行建立。
 
 ### Step 4：commit（不 push）
 

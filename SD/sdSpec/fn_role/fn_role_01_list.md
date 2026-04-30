@@ -1,6 +1,6 @@
 # 查詢畫面
 
-雛形畫面：[▶ 開啟雛形](../../SD/sdPrototype/fn_role.html#roleList)
+雛形畫面：[▶ 開啟雛形](../../../SD/sdPrototype/fn_role.html#roleList)
 
 ## 頁面資訊
 

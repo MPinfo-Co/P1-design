@@ -75,7 +75,7 @@ jobs:
             });
             const epicTitle = epicIssueData.data.title.replace(/^\[PM\]\s*/i, '');
 
-            // 取得 PR diff，找出異動的 Spec/sdPrototype 檔案
+            // 取得 PR diff，找出異動的 sdSpec/sdPrototype 檔案
             const files = await github.rest.pulls.listFiles({
               owner: org,
               repo: designRepo,
@@ -84,9 +84,9 @@ jobs:
 
             const changedSpecs = files.data
               .map(f => f.filename)
-              .filter(f => f.startsWith('schema/') || f.startsWith('SD/sdPrototype/') || f.startsWith('Spec/'))
+              .filter(f => f.startsWith('SD/schema.md') || f.startsWith('SD/sdPrototype/') || f.startsWith('SD/sdSpec/'))
               .map(f => `- [${f}](https://github.com/${org}/${designRepo}/blob/main/${f})`)
-              .join('\n') || '- （本次無 schema/sdPrototype/Spec 異動）';
+              .join('\n') || '- （本次無 schema/sdPrototype/sdSpec 異動）';
 
             // 產生 C-Branch slug
             const slug = epicTitle
@@ -354,7 +354,7 @@ jobs:
             });
 
             const changedFiles = files.data
-              .filter(f => f.filename.startsWith('schema/') || f.filename.startsWith('SD/sdPrototype/') || f.filename.startsWith('Spec/'));
+              .filter(f => f.filename.startsWith('SD/schema.md') || f.filename.startsWith('SD/sdPrototype/') || f.filename.startsWith('SD/sdSpec/'));
 
             const changedSpecs = changedFiles.length > 0
               ? changedFiles.map(f => {
@@ -366,7 +366,7 @@ jobs:
                   }
                   return lines.join('\n');
                 }).join('\n\n')
-              : '- （本次無 schema/sdPrototype/Spec 異動）';
+              : '- （本次無 schema/sdPrototype/sdSpec 異動）';
 
             const content = [
               `# SpecDiff：Issue #${sdNumber} ${epicTitle}`,

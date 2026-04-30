@@ -20,12 +20,12 @@
 2. 讀取 `./P1-project/docs/spec-guide.md` — TDD 格式規範與撰寫標準
 3. 讀取 `./SD/functionList.md` — 現有功能清單
 4. 讀取 `./SD/schema.md` — 現有資料表，確認 Schema 工作項目範疇
-5. 瀏覽 `./Spec/` 目錄清單 — 了解現有 API 規格範疇
+5. 瀏覽 `./SD/sdSpec/` 目錄清單 — 了解現有 API 規格範疇
 6. 瀏覽 `./SD/sdPrototype/` 目錄清單 — 了解現有畫面設計範疇
 
 根據業務需求，判斷是否需要進一步讀取特定 Spec 或 SD/sdPrototype 檔案（判斷涉及修改哪些現有功能時）。
 
-7. 若本次涉及修改既有 API 行為，按需讀取對應的 `Spec/{fn_xxx}/Api/_{fn_xxx}_test_api.md`，確認現有測試案例內容後再進行調整。
+7. 若本次涉及修改既有 API 行為，按需讀取對應的 `SD/sdSpec/{fn_xxx}/Api/_{fn_xxx}_test_api.md`，確認現有測試案例內容後再進行調整。
 
 ### Step 2：填寫 TDD
 
@@ -35,9 +35,9 @@
 
 ### Step 3：調整相關文件
 
-依 TDD 工作項目內容，判斷是否需調整 `SD/sdPrototype/`、`Spec/`、`SD/schema.md`（如有異動則直接修改，反映最新狀態）。
+依 TDD 工作項目內容，判斷是否需調整 `SD/sdPrototype/`、`SD/sdSpec/`、`SD/schema.md`（如有異動則直接修改，反映最新狀態）。
 
-若有 API 新增或修改（非刪除），同步更新對應的 `Spec/{fn_xxx}/Api/_{fn_xxx}_test_api.md`：
+若有 API 新增或修改（非刪除），同步更新對應的 `SD/sdSpec/{fn_xxx}/Api/_{fn_xxx}_test_api.md`：
 - 新增 API → 新增測試案例，ID 接續上一筆
 - 修改 API 行為 → 更新對應測試案例
 - 刪除 API → 移除對應測試案例，ID 不補號
@@ -48,7 +48,7 @@
 - 若對應 options API 尚不存在，需在 TDD 中新增「建立 `{xxx}_options_api`」工作項目
 
 並在 TDD 工作項目表格新增一筆 `Test` 類型項目，`參照規格` 欄填入完整路徑，例如：
-`Spec/fn_user/Api/_fn_user_test_api.md`
+`SD/sdSpec/fn_user/Api/_fn_user_test_api.md`
 
 ---
 
@@ -60,7 +60,7 @@
 
 判斷原則：
 - 比對 SD/schema.md，列出需新增或修改的 table
-- 比對 Spec/ 目錄，列出需新增或修改的 API
+- 比對 SD/sdSpec/ 目錄，列出需新增或修改的 API
 - 比對 SD/sdPrototype/ 目錄，列出需新增或修改的畫面
 
 ### 測試案例表格
@@ -89,4 +89,4 @@ AI填寫內容...
 - 使用繁體中文（zh-TW）
 - 直接更新檔案，不輸出額外解釋
 - 保留原有 Markdown 結構，只填入空段落
-- **只修改 `SD/TDD/sd-{ISSUE_N}-TDD.md`、`SD/schema.md` 及 `Spec/`、`SD/sdPrototype/` 下的相關檔案，不修改任何其他檔案**
+- **只修改 `SD/TDD/sd-{ISSUE_N}-TDD.md`、`SD/schema.md` 及 `SD/sdSpec/`、`SD/sdPrototype/` 下的相關檔案，不修改任何其他檔案**
