@@ -22,7 +22,7 @@ git checkout {PG_BRANCH}
 
 ### Step 2：閱讀 SD 文件
 
-1. 讀取[techStack文件](P1-design/techStack.md) — 確認技術選型
+1. 讀取[techStack文件](P1-project/docs/techStack.md) — 確認技術選型
 2. 讀取[coding-rule-frontend文件](P1-project/docs/coding-rule-frontend.md) — 命名規則與架構規範（必讀）
 3. 讀取[SA-logic文件](P1-design/SA/sa-{ISSUE_N}-logic.md) — 商業邏輯背景（若不存在則跳過）
 4. 讀取[SD-TDD文件](P1-design/SD/sd-{ISSUE_N}-TDD.md) — TDD 工作項目清單（必讀，只處理「畫面」類型，跳過 Schema / API / Test），並依據項目找出功能模組名稱（例如 `fn_user`）

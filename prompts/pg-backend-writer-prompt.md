@@ -27,7 +27,7 @@ git checkout {PG_BRANCH}
 3. [schema文件](P1-design/schema/schema.md) — DB schema
 4. 每支 API 工作項目對應 [Api目錄](P1-design/Spec/fn_xxx/Api/) 下的 .md 文件
 5. [test-api文件](P1-design/Spec/fn_xxx/Api/_fn_xxx_test_api.md) — 測試案例（若存在則讀取；不存在則跳過）
-6. [techStack文件](P1-design/techStack.md) — 技術選型
+6. [techStack文件](P1-project/docs/techStack.md) — 技術選型
 7. [coding-rule-backend文件](P1-project/docs/coding-rule-backend.md) — 命名規則與架構規範（必讀）
 
 ### Step 3：實作工作項目
